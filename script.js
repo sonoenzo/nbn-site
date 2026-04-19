@@ -204,3 +204,68 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+/* ===== ANIMATION MACHINE A ECRIRE HISTOIRE ===== */
+
+function startStoryTyping() {
+    const container = document.getElementById("storyContainer");
+    if (!container) return;
+
+    const text = container.innerText;
+    container.innerText = "";
+
+    let i = 0;
+
+    function type() {
+        if (i < text.length) {
+            container.innerText += text.charAt(i);
+            i++;
+            setTimeout(type, 15);
+        }
+    }
+
+    type();
+}
+/* ===== ANIMATION HISTOIRE TYPEWRITER ===== */
+function animateHistory() {
+    const texts = document.querySelectorAll('.story-text');
+    
+    texts.forEach((el) => {
+        const content = el.innerHTML;
+        el.innerHTML = ''; // On vide pour l'effet
+        el.style.opacity = "1";
+        
+        let i = 0;
+        const speed = 15; // Vitesse d'écriture (ms)
+        
+        // Petit délai avant de commencer chaque paragraphe
+        setTimeout(() => {
+            const timer = setInterval(() => {
+                if (i < content.length) {
+                    // Si on rencontre un tag HTML (ex: <span...>), on l'affiche d'un coup
+                    if (content[i] === '<') {
+                        let endTag = content.indexOf('>', i);
+                        el.innerHTML += content.substring(i, endTag + 1);
+                        i = endTag + 1;
+                    } else {
+                        el.innerHTML += content.charAt(i);
+                        i++;
+                    }
+                } else {
+                    clearInterval(timer);
+                }
+            }, speed);
+        }, el.getAttribute('data-delay') || 0);
+    });
+}
+
+// Modifier la navigation existante pour déclencher l'anim
+document.addEventListener('DOMContentLoaded', () => {
+    const historyBtn = document.querySelector('[data-page="histoire"]');
+    if(historyBtn) {
+        historyBtn.addEventListener('click', () => {
+            // Un petit délai pour laisser la page s'afficher
+            setTimeout(animateHistory, 300);
+        });
+    }
+});
