@@ -1,0 +1,348 @@
+/* VARIABLES & FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+    --nbn-blue: #0a3cff;
+    --brutal-shadow: 12px 12px 0px 0px rgba(0,0,0,1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Space Mono', monospace;
+    background-color: #050505;
+}
+
+/* EFFET DE FOND OPTIONNEL (Si tu as background.png) */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("background.png") no-repeat center center/cover;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+/* NÉOBRUTALISME */
+.brutal-shadow {
+    box-shadow: var(--brutal-shadow);
+}
+
+.neo-card {
+    background: white;
+    border: 4px solid black;
+    color: black;
+    padding: 20px;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.neo-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 16px 16px 0px 0px var(--nbn-blue);
+    background: var(--nbn-blue);
+    color: white;
+}
+
+/* ANIMATIONS SCANNER */
+.scan-line {
+    animation: scanMove 2.5s linear infinite;
+}
+
+@keyframes scanMove {
+    0% { top: 0; }
+    50% { top: 100%; }
+    100% { top: 0; }
+}
+
+.glitch {
+    animation: glitchAnim 0.2s infinite;
+}
+
+@keyframes glitchAnim {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+    40% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* TRANSITIONS DE PAGES */
+.page {
+    display: none;
+    animation: pageIn 0.4s ease-out forwards;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes pageIn {
+    from { opacity: 0; transform: scale(0.98) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.8s;
+}
+
+.neo-border-thin {
+    border: 2px solid black;
+    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+}
+
+.neo-border-thin:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+}
+
+/* Ajoute ou remplace ces lignes à la fin de ton style.css */
+
+.map-container {
+    width: 100%;
+    height: 80vh; 
+    background: #000;
+    overflow: hidden;
+    position: relative;
+    border: 4px solid #0a3cff; /* Brutalism style */
+    cursor: grab;
+}
+
+.map-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    z-index: 5;
+}
+
+.map-img {
+    /* TRÈS IMPORTANT : On force la taille pour que le zoom fonctionne */
+    width: 4000px !important; 
+    max-width: none !important; 
+    display: block;
+	display: block !important;
+    visibility: visible !important;
+    min-width: 3000px !important; /* Pour être sûr qu'elle ne soit pas minuscule */
+}
+}
+
+.map-point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #0a3cff;
+    border: 3px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 0 15px #0a3cff;
+}
+
+.map-popup {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 250px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 3px solid #0a3cff;
+    padding: 20px;
+    display: none;
+    z-index: 100;
+    color: white;
+}
+
+/* ===== DESIGN DU HUB TACTIQUE NBN ===== */
+
+/* Conteneur de la carte */
+.nbn-hub-card {
+    height: 480px; /* Hauteur des cartes */
+    background: #0a0a0a;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+}
+
+/* Image de fond */
+.card-bg-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.15; /* Image très sombre par défaut */
+    transition: all 0.5s ease;
+}
+
+/* Superposition sombre (Overlay) */
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,1) 100%);
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+/* Contenu textuel */
+.card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+.card-icon {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+    margin-bottom: 5px;
+    letter-spacing: -1px;
+}
+
+.card-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #a0a0a0;
+    margin-bottom: 20px;
+}
+
+/* Info cachée qui apparaît au survol */
+.card-info-peek {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #a0a0a0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+/* Bordure lumineuse (Effet de contour bleu) */
+.card-border-effect {
+    position: absolute;
+    inset: -2px;
+    border: 3px solid #0a3cff;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 20;
+}
+
+/* ===== EFFETS AU SURVOL (INTERACTIF) ===== */
+
+/* La carte s'agrandit légèrement */
+.nbn-hub-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255,255,255,0.2);
+}
+
+/* L'image de fond s'illumine */
+.nbn-hub-card:hover .card-bg-image {
+    opacity: 0.4;
+    transform: scale(1.05);
+}
+
+/* L'overlay s'assombrit pour faire ressortir le texte */
+.nbn-hub-card:hover .card-overlay {
+    opacity: 1;
+}
+
+/* Le contenu textuel remonte */
+.nbn-hub-card:hover .card-content {
+    transform: translateY(-10px);
+}
+
+/* Le titre devient bleu */
+.nbn-hub-card:hover .card-title {
+    color: #0a3cff;
+}
+
+/* L'info cachée apparaît */
+.nbn-hub-card:hover .card-info-peek {
+    max-height: 50px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+/* La bordure bleue apparaît */
+.nbn-hub-card:hover .card-border-effect {
+    opacity: 1;
+}
+
+/* Ombres portées style NBN (Neon blue shadow) */
+.nbn-hub-card:hover {
+    box-shadow: 0 10px 40px -10px rgba(10, 60, 255, 0.4);
+}
+
+/* Assure que la sidebar est toujours au-dessus */
+aside.sidebar {
+    position: relative;
+    z-index: 100;
+}
+
+/* Style pour les cartes du Hub (Modèle RedBlock) */
+.nbn-hub-card {
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nbn-hub-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 20px rgba(10, 60, 255, 0.6);
+    z-index: 20; /* Passe au-dessus des autres lors du survol */
+}
+
+/* Correction pour l'affichage des pages */
+.page {
+    display: none;
+}
+.page.active {
+    display: block !important;
+}
+
+/* Cache les pages par défaut */
+.page {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Force l'affichage quand active */
+.page.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Empêche les cartes de bloquer les clics */
+.nbn-hub-card {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 5;
+}
+
+/* ===== PREVIEW CARTE GTA ===== */
+.map-preview {
+    filter: brightness(0.9) contrast(1.15) saturate(1.1);
+}
+
+/* Effet focus centre (comme ton image) */
+.nbn-hub-card::before {
+    background: radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+}
+
+/* Au hover = zoom + lumière */
+.nbn-hub-card:hover .map-preview {
+    filter: brightness(0.85) contrast(1.1);
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBN | Accueil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-black flex items-center justify-center h-screen overflow-hidden">
+    <div class="text-center z-10 px-4">
+        <img src="logo.png" class="main-logo mx-auto w-64 md:w-80 mb-6 drop-shadow-[0_0_20px_rgba(10,60,255,0.6)]">
+        
+        <h1 class="text-5xl md:text-8xl font-black italic tracking-tighter text-white uppercase mb-2">
+            Northside <span class="text-[#0a3cff]">Blue</span> Nation
+        </h1>
+        
+        <p class="text-gray-400 tracking-[0.3em] text-[10px] md:text-sm mb-12 font-mono">
+            LOS SANTOS — SYSTÈME SÉCURISÉ — 2026
+        </p>
+
+        <div class="space-y-4">
+            <p class="text-red-600 font-bold text-xl cursor-pointer hover:scale-110 transition-transform animate-pulse uppercase tracking-widest" onclick="goAuth()">
+                ▶ Cliquer pour accéder ◀
+            </p>
+            <p class="text-gray-600 text-[10px] uppercase tracking-[0.5em] font-mono">Initialisation des protocoles...</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | NBN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ===== SYSTÈME DE PAGES ===== */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ===== CARTE GTA 5 ===== */
+        .map-wrapper-nbn {
+            background: #050505;
+            border: 2px solid #0a3cff;
+            font-family: 'Space Mono', monospace;
+            position: relative;
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            cursor: grab;
+            user-select: none;
+        }
+        .map-wrapper-nbn.dragging { cursor: grabbing; }
+
+        #nbn-map-canvas {
+            position: absolute;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+        #nbn-map-canvas img {
+            display: block;
+            width: 4096px;
+            max-width: none;
+            image-rendering: auto;
+            -webkit-user-drag: none;
+        }
+
+        .map-hud-top {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 12px 16px;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+        }
+        .map-hud-title {
+            color: white;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .map-hud-title span { color: #0a3cff; }
+        .map-hud-sub {
+            color: #444;
+            font-size: 8px;
+            letter-spacing: 1px;
+            margin-top: 3px;
+            font-family: 'Space Mono', monospace;
+        }
+        .map-hud-coords {
+            color: #0a3cff;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-align: right;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .map-scanline {
+            position: absolute; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #0a3cff55, transparent);
+            animation: nbn-scan 5s linear infinite;
+            z-index: 15; pointer-events: none;
+        }
+        @keyframes nbn-scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .map-corner { position: absolute; width: 16px; height: 16px; z-index: 25; pointer-events: none; }
+        .map-corner.tl { top:0; left:0; border-top:2px solid #0a3cff; border-left:2px solid #0a3cff; }
+        .map-corner.tr { top:0; right:0; border-top:2px solid #0a3cff; border-right:2px solid #0a3cff; }
+        .map-corner.bl { bottom:0; left:0; border-bottom:2px solid #0a3cff; border-left:2px solid #0a3cff; }
+        .map-corner.br { bottom:0; right:0; border-bottom:2px solid #0a3cff; border-right:2px solid #0a3cff; }
+
+        .map-zoom-controls {
+            position: absolute; bottom: 16px; right: 16px;
+            z-index: 20; display: flex; flex-direction: column; gap: 4px;
+        }
+        .map-zoom-btn {
+            width: 32px; height: 32px;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #0a3cff;
+            color: #0a3cff; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; pointer-events: all;
+            font-family: monospace; line-height: 1;
+        }
+        .map-zoom-btn:hover { background: rgba(10,60,255,0.25); color: white; }
+
+        .map-hud-bottom {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+            padding: 8px 16px;
+            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+            pointer-events: none;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .map-status { font-size: 8px; color: #0a3cff; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+        .map-hint   { font-size: 8px; color: #333; letter-spacing: 1px; text-transform: uppercase; }
+
+        .map-loading {
+            position: absolute; inset: 0; background: #050505;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 50; gap: 20px;
+            transition: opacity 0.6s;
+        }
+        .map-loading-logo {
+            color: white;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 20px; letter-spacing: -1px;
+        }
+        .map-loading-logo span { color: #0a3cff; }
+        .map-loading-bar-track { width: 220px; height: 2px; background: #111; }
+        .map-loading-bar-fill  { height: 2px; background: #0a3cff; width: 0; transition: width 1.5s ease-out; }
+        .map-loading-text { color: #0a3cff; font-size: 9px; letter-spacing: 3px; font-family: 'Space Mono', monospace; text-transform: uppercase; }
+
+        #nbn-points-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 4096px; height: 4096px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ===== PAGE HOME — wrapping ===== */
+        #home { animation: pageIn 0.4s ease-out; }
+        #map  { animation: pageIn 0.4s ease-out; }
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+<div class="layout flex h-screen">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar w-64 bg-black/90 border-r-4 border-[#0a3cff] p-6 flex flex-col">
+        <div class="logo text-center mb-10">
+            <img src="logo.png" class="w-20 mx-auto mb-2">
+            <h2 class="font-black text-blue-600">NBN</h2>
+            <p class="text-[10px] text-gray-500 tracking-widest">LOS SANTOS</p>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
+                <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
+            </div>
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="map">
+                <span>🗺️</span> <div><h3 class="text-sm font-bold">CARTE</h3></div>
+            </div>
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
+                <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
+            </div>
+        </nav>
+
+        <div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <audio id="homeMusic" src="home_music.mp3" loop></audio>
+            <div onclick="toggleMusic()" style="display:flex;align-items:center;gap:10px;cursor:pointer;color:#7aa0c4;background:rgba(0,0,0,0.5);padding:10px;border:1px solid rgba(122,160,196,0.3);">
+                <span id="musicIcon">🔈</span>
+                <span style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">Ambiance NBN</span>
+            </div>
+        </div>
+
+        <div class="footer pt-4 border-t border-white/10 text-[10px] text-red-600 font-bold">
+            ● SYSTÈME ONLINE
+        </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="flex-1 overflow-hidden bg-black/90 relative">
+
+        <!-- PAGE : ACCUEIL -->
+        <div id="home" class="page active p-10 overflow-y-auto h-full">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+                    HUB TACTIQUE <span class="text-[#0a3cff]">NBN</span>
+                </h1>
+                <p class="text-sm font-mono text-gray-400 mt-2">LOS SANTOS • SYSTÈME SÉCURISÉ • CONFIDENTIEL</p>
+            </div>
+
+            <div class="nbn-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="home">
+                    <img src="https://i.imgur.com/8QnU4B7.jpg" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">🏠</div>
+                        <h3 class="card-title">DASHBOARD</h3>
+                        <p class="card-desc">Vue d'ensemble de la Nation.</p>
+                        <div class="card-info-peek">Braquage Pacific Standard • 100% Succès</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="map">
+                    <img src="gta_map.jpg" class="card-bg-image map-preview">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">🗺️</div>
+                        <h3 class="card-title">CARTE</h3>
+                        <p class="card-desc">Territoire NBN & Points tactiques.</p>
+                        <div class="card-info-peek">District Northside</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="histoire">
+                    <img src="https://i.imgur.com/7b1Xv7z.jpg" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">📖</div>
+                        <h3 class="card-title">HISTOIRE</h3>
+                        <p class="card-desc">Les origines et l'ascension.</p>
+                        <div class="card-info-peek">NBN Network v4.0</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="info">
+                    <img src="https://i.imgur.com/W2iRk3S.jpg" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">👤</div>
+                        <h3 class="card-title">INFO</h3>
+                        <p class="card-desc">Hiérarchie & Membres actifs.</p>
+                        <div class="card-info-peek">42 O.G. & Membres</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+            </div>
+        </div>
+        <!-- FIN PAGE ACCUEIL -->
+
+        <!-- PAGE : CARTE GTA 5 -->
+        <div id="map" class="page h-full">
+            <div class="map-wrapper-nbn" id="nbnMapRoot">
+
+                <!-- Écran de chargement -->
+                <div class="map-loading" id="nbnMapLoading">
+                    <div class="map-loading-logo">NORTHSIDE <span>BLUE</span> NATION</div>
+                    <div class="map-loading-bar-track">
+                        <div class="map-loading-bar-fill" id="nbnLoadBar"></div>
+                    </div>
+                    <div class="map-loading-text">Chargement de la carte...</div>
+                </div>
+
+                <div class="map-scanline"></div>
+                <div class="map-corner tl"></div>
+                <div class="map-corner tr"></div>
+                <div class="map-corner bl"></div>
+                <div class="map-corner br"></div>
+
+                <!-- HUD haut -->
+                <div class="map-hud-top">
+                    <div>
+                        <div class="map-hud-title">CARTE TACTIQUE — <span>NBN</span></div>
+                        <div class="map-hud-sub">LOS SANTOS · SAN ANDREAS · 2026</div>
+                    </div>
+                    <div class="map-hud-coords" id="nbnCoords">X — · Y —</div>
+                </div>
+
+                <!-- Canvas carte -->
+                <div id="nbn-map-canvas">
+                    <!--
+                        IMPORTANT : Télécharge la carte GTA 5 ici :
+                        https://www.bragitoff.com/wp-content/uploads/2015/11/GTAV-HD-MAP-satellite.jpg
+                        Renomme-la "gta_map.jpg" et place-la dans ton dossier projet.
+                    -->
+                    <img
+                        id="nbnMapImg"
+                        src="gta_map.jpg"
+                        alt="Carte GTA 5 - San Andreas"
+                        draggable="false"
+                    />
+                    <!-- SVG pour les futurs points tactiques NBN -->
+                    <!-- Pour ajouter un point plus tard :
+                         <circle cx="XXXX" cy="YYYY" r="14" fill="#0a3cff" stroke="white" stroke-width="3"/>
+                    -->
+                    <svg id="nbn-points-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+
+                <!-- Boutons zoom -->
+                <div class="map-zoom-controls">
+                    <button class="map-zoom-btn" id="nbnZoomIn">+</button>
+                    <button class="map-zoom-btn" id="nbnZoomOut">−</button>
+                    <button class="map-zoom-btn" id="nbnZoomReset" style="font-size:11px">⌂</button>
+                </div>
+
+                <!-- HUD bas -->
+                <div class="map-hud-bottom">
+                    <div class="map-status">● SYSTÈME CARTOGRAPHIQUE NBN ONLINE</div>
+                    <div class="map-hint">SCROLL → ZOOM &nbsp;·&nbsp; DRAG → DÉPLACER</div>
+                </div>
+
+            </div>
+        </div>
+        <!-- FIN PAGE CARTE -->
+
+        <!-- PAGE : HISTOIRE (placeholder) -->
+        <div id="histoire" class="page p-10 overflow-y-auto h-full">
+            <div class="text-center mb-10">
+                <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+                    HISTOIRE <span class="text-[#0a3cff]">NBN</span>
+                </h1>
+                <p class="text-sm font-mono text-gray-400 mt-2">LES ORIGINES DE LA NATION</p>
+            </div>
+            <p class="text-gray-500 text-center font-mono text-sm">[ Contenu à venir ]</p>
+        </div>
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+/* ===== NAVIGATION ENTRE PAGES ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const menuItems = document.querySelectorAll('.menu-item');
+    const pages     = document.querySelectorAll('.page');
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const pageId = item.getAttribute('data-page');
+
+            // Mettre à jour le menu actif
+            menuItems.forEach(i => i.classList.remove('active', 'bg-[#0a3cff]/20'));
+            item.classList.add('active', 'bg-[#0a3cff]/20');
+
+            // Afficher la bonne page
+            pages.forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // Clic sur les cartes du hub → navigation
+    document.querySelectorAll('.nbn-hub-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.getAttribute('data-target');
+            const menuItem = document.querySelector(`.menu-item[data-page="${target}"]`);
+            if (menuItem) menuItem.click();
+        });
+    });
+});
+
+/* ===== CARTE GTA 5 INTERACTIVE ===== */
+(function () {
+    const root    = document.getElementById('nbnMapRoot');
+    const canvas  = document.getElementById('nbn-map-canvas');
+    const img     = document.getElementById('nbnMapImg');
+    const loading = document.getElementById('nbnMapLoading');
+    const loadBar = document.getElementById('nbnLoadBar');
+    const coords  = document.getElementById('nbnCoords');
+
+    if (!root) return;
+
+    let scale = 0.22;
+    let posX  = -80;
+    let posY  = -60;
+    let isDragging = false;
+    let startX, startY;
+
+    function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+    function applyTransform(animated) {
+        canvas.style.transition = animated
+            ? 'transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94)'
+            : 'none';
+        canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+    }
+    applyTransform(false);
+
+    function updateCoords(cx, cy) {
+        const rect = root.getBoundingClientRect();
+        const mx = Math.round((cx - rect.left - posX) / scale);
+        const my = Math.round((cy - rect.top  - posY) / scale);
+        coords.textContent = `X ${mx} · Y ${my}`;
+    }
+
+    // Drag souris
+    root.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('map-zoom-btn')) return;
+        isDragging = true;
+        startX = e.clientX - posX;
+        startY = e.clientY - posY;
+        root.classList.add('dragging');
+        canvas.style.transition = 'none';
+    });
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        root.classList.remove('dragging');
+    });
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        posX = e.clientX - startX;
+        posY = e.clientY - startY;
+        applyTransform(false);
+    });
+    root.addEventListener('mousemove', e => updateCoords(e.clientX, e.clientY));
+
+    // Zoom molette centré sur le curseur
+    root.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect   = root.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.12 : 0.89;
+        const ns     = clamp(scale * factor, 0.1, 4);
+        posX  = mouseX - (mouseX - posX) * (ns / scale);
+        posY  = mouseY - (mouseY - posY) * (ns / scale);
+        scale = ns;
+        applyTransform(false);
+    }, { passive: false });
+
+    // Touch mobile
+    let lastDist = null;
+    root.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            startX = e.touches[0].clientX - posX;
+            startY = e.touches[0].clientY - posY;
+        }
+    }, { passive: true });
+    root.addEventListener('touchmove', e => {
+        if (e.touches.length === 1 && isDragging) {
+            posX = e.touches[0].clientX - startX;
+            posY = e.touches[0].clientY - startY;
+            applyTransform(false);
+        } else if (e.touches.length === 2) {
+            const dx   = e.touches[0].clientX - e.touches[1].clientX;
+            const dy   = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.hypot(dx, dy);
+            if (lastDist) {
+                scale = clamp(scale * (dist / lastDist), 0.1, 4);
+                applyTransform(false);
+            }
+            lastDist = dist;
+        }
+    }, { passive: true });
+    root.addEventListener('touchend', () => { isDragging = false; lastDist = null; });
+
+    // Boutons zoom
+    function zoomAt(factor) {
+        const rect = root.getBoundingClientRect();
+        const cx = rect.width / 2, cy = rect.height / 2;
+        const ns = clamp(scale * factor, 0.1, 4);
+        posX  = cx - (cx - posX) * (ns / scale);
+        posY  = cy - (cy - posY) * (ns / scale);
+        scale = ns;
+        applyTransform(true);
+    }
+    document.getElementById('nbnZoomIn').addEventListener('click',    e => { e.stopPropagation(); zoomAt(1.3); });
+    document.getElementById('nbnZoomOut').addEventListener('click',   e => { e.stopPropagation(); zoomAt(0.77); });
+    document.getElementById('nbnZoomReset').addEventListener('click', e => {
+        e.stopPropagation();
+        scale = 0.22; posX = -80; posY = -60;
+        applyTransform(true);
+    });
+
+    // Fonction qui ferme l'écran de chargement
+    function hideLoading() {
+        if (!loading) return;
+        loading.style.opacity = '0';
+        setTimeout(() => { loading.style.display = 'none'; }, 600);
+    }
+
+    // Lancer la barre de progression visuelle
+    setTimeout(() => { if (loadBar) loadBar.style.width = '40%'; }, 100);
+    setTimeout(() => { if (loadBar) loadBar.style.width = '75%'; }, 600);
+
+    // Si l'image charge correctement
+    img.addEventListener('load', () => {
+        if (loadBar) loadBar.style.width = '100%';
+        setTimeout(hideLoading, 600);
+    });
+
+    // Si l'image est introuvable → afficher message d'erreur PUIS fermer quand même après 3s
+    img.addEventListener('error', () => {
+        const txt = loading.querySelector('.map-loading-text');
+        const bar = loading.querySelector('.map-loading-bar-track');
+        if (txt) {
+            txt.innerHTML = '⚠ <strong>gta_map.jpg</strong> introuvable — place le fichier dans ton dossier projet';
+            txt.style.color = '#ff4444';
+            txt.style.textAlign = 'center';
+            txt.style.lineHeight = '2';
+            txt.style.letterSpacing = '1px';
+        }
+        if (bar) bar.style.display = 'none';
+        // Fermer automatiquement après 3 secondes malgré l'erreur
+        setTimeout(hideLoading, 3000);
+    });
+
+    // Sécurité : si ni load ni error ne se déclenchent après 5s, on ferme quand même
+    setTimeout(() => {
+        if (loading && loading.style.display !== 'none') {
+            hideLoading();
+        }
+    }, 5000);
+})();
+</script>
+
+</body>
+</html>

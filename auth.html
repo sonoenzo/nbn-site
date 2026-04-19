@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentification | NBN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue: #0a3cff;
+            --blue-glow: rgba(10, 60, 255, 0.6);
+            --blue-dim: rgba(10, 60, 255, 0.15);
+            --green: #00ff88;
+            --red: #ff2244;
+        }
+
+        body {
+            background: #020208;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== FOND ANIMÉ ===== */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* Lignes de scan horizontales sur tout l'écran */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.08) 2px,
+                rgba(0, 0, 0, 0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ===== CONTENEUR PRINCIPAL ===== */
+        .auth-wrap {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            width: 480px;
+        }
+
+        /* ===== HEADER NBN ===== */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeDown 0.8s ease-out forwards;
+        }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .auth-logo-text {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            letter-spacing: 8px;
+            color: #444;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .auth-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 36px;
+            letter-spacing: -1px;
+            color: white;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .auth-title span { color: var(--blue); }
+        .auth-subtitle {
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: #333;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* ===== BOÎTE CENTRALE ===== */
+        .auth-box {
+            width: 100%;
+            background: rgba(2, 2, 15, 0.95);
+            border: 1px solid rgba(10, 60, 255, 0.3);
+            position: relative;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            animation: fadeUp 0.8s 0.2s ease-out both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Coins lumineux */
+        .auth-box::before, .auth-box::after,
+        .corner-bl, .corner-br {
+            content: '';
+            position: absolute;
+            width: 20px; height: 20px;
+        }
+        .auth-box::before { top: -1px; left: -1px; border-top: 2px solid var(--blue); border-left: 2px solid var(--blue); }
+        .auth-box::after  { top: -1px; right: -1px; border-top: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+        .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--blue); border-left: 2px solid var(--blue); }
+        .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+
+        /* Ligne de scan animée sur la boîte */
+        .box-scan {
+            position: absolute;
+            left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue), transparent);
+            opacity: 0.5;
+            animation: boxScan 3s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes boxScan {
+            0%   { top: 0; opacity: 0; }
+            5%   { opacity: 0.5; }
+            95%  { opacity: 0.5; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* ===== SCANNER BIOMÉTRIQUE ===== */
+        .scanner-wrap {
+            position: relative;
+            width: 160px;
+            height: 200px;
+        }
+
+        /* Cadre du scanner avec coins animés */
+        .scanner-frame {
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(10, 60, 255, 0.3);
+        }
+        .scanner-frame .sf-tl,
+        .scanner-frame .sf-tr,
+        .scanner-frame .sf-bl,
+        .scanner-frame .sf-br {
+            position: absolute;
+            width: 16px; height: 16px;
+        }
+        .sf-tl { top: -1px; left: -1px;  border-top: 2px solid var(--blue); border-left: 2px solid var(--blue); }
+        .sf-tr { top: -1px; right: -1px; border-top: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+        .sf-bl { bottom: -1px; left: -1px;  border-bottom: 2px solid var(--blue); border-left: 2px solid var(--blue); }
+        .sf-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+
+        /* Image empreinte */
+        .fingerprint-img {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 75%;
+            opacity: 0.12;
+            transition: opacity 1s ease, filter 1s ease;
+            filter: hue-rotate(200deg) brightness(2);
+        }
+        .scanner-wrap.scanning .fingerprint-img {
+            opacity: 0.35;
+            animation: fpPulse 2.5s ease-in-out infinite;
+        }
+        .scanner-wrap.granted .fingerprint-img {
+            opacity: 0.7;
+            filter: hue-rotate(120deg) brightness(2);
+        }
+        .scanner-wrap.denied .fingerprint-img {
+            opacity: 0.5;
+            filter: hue-rotate(340deg) brightness(2);
+        }
+        @keyframes fpPulse {
+            0%, 100% { opacity: 0.2; }
+            50%       { opacity: 0.45; }
+        }
+
+        /* Ligne de scan du scanner */
+        .scan-beam {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--blue), transparent);
+            box-shadow: 0 0 12px var(--blue), 0 0 30px var(--blue-glow);
+            top: 0;
+            animation: scanBeam 2.5s ease-in-out infinite;
+            opacity: 0;
+        }
+        .scanner-wrap.scanning .scan-beam { opacity: 1; }
+        .scanner-wrap.granted .scan-beam {
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            box-shadow: 0 0 12px var(--green), 0 0 30px rgba(0,255,136,0.4);
+            animation: none;
+            top: 50%;
+        }
+        @keyframes scanBeam {
+            0%   { top: 0%; }
+            50%  { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        /* Fond du scanner */
+        .scanner-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, var(--blue-dim) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .scanner-wrap.scanning .scanner-bg { opacity: 1; }
+        .scanner-wrap.granted .scanner-bg {
+            background: radial-gradient(ellipse at center, rgba(0,255,136,0.1) 0%, transparent 70%);
+            opacity: 1;
+        }
+
+        /* Texte status scanner */
+        .scanner-status {
+            position: absolute;
+            bottom: -28px;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: 8px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #333;
+            transition: color 0.4s;
+        }
+        .scanner-wrap.scanning .scanner-status { color: var(--blue); }
+        .scanner-wrap.granted  .scanner-status { color: var(--green); }
+        .scanner-wrap.denied   .scanner-status { color: var(--red); }
+
+        /* Particules de validation */
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: var(--blue);
+            pointer-events: none;
+            animation: particleFly 0.8s ease-out forwards;
+        }
+        @keyframes particleFly {
+            0%   { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* ===== TERMINAL ===== */
+        .terminal-box {
+            width: 100%;
+            height: 160px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(10, 60, 255, 0.2);
+            padding: 14px 16px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: var(--blue) transparent;
+            position: relative;
+        }
+        .terminal-box::before {
+            content: 'NBN_OS v4.0 // TERMINAL';
+            display: block;
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: #1a1a3a;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #0a0a20;
+            padding-bottom: 6px;
+        }
+        .t-line { display: flex; gap: 8px; align-items: flex-start; }
+        .t-prefix { color: #1a3a6a; flex-shrink: 0; }
+        .t-text { color: #4a7aaa; }
+        .t-text.bright { color: #7ab0ff; }
+        .t-text.success { color: var(--green); font-weight: bold; }
+        .t-text.warning { color: #ffaa00; }
+        .t-cursor {
+            display: inline-block;
+            width: 7px; height: 12px;
+            background: var(--blue);
+            vertical-align: middle;
+            animation: blink 0.8s step-end infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* ===== BARRE DE PROGRESSION ===== */
+        .progress-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .progress-wrap.visible { opacity: 1; }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #333;
+        }
+        .progress-label span:last-child { color: var(--blue); }
+        .progress-track {
+            width: 100%;
+            height: 2px;
+            background: #0a0a20;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--blue);
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px var(--blue);
+        }
+        .progress-segments {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            gap: 2px;
+            pointer-events: none;
+        }
+        .progress-segments span {
+            flex: 1;
+            border-right: 1px solid #020208;
+        }
+
+        /* ===== BOUTON ACCÈS ===== */
+        .access-btn {
+            display: none;
+            padding: 14px 40px;
+            background: transparent;
+            border: 1px solid var(--blue);
+            color: var(--blue);
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s;
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(10,60,255,0); }
+            50%       { box-shadow: 0 0 0 4px rgba(10,60,255,0.15); }
+        }
+        .access-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--blue);
+            transform: translateX(-101%);
+            transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        .access-btn:hover { color: white; }
+        .access-btn:hover::before { transform: translateX(0); }
+        .access-btn span { position: relative; z-index: 1; }
+
+        /* Message bienvenue */
+        .welcome-msg {
+            display: none;
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: var(--green);
+            text-transform: uppercase;
+            text-align: center;
+            animation: welcomePulse 1.5s ease-in-out infinite;
+        }
+        @keyframes welcomePulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.5; }
+        }
+
+        /* ===== GLITCH sur le titre au moment du succès ===== */
+        .glitch-active {
+            animation: glitch 0.4s steps(2) 3;
+        }
+        @keyframes glitch {
+            0%   { transform: translate(0); filter: none; }
+            25%  { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
+            50%  { transform: translate(3px, -1px); filter: hue-rotate(180deg); }
+            75%  { transform: translate(-2px, 2px); filter: hue-rotate(270deg); }
+            100% { transform: translate(0); filter: none; }
+        }
+
+        /* ===== FLASH D'ACCÈS ACCORDÉ ===== */
+        #flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--blue);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 0.15s;
+        }
+
+        /* ===== FADE OUT FINAL ===== */
+        .fade-out {
+            animation: fadeOutPage 0.8s forwards;
+        }
+        @keyframes fadeOutPage {
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sons -->
+    <audio id="typingSound"  src="typing.mp3"  preload="auto"></audio>
+    <audio id="successSound" src="success.mp3" preload="auto"></audio>
+
+    <!-- Flash overlay -->
+    <div id="flash-overlay"></div>
+
+    <!-- Fond canvas (particules) -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Contenu principal -->
+    <div class="auth-wrap">
+
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-logo-text">Système Sécurisé</div>
+            <div class="auth-title">NORTHSIDE <span>BLUE</span> NATION</div>
+            <div class="auth-subtitle">Protocole d'authentification — 2026</div>
+        </div>
+
+        <!-- Boîte centrale -->
+        <div class="auth-box" id="authBox">
+            <div class="box-scan"></div>
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+
+            <!-- Scanner biométrique -->
+            <div class="scanner-wrap" id="scanner">
+                <div class="scanner-bg"></div>
+                <div class="scanner-frame">
+                    <div class="sf-tl"></div><div class="sf-tr"></div>
+                    <div class="sf-bl"></div><div class="sf-br"></div>
+                </div>
+                <img src="fingerprint.png" class="fingerprint-img" alt="">
+                <div class="scan-beam"></div>
+                <div class="scanner-status" id="scannerStatus">EN ATTENTE</div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="terminal-box">
+                <div id="terminal"></div>
+                <span class="t-cursor" id="cursor"></span>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-label">
+                    <span id="progressLabel">Analyse biométrique</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-segments">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton + message -->
+            <div style="text-align:center; min-height:60px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                <button class="access-btn" id="accessBtn" onclick="enterNation()">
+                    <span>▶ Entrer dans la Nation</span>
+                </button>
+                <div class="welcome-msg" id="welcomeMsg">● ACCÈS VALIDÉ — BIENVENUE DANS LA NATION ●</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    /* ===== FOND PARTICULES ===== */
+    (function() {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [];
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Créer des particules flottantes
+        for (let i = 0; i < 60; i++) {
+            particles.push({
+                x: Math.random() * 1920,
+                y: Math.random() * 1080,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                size: Math.random() * 1.5 + 0.5,
+                opacity: Math.random() * 0.4 + 0.05,
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // Lignes entre particules proches
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(10, 60, 255, ${0.08 * (1 - dist/120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Points
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = W;
+                if (p.x > W) p.x = 0;
+                if (p.y < 0) p.y = H;
+                if (p.y > H) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(10, 60, 255, ${p.opacity})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    /* ===== AUDIO ===== */
+    const typingSound  = document.getElementById('typingSound');
+    const successSound = document.getElementById('successSound');
+    if (typingSound)  typingSound.volume  = 0.35;
+    if (successSound) successSound.volume = 0.7;
+
+    function playTyping()  { if (typingSound)  { typingSound.currentTime = 0; typingSound.play().catch(()=>{}); } }
+    function stopTyping()  { if (typingSound)  typingSound.pause(); }
+    function playSuccess() { if (successSound) successSound.play().catch(()=>{}); }
+
+    /* ===== TERMINAL ===== */
+    const terminalEl   = document.getElementById('terminal');
+    const cursorEl     = document.getElementById('cursor');
+    const scanner      = document.getElementById('scanner');
+    const scanStatus   = document.getElementById('scannerStatus');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressFill = document.getElementById('progressFill');
+    const progressPct  = document.getElementById('progressPct');
+    const progressLbl  = document.getElementById('progressLabel');
+    const accessBtn    = document.getElementById('accessBtn');
+    const welcomeMsg   = document.getElementById('welcomeMsg');
+    const authBox      = document.getElementById('authBox');
+
+    const lines = [
+        { text: 'NBN_NETWORK_OS v4.0 — BOOT OK',       cls: 'bright',  delay: 800  },
+        { text: 'Connexion au serveur sécurisé...',      cls: '',        delay: 500  },
+        { text: 'Chiffrement AES-256 activé',            cls: 'bright',  delay: 400  },
+        { text: 'Initialisation scanner biométrique...',  cls: '',        delay: 600  },
+        { text: 'Lecture empreinte en cours...',          cls: 'warning', delay: 400  },
+        { text: 'Analyse des données : 100%',             cls: 'bright',  delay: 2800 },
+        { text: 'Correspondance trouvée — ID : NBN_MEMBRE', cls: 'success', delay: 500 },
+        { text: 'ACCÈS AUTORISÉ AU HUB TACTIQUE',        cls: 'success', delay: 600  },
+        { text: 'Bienvenue dans la Nation.',              cls: 'success', delay: 400  },
+    ];
+
+    let lineIdx = 0;
+
+    function addLine(text, cls) {
+        const div = document.createElement('div');
+        div.className = 't-line';
+        div.innerHTML = `<span class="t-prefix">></span><span class="t-text ${cls}"></span>`;
+        terminalEl.appendChild(div);
+        return div.querySelector('.t-text');
+    }
+
+    function typeLine(textEl, text, onDone) {
+        let i = 0;
+        playTyping();
+        const iv = setInterval(() => {
+            textEl.textContent += text[i];
+            i++;
+            if (i >= text.length) {
+                clearInterval(iv);
+                stopTyping();
+                setTimeout(onDone, 180);
+            }
+        }, 38);
+    }
+
+    function runLines() {
+        if (lineIdx >= lines.length) {
+            cursorEl.style.display = 'none';
+            onAuthComplete();
+            return;
+        }
+        const { text, cls, delay } = lines[lineIdx];
+        lineIdx++;
+
+        // Démarrer le scanner au bon moment
+        if (lineIdx === 4) {
+            scanner.classList.add('scanning');
+            scanStatus.textContent = 'SCAN EN COURS';
+            progressWrap.classList.add('visible');
+            startProgress();
+        }
+
+        setTimeout(() => {
+            const el = addLine(text, cls);
+            terminalEl.parentElement.scrollTop = terminalEl.parentElement.scrollHeight;
+            typeLine(el, text, runLines);
+        }, delay);
+    }
+
+    /* ===== BARRE DE PROGRESSION ===== */
+    function startProgress() {
+        let pct = 0;
+        const iv = setInterval(() => {
+            pct += Math.random() * 4 + 1;
+            if (pct >= 100) { pct = 100; clearInterval(iv); }
+            progressFill.style.width = pct + '%';
+            progressPct.textContent  = Math.round(pct) + '%';
+            if (pct > 60) progressLbl.textContent = 'Vérification identité';
+            if (pct > 90) progressLbl.textContent = 'Validation finale';
+        }, 60);
+    }
+
+    /* ===== SUCCÈS ===== */
+    function onAuthComplete() {
+        // Scanner → granted
+        scanner.classList.remove('scanning');
+        scanner.classList.add('granted');
+        scanStatus.textContent = 'ACCÈS ACCORDÉ';
+
+        // Son succès
+        playSuccess();
+
+        // Glitch sur la boîte
+        authBox.classList.add('glitch-active');
+        setTimeout(() => authBox.classList.remove('glitch-active'), 600);
+
+        // Flash bleu
+        const flash = document.getElementById('flash-overlay');
+        flash.style.opacity = '0.25';
+        setTimeout(() => { flash.style.opacity = '0'; }, 200);
+
+        // Particules qui explosent depuis le scanner
+        spawnParticles();
+
+        // Afficher bouton + message
+        setTimeout(() => {
+            accessBtn.style.display = 'block';
+            welcomeMsg.style.display = 'block';
+        }, 500);
+    }
+
+    /* ===== PARTICULES D'EXPLOSION ===== */
+    function spawnParticles() {
+        const scannerRect = scanner.getBoundingClientRect();
+        const cx = scannerRect.left + scannerRect.width  / 2;
+        const cy = scannerRect.top  + scannerRect.height / 2;
+
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const angle = (Math.PI * 2 / 20) * i;
+            const dist  = 60 + Math.random() * 80;
+            p.style.left = cx + 'px';
+            p.style.top  = cy + 'px';
+            p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+            p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+            p.style.animationDelay = (Math.random() * 0.2) + 's';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 1200);
+        }
+    }
+
+    /* ===== NAVIGATION ===== */
+    function enterNation() {
+        const flash = document.getElementById('flash-overlay');
+        flash.style.transition = 'opacity 0.4s';
+        flash.style.opacity = '1';
+        setTimeout(() => {
+            window.location.href = 'home.html';
+        }, 400);
+    }
+
+    /* ===== LANCEMENT ===== */
+    setTimeout(runLines, 600);
+    </script>
+</body>
+</html>
