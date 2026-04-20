@@ -164,13 +164,21 @@
             </div>
         </nav>
 
-        <div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <audio id="homeMusic" src="home_music.mp3" loop></audio>
-            <div onclick="toggleMusic()" style="display:flex;align-items:center;gap:10px;cursor:pointer;color:#7aa0c4;background:rgba(0,0,0,0.5);padding:10px;border:1px solid rgba(122,160,196,0.3);">
-                <span id="musicIcon">🔈</span>
-                <span style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">Ambiance NBN</span>
-            </div>
+<div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+    <audio id="homeMusic" src="home_music.mp3" loop></audio>
+    
+    <div class="music-control-panel" style="display:flex; flex-direction:column; gap:10px; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(10,60,255,0.3); border-radius:4px;">
+        <!-- Bouton On/Off -->
+        <div onclick="toggleMusic()" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#7aa0c4;">
+            <span id="musicIcon" style="font-size:16px;">🔊</span>
+            <span style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">Ambiance NBN</span>
         </div>
+        
+        <!-- Slider de Volume -->
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" 
+               style="width:100%; cursor:pointer; accent-color:#0a3cff; height:4px;">
+    </div>
+</div>
 
         <div class="footer pt-4 border-t border-white/10 text-[10px] text-red-600 font-bold">
             ● SYSTÈME ONLINE

@@ -129,9 +129,59 @@ function startTerminal() {
     setTimeout(typeLine, 1000); // Délai avant le début
 }
 
-/* ===== GESTION MUSIQUE HOME ===== */
+/* ===== GESTION MUSIQUE HOME (AUTO & VOLUME) ===== */
 const homeMusic = document.getElementById("homeMusic");
 const musicIcon = document.getElementById("musicIcon");
+const volumeSlider = document.getElementById("volumeSlider");
+
+// 1. Fonction pour basculer le son (Play/Pause)
+function toggleMusic() {
+    if (!homeMusic) return;
+    
+    if (homeMusic.paused) {
+        homeMusic.play().catch(e => console.log("Attente d'interaction..."));
+        musicIcon.textContent = "🔊";
+    } else {
+        homeMusic.pause();
+        musicIcon.textContent = "🔈";
+    }
+}
+
+// 2. Gestion du volume via le slider
+if (volumeSlider && homeMusic) {
+    volumeSlider.addEventListener('input', (e) => {
+        const volume = e.target.value;
+        homeMusic.volume = volume;
+    });
+}
+
+// 3. Lancement AUTOMATIQUE au chargement
+// Grâce au clic sur la page précédente (auth.html), le navigateur autorisera le son.
+window.addEventListener('load', () => {
+    if (homeMusic) {
+        // On essaie de jouer la musique immédiatement
+        const playPromise = homeMusic.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Lecture réussie
+                musicIcon.textContent = "🔊";
+            }).catch(error => {
+                // Si le navigateur bloque encore, on attend le premier clic sur la page
+                console.log("Autoplay bloqué, lecture au premier clic.");
+                musicIcon.textContent = "🔈";
+                
+                // Sécurité : si l'utilisateur clique n'importe où, on lance la musique
+                document.addEventListener('click', () => {
+                    if (homeMusic.paused) {
+                        homeMusic.play();
+                        musicIcon.textContent = "🔊";
+                    }
+                }, { once: true });
+            });
+        }
+    }
+});
 
 function toggleMusic() {
     if (homeMusic.paused) {
@@ -267,5 +317,26 @@ document.addEventListener('DOMContentLoaded', () => {
             // Un petit délai pour laisser la page s'afficher
             setTimeout(animateHistory, 300);
         });
+    }
+});
+
+function animateMembers() {
+    const cards = document.querySelectorAll('.member-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.4s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100); // 100ms de décalage entre chaque membre
+    });
+}
+
+// Déclencher l'animation au clic sur l'onglet INFO
+document.addEventListener('DOMContentLoaded', () => {
+    const infoBtn = document.querySelector('[data-page="info"]');
+    if(infoBtn) {
+        infoBtn.addEventListener('click', animateMembers);
     }
 });

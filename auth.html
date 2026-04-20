@@ -431,6 +431,21 @@
 </head>
 
 <body>
+<!-- Écran d'initialisation pour débloquer l'audio -->
+<div id="boot-overlay" style="position: fixed; inset: 0; z-index: 10000; background: #020208; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+    <div style="text-align: center;">
+        <div style="font-family: 'Space Mono', monospace; color: #0a3cff; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px; animation: blink 1s infinite;">
+            [ SYSTÈME HORS LIGNE ]
+        </div>
+        <div style="font-family: 'Archivo Black', sans-serif; color: white; font-size: 24px; border: 1px solid #0a3cff; padding: 20px 40px; transition: all 0.3s;">
+            CLIQUEZ POUR INITIALISER
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+</style>
     <!-- Sons -->
     <audio id="typingSound"  src="typing.mp3"  preload="auto"></audio>
     <audio id="successSound" src="success.mp3" preload="auto"></audio>
@@ -725,6 +740,37 @@
 
     /* ===== LANCEMENT ===== */
     setTimeout(runLines, 600);
+	
+	/* ===== LANCEMENT SÉCURISÉ ===== */
+
+// On attend que le DOM soit chargé
+document.addEventListener("DOMContentLoaded", () => {
+    const bootOverlay = document.getElementById('boot-overlay');
+
+    if (bootOverlay) {
+        // On écoute le clic sur l'overlay
+        bootOverlay.addEventListener('click', () => {
+            
+            // 1. On cache l'overlay avec un effet de fondu
+            bootOverlay.style.transition = 'opacity 0.8s ease';
+            bootOverlay.style.opacity = '0';
+            
+            // 2. On attend la fin de la transition pour lancer le terminal
+            setTimeout(() => {
+                bootOverlay.style.display = 'none';
+                
+                // 3. C'EST ICI QUE LA MAGIE OPÈRE : 
+                // On lance ta fonction startTerminal()
+                // Comme on vient de cliquer, playTyping() fonctionnera enfin !
+                startTerminal(); 
+                
+            }, 800);
+        });
+    } else {
+        // Si l'overlay n'existe pas, on lance normalement (pour éviter de bloquer le site)
+        startTerminal();
+    }
+});
     </script>
 </body>
 </html>

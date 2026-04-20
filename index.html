@@ -7,13 +7,71 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques pour cette page d'accueil */
+        .main-logo {
+            filter: drop-shadow(0 0 15px rgba(10, 60, 255, 0.7));
+            animation: pulseLogo 2s infinite ease-in-out;
+        }
+        @keyframes pulseLogo {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        .main-title-highlight {
+            color: #0a3cff;
+            text-shadow: 0 0 10px rgba(10, 60, 255, 0.5);
+        }
+        .access-button {
+            background: linear-gradient(90deg, #0a3cff, #00bfff);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(10, 60, 255, 0.4);
+            font-size: 1.1rem;
+            animation: bounceAccess 2s infinite ease;
+        }
+        .access-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(10, 60, 255, 0.6);
+            background: linear-gradient(90deg, #00bfff, #0a3cff);
+        }
+        .access-hint {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            color: #555;
+            animation: blinkHint 1.5s infinite step-end;
+        }
+        @keyframes bounceAccess {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        @keyframes blinkHint {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
-<body class="bg-black flex items-center justify-center h-screen overflow-hidden">
-    <div class="text-center z-10 px-4">
+<body class="bg-black flex items-center justify-center h-screen overflow-hidden relative">
+    
+    <!-- Effet de fond animé (Optionnel, si tu veux remplacer ton background.png) -->
+    <div class="absolute inset-0 z-0 opacity-30">
+        <canvas id="bg-canvas-index"></canvas>
+    </div>
+
+    <div class="text-center z-10 px-4 relative">
         <img src="logo.png" class="main-logo mx-auto w-64 md:w-80 mb-6 drop-shadow-[0_0_20px_rgba(10,60,255,0.6)]">
         
         <h1 class="text-5xl md:text-8xl font-black italic tracking-tighter text-white uppercase mb-2">
-            Northside <span class="text-[#0a3cff]">Blue</span> Nation
+            Northside <span class="main-title-highlight">Blue</span> Nation
         </h1>
         
         <p class="text-gray-400 tracking-[0.3em] text-[10px] md:text-sm mb-12 font-mono">
@@ -21,12 +79,80 @@
         </p>
 
         <div class="space-y-4">
-            <p class="text-red-600 font-bold text-xl cursor-pointer hover:scale-110 transition-transform animate-pulse uppercase tracking-widest" onclick="goAuth()">
-                ▶ Cliquer pour accéder ◀
-            </p>
-            <p class="text-gray-600 text-[10px] uppercase tracking-[0.5em] font-mono">Initialisation des protocoles...</p>
+<a href="auth.html" class="access-button" role="button" aria-label="Accéder au système" style="text-decoration: none;">
+    ACCÉDER AU SYSTÈME
+</a>
+            <div class="access-hint">Initialisation des protocoles...</div>
         </div>
     </div>
+
     <script src="script.js"></script>
+    <script>
+        // Script pour le fond animé de la page d'accueil (copié et adapté du script.js original)
+        (function() {
+            const canvas = document.getElementById('bg-canvas-index');
+            if (!canvas) return; // Ne rien faire si le canvas n'existe pas
+            const ctx = canvas.getContext('2d');
+            let W, H, particles = [];
+
+            function resizeCanvas() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const particleCount = 60;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    vx: (Math.random() - 0.5) * 0.2, // Vitesse plus lente
+                    vy: (Math.random() - 0.5) * 0.2,
+                    size: Math.random() * 1.2 + 0.4, // Taille plus petite
+                    opacity: Math.random() * 0.3 + 0.05,
+                });
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, W, H);
+
+                // Lignes entre particules proches (plus subtiles)
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < 100) { // Distance de connexion plus courte
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(10, 60, 255, ${0.05 * (1 - dist/100)})`; // Opacité plus faible
+                            ctx.lineWidth = 0.4;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Dessine les points eux-mêmes
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = W;
+                    if (p.x > W) p.x = 0;
+                    if (p.y < 0) p.y = H;
+                    if (p.y > H) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(10, 60, 255, ${p.opacity})`;
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(drawParticles);
+            }
+            drawParticles();
+        })();
+    </script>
 </body>
 </html>

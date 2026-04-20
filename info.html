@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Info | NBN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles réutilisés pour la section info */
+        .info-section {
+            margin-top: 40px;
+            padding: 50px;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(10, 60, 255, 0.2);
+            animation: fadeIn 0.8s ease-out forwards;
+            min-height: calc(100vh - 160px); /* Ajuster si nécessaire */
+            display: block !important; /* Toujours visible sur cette page */
+        }
+        .og-card, .member-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            will-change: transform, box-shadow, background;
+        }
+        .og-card:hover, .member-card:hover {
+            background: rgba(10, 60, 255, 0.15);
+            border-color: rgba(10, 60, 255, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(10, 60, 255, 0.3);
+        }
+        .og-card-title, .member-name {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 2.2rem; /* OG */
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+        .member-name {
+            font-size: 1.4rem; /* Membres */
+        }
+        .og-title, .member-role {
+            font-size: 0.9rem;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+         .member-card .member-role {
+            font-size: 0.8rem;
+        }
+        .og-card-image, .member-image {
+            width: 130px; /* OG */
+            height: 130px;
+            border-radius: 50%;
+            background-color: #050505;
+            margin-bottom: 20px;
+            object-fit: cover;
+            border: 3px solid #0a3cff;
+            box-shadow: 0 0 15px rgba(10, 60, 255, 0.6);
+            transition: filter 0.5s ease;
+        }
+        .member-card .member-image {
+            width: 90px; /* Membres */
+            height: 90px;
+        }
+        .member-cards-container .member-card {
+            opacity: 0;
+            transform: translateY(20px);
+             animation: fadeInUpCard 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUpCard {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .og-card-image, .member-image {
+            animation: pulseGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.3); }
+        }
+        /* Responsive pour la section info */
+        @media (max-width: 768px) {
+            .info-section .grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .og-card { grid-column: span 1 / span 1; }
+            .member-cards-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .member-card { padding: 15px; }
+            .member-image { width: 60px; height: 60px; }
+            .member-name { font-size: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .member-cards-container { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+<div class="layout flex h-screen">
+
+    <!-- ===== SIDEBAR (Identique sur toutes les pages internes) ===== -->
+    <aside class="sidebar w-64 bg-black/90 border-r-4 border-[#0a3cff] p-6 flex flex-col">
+        <div class="logo text-center mb-10">
+            <img src="logo.png" class="w-20 mx-auto mb-2">
+            <h2 class="font-black text-blue-600">NBN</h2>
+            <p class="text-[10px] text-gray-500 tracking-widest">LOS SANTOS</p>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
+                <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
+            </div>
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="map">
+                <span>🗺️</span> <div><h3 class="text-sm font-bold">CARTE</h3></div>
+            </div>
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
+                <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
+            </div>
+            <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="info">
+                <span>👤</span> <div><h3 class="text-sm font-bold">INFO</h3></div>
+            </div>
+        </nav>
+
+<div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+    <audio id="homeMusic" src="home_music.mp3" loop></audio>
+    
+    <div class="music-control-panel" style="display:flex; flex-direction:column; gap:10px; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(10,60,255,0.3); border-radius:4px;">
+        <!-- Bouton On/Off -->
+        <div onclick="toggleMusic()" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#7aa0c4;">
+            <span id="musicIcon" style="font-size:16px;">🔊</span>
+            <span style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">Ambiance NBN</span>
+        </div>
+        
+        <!-- Slider de Volume -->
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" 
+               style="width:100%; cursor:pointer; accent-color:#0a3cff; height:4px;">
+    </div>
+</div>
+
+        <div class="footer pt-4 border-t border-white/10 text-[10px] text-red-600 font-bold">
+            ● SYSTÈME ONLINE
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <main class="flex-1 overflow-hidden bg-black/90 relative">
+
+        <!-- PAGE : INFO -->
+        <div id="info" class="page active p-10 overflow-y-auto h-full">
+            <h2 class="text-5xl font-black uppercase text-center mb-16 tracking-tight">
+                LA HIÉRARICHIE <span class="text-[#0a3cff]">- L'ÉQUIPAGE</span>
+            </h2>
+            <p class="text-sm font-mono text-gray-400 text-center mb-12">
+                NORTHSIDE BLUE NATION • MEMBRES ACTIFS
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                <!-- OG Card -->
+                <div class="og-card col-span-1 md:col-span-3 lg:col-span-1">
+                    <!-- REMPLACEZ PAR VOTRE IMAGE -->
+                    <img src="mason_williams.jpg" alt="Mason Williams" class="og-card-image">
+                    <h3 class="og-card-title">Mason Williams</h3>
+                    <div class="og-title">OG Fondateur</div>
+                    <p class="text-gray-400 text-sm text-center">L'esprit visionnaire derrière la Northside Blue Nation. Un leader né, respecté et craint.</p>
+                </div>
+
+                <!-- Membres Cards -->
+                <div class="member-cards-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8 col-span-1 md:col-span-3 lg:col-span-3">
+                    
+                    <div class="member-card">
+                        <img src="ace_ashler.jpg" alt="Ace Ashler" class="member-image">
+                        <h3 class="member-name">Ace Ashler</h3>
+                        <div class="member-role">Partenaire</div>
+                        <p class="text-gray-400 text-xs">Le cerveau tactique, toujours un coup d'avance.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="dante_knox.jpg" alt="Danté Knox" class="member-image">
+                        <h3 class="member-name">Danté Knox</h3>
+                        <div class="member-role">Le Poing</div>
+                        <p class="text-gray-400 text-xs">Force brute et détermination sans faille.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="deon_drayton.jpg" alt="Deon Drayton" class="member-image">
+                        <h3 class="member-name">Deon Drayton</h3>
+                        <div class="member-role">L'Ombre</div>
+                        <p class="text-gray-400 text-xs">Discret mais essentiel, gère les opérations sensibles.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="karl_ashler.jpg" alt="Karl Ashler" class="member-image">
+                        <h3 class="member-name">Karl Ashler</h3>
+                        <div class="member-role">Le Gardien</div>
+                        <p class="text-gray-400 text-xs">Père protecteur de l'équipage.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="sekou_stone.jpg" alt="Sékou Stone" class="member-image">
+                        <h3 class="member-name">Sékou Stone</h3>
+                        <div class="member-role">Le Stratège</div>
+                        <p class="text-gray-400 text-xs">Analyse les données et planifie le futur.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="quincy_tillman.jpg" alt="Quincy Tillman" class="member-image">
+                        <h3 class="member-name">Quincy Tillman</h3>
+                        <div class="member-role">L'Interface</div>
+                        <p class="text-gray-400 text-xs">Le lien avec le monde extérieur.</p>
+                    </div>
+                    <div class="member-card">
+                        <img src="nash_kouyaman.jpg" alt="Nash Kouyaman" class="member-image">
+                        <h3 class="member-name">Nash Kouyaman</h3>
+                        <div class="member-role">Le Jeune Loup</div>
+                        <p class="text-gray-400 text-xs">Affamé et ambitieux, prêt pour le prochain coup.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FIN PAGE INFO -->
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
