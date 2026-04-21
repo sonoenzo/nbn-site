@@ -500,24 +500,30 @@
             <p class="text-[10px] text-gray-500 tracking-widest">LOS SANTOS</p>
         </div>
 
-        <nav class="flex-1 space-y-2">
-            <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
-                <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
-            </div>
-            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="map">
-                <span>🗺️</span> <div><h3 class="text-sm font-bold">CARTE</h3></div>
-            </div>
-            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
-                <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
-            </div>
-            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="info">
-                <span>👥</span>
-                <div>
-                    <h3 class="text-sm font-bold">INFO</h3>
-                    <p class="text-[9px] text-gray-500">Hiérarchie · Membres</p>
-                </div>
-            </div>
-        </nav>
+    <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
+        <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="map">
+        <span>🗺️</span> <div><h3 class="text-sm font-bold">CARTE</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
+        <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="gang-info">
+        <span>🔵</span>
+        <div>
+            <h3 class="text-sm font-bold">GANG - INFO</h3>
+            <p class="text-[9px] text-gray-500">Histoire membres</p>
+        </div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="info">
+        <span>👥</span>
+        <div>
+            <h3 class="text-sm font-bold">INFO</h3>
+            <p class="text-[9px] text-gray-500">Hiérarchie · Membres</p>
+        </div>
+    </div>
+</nav>
 
         <div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
             <audio id="homeMusic" src="home_music.mp3" loop></audio>
@@ -700,6 +706,116 @@
                 </div>
             </div>
         </div>
+		
+		<!-- ===================================================== -->
+<!-- PAGE : GANG INFO                                      -->
+<!-- ===================================================== -->
+<div id="gang-info" class="page p-10 overflow-y-auto h-full bg-black">
+
+    <h1 class="text-5xl font-black mb-10 text-white">
+        GANG <span class="text-[#0a3cff]">DOSSIERS</span>
+    </h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Mason -->
+    <div class="gang-card" onclick="openModal(this)" data-img="mason-dossier.png">
+        <img src="mason-preview.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Mason Williams</h3>
+            <p>OG</p>
+        </div>
+    </div>
+
+    <!-- Ace -->
+    <div class="gang-card" onclick="openModal(this)" data-img="contentsono.png">
+        <img src="ace.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Ace Ashler</h3>
+            <p>Double OG</p>
+        </div>
+    </div>
+
+    <!-- Karl -->
+    <div class="gang-card" onclick="openModal(this)" data-img="youbibg.png">
+        <img src="youbi.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Karl Ashler</h3>
+            <p>Big Homie</p>
+        </div>
+    </div>
+
+    <!-- Deon -->
+    <div class="gang-card" onclick="openModal(this)" data-img="Santibg.png">
+        <img src="Santi.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Deon Drayton</h3>
+            <p>Réal One</p>
+        </div>
+    </div>
+
+    <!-- Tyler -->
+    <div class="gang-card" onclick="openModal(this)" data-img="azulbg.png">
+        <img src="AZUL.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Tyler Williams</h3>
+            <p>Réal One</p>
+        </div>
+    </div>
+
+    <!-- Dante -->
+    <div class="gang-card" onclick="openModal(this)" data-img="shalebg.png">
+        <img src="Shales.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Danté Knox</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+
+    <!-- Quincy -->
+    <div class="gang-card" onclick="openModal(this)" data-img="Peazzybg.png">
+        <img src="Peazzy.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Quincy Tillman</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+
+    <!-- Nash -->
+    <div class="gang-card" onclick="openModal(this)" data-img="nashbg.png">
+        <img src="NOOWEY.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Nash Kouyaman</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+	    <!-- Sean -->
+    <div class="gang-card" onclick="openModal(this)" data-img="seanbg.png">
+        <img src="sean.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Sean Holloway</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+		    <!-- Nate -->
+    <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg">
+        <img src="nate.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Nate Carter</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+		    <!-- Dwayne -->
+    <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg">
+        <img src="xtase.png" class="gang-img">
+        <div class="gang-overlay">
+            <h3>Dwayne Carter</h3>
+            <p>Gang Member</p>
+        </div>
+    </div>
+</div>
+
+</div>
 
         <!-- ===================================================== -->
         <!-- PAGE : INFO — HIÉRARCHIE NBN                          -->
@@ -756,10 +872,10 @@
                     <div class="member-card og-card w-full max-w-md p-5 flex items-center gap-5" data-index="0">
                         <div class="scan-effect"></div>
                         <div class="member-number">#001</div>
-                        <div class="member-avatar gold relative">
-                            MW
-                            <div class="status-dot"></div>
-                        </div>
+                        <div class="member-avatar relative">
+    <img src="mason-preview.png" class="w-full h-full object-cover rounded-full">
+    <div class="status-dot"></div>
+</div>
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-1">
                                 <h3 class="font-black text-lg uppercase tracking-tight text-white">Mason Williams</h3>
@@ -789,7 +905,7 @@
                         <div class="scan-effect"></div>
                         <div class="member-number">#002</div>
                         <div class="member-avatar blue relative">
-                            AA
+                            <img src="ace.png" class="w-full h-full object-cover rounded-full">
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
@@ -1227,6 +1343,20 @@ function animateInfoPage() {
     }, 5000);
 })();
 </script>
+<div id="memberModal" class="member-modal hidden">
 
+    <div class="member-modal-bg" onclick="closeModal()"></div>
+
+    <div class="nbn-modal-content">
+
+        <button class="close-btn" onclick="closeModal()">✕</button>
+
+        <!-- IMAGE DOSSIER -->
+        <img id="modalImg" class="nbn-full-image">
+
+    </div>
+</div>
+</div>
+</div>
 </body>
 </html>
