@@ -347,3 +347,219 @@ aside.sidebar {
 .nbn-hub-card:hover .map-preview {
     filter: brightness(0.85) contrast(1.1);
 }
+.gang-avatars {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+}
+
+.gang-avatars img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #0a3cff;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.gang-avatars img:hover {
+    transform: scale(1.2);
+}
+.member-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.member-modal.hidden {
+    display: none;
+}
+
+.member-modal-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+}
+
+.member-modal-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.member-modal-content img {
+    width: 300px;
+    border: 3px solid #0a3cff;
+    box-shadow: 0 0 40px rgba(10,60,255,0.4);
+}
+
+.member-modal-content h2 {
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+.gang-card {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.gang-card:hover {
+    transform: scale(1.05);
+    border-color: #0a3cff;
+    box-shadow: 0 0 30px rgba(10,60,255,0.3);
+}
+
+.gang-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+    transition: 0.3s;
+}
+
+.gang-card:hover .gang-img {
+    opacity: 1;
+}
+
+.gang-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to top, black, transparent);
+}
+
+.gang-overlay h3 {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.gang-overlay p {
+    font-size: 12px;
+    color: #0a3cff;
+}
+/* ===== MODAL DARKNET ===== */
+
+.nbn-modal-content {
+    position: relative;
+    background: #020204;
+    border: 2px solid #0a3cff;
+    padding: 40px;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(10,60,255,0.3);
+    animation: modalEnter 0.4s ease;
+}
+
+@keyframes modalEnter {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Image */
+.nbn-modal-img {
+    width: 260px;
+    margin: auto;
+    border: 3px solid #0a3cff;
+    box-shadow: 0 0 30px rgba(10,60,255,0.4);
+    margin-bottom: 20px;
+}
+
+/* Texte */
+.nbn-modal-text h2 {
+    font-family: 'Archivo Black';
+    font-size: 26px;
+    color: #0a3cff;
+    letter-spacing: 2px;
+}
+
+.nbn-modal-text p {
+    font-family: 'Space Mono';
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 10px;
+}
+
+/* Scan animation */
+.scan-line-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(10,60,255,0.7);
+    animation: scanMoveModal 2s linear infinite;
+}
+
+@keyframes scanMoveModal {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+/* CLASSIFIED */
+.classified-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: red;
+    border: 2px solid red;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-family: monospace;
+    letter-spacing: 2px;
+    opacity: 0.5;
+    transform: rotate(-10deg);
+}
+.nbn-modal-text h2::after {
+    content: '_';
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: transparent;
+    border: 1px solid #0a3cff;
+    color: #0a3cff;
+    font-size: 14px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: monospace;
+    transition: 0.2s;
+}
+
+.close-btn:hover {
+    background: #0a3cff;
+    color: black;
+}
+.nbn-modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.nbn-full-image {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border: 2px solid #0a3cff;
+    box-shadow: 0 0 60px rgba(10,60,255,0.4);
+}

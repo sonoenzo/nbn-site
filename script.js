@@ -340,3 +340,43 @@ document.addEventListener('DOMContentLoaded', () => {
         infoBtn.addEventListener('click', animateMembers);
     }
 });
+
+function openModal(el) {
+    const modal = document.getElementById("memberModal");
+    const img = document.getElementById("modalImg");
+
+    modal.classList.remove("hidden");
+
+    img.src = el.dataset.img;
+
+    document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+    const modal = document.getElementById("memberModal");
+
+    modal.classList.add("hidden");
+
+    document.body.style.overflow = "auto";
+}
+
+/* MACHINE A ECRIRE */
+function typeWriter(element, text, speed) {
+    let i = 0;
+    const interval = setInterval(() => {
+        element.textContent += text[i];
+        i++;
+        if (i >= text.length) clearInterval(interval);
+    }, speed);
+}
+function closeModal() {
+    const modal = document.getElementById("memberModal");
+
+    // animation sortie
+    modal.style.opacity = "0";
+
+    setTimeout(() => {
+        modal.classList.add("hidden");
+        modal.style.opacity = "1";
+    }, 200);
+}
