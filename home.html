@@ -139,6 +139,354 @@
             from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* ===== PAGE INFO — HIÉRARCHIE NBN ===== */
+        #info {
+            animation: pageIn 0.4s ease-out;
+        }
+
+        /* Ligne de scan globale sur la page info */
+        .info-scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(10,60,255,0.4), transparent);
+            animation: infoScan 4s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+        @keyframes infoScan {
+            0% { top: 0; }
+            100% { top: 100vh; }
+        }
+
+        /* Header section */
+        .info-header {
+            position: relative;
+            overflow: hidden;
+        }
+        .info-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(10,60,255,0.02) 2px,
+                rgba(10,60,255,0.02) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Titre animé glitch */
+        .glitch-title {
+            position: relative;
+            display: inline-block;
+        }
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            inset: 0;
+            font-family: 'Archivo Black', sans-serif;
+        }
+        .glitch-title::before {
+            color: #00bfff;
+            animation: glitch1 3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+        .glitch-title::after {
+            color: #ff3333;
+            animation: glitch2 3s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+        @keyframes glitch1 {
+            0%, 90%, 100% { transform: translate(0); opacity: 0; }
+            92% { transform: translate(-3px, 1px); opacity: 0.7; }
+            95% { transform: translate(3px, -1px); opacity: 0.7; }
+            97% { transform: translate(-1px, 2px); opacity: 0.7; }
+        }
+        @keyframes glitch2 {
+            0%, 88%, 100% { transform: translate(0); opacity: 0; }
+            90% { transform: translate(3px, -1px); opacity: 0.5; }
+            93% { transform: translate(-2px, 1px); opacity: 0.5; }
+            96% { transform: translate(2px, -2px); opacity: 0.5; }
+        }
+
+        /* ===== HIÉRARCHIE VERTICALE ===== */
+        .hierarchy-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* Ligne verticale centrale */
+        .hierarchy-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #0a3cff 10%, #0a3cff 90%, transparent);
+            transform: translateX(-50%);
+        }
+
+        /* Niveau de hiérarchie */
+        .rank-tier {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        /* Badge de rang */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(10,60,255,0.12);
+            border: 1px solid rgba(10,60,255,0.4);
+            padding: 4px 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #0a3cff;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+        .rank-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #0a3cff;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.6); }
+        }
+
+        /* Carte membre */
+        .member-card {
+            background: #080808;
+            border: 2px solid rgba(255,255,255,0.06);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: default;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .member-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(10,60,255,0.06), transparent);
+            transition: left 0.5s ease;
+        }
+        .member-card:hover::before {
+            left: 100%;
+        }
+        .member-card:hover {
+            border-color: rgba(10,60,255,0.5);
+            background: #0a0a12;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(10,60,255,0.2);
+        }
+
+        /* Carte OG (spéciale) */
+        .member-card.og-card {
+            border: 2px solid rgba(10,60,255,0.4);
+            background: linear-gradient(135deg, #060610 0%, #080815 100%);
+        }
+        .member-card.og-card:hover {
+            border-color: #0a3cff;
+            box-shadow: 0 0 40px rgba(10,60,255,0.35), inset 0 0 20px rgba(10,60,255,0.05);
+        }
+
+        /* Avatar placeholder */
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .member-avatar.blue {
+            background: linear-gradient(135deg, #0a3cff, #003399);
+            color: white;
+            box-shadow: 0 0 15px rgba(10,60,255,0.4);
+        }
+        .member-avatar.dark {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            color: #0a3cff;
+            border: 2px solid rgba(10,60,255,0.3);
+        }
+        .member-avatar.gold {
+            background: linear-gradient(135deg, #1a1400, #2a2000);
+            color: #c8a800;
+            border: 2px solid rgba(200,168,0,0.4);
+            box-shadow: 0 0 15px rgba(200,168,0,0.15);
+        }
+
+        /* Badge de statut */
+        .status-dot {
+            position: absolute;
+            bottom: 2px; right: 2px;
+            width: 10px; height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            border: 2px solid #080808;
+            animation: statusPulse 2s infinite;
+        }
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(0,255,136,0); }
+        }
+
+        /* Tag du rang */
+        .rank-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+        .rank-tag.og { background: rgba(10,60,255,0.15); color: #0a3cff; border: 1px solid rgba(10,60,255,0.3); }
+        .rank-tag.dog { background: rgba(0,191,255,0.1); color: #00bfff; border: 1px solid rgba(0,191,255,0.25); }
+        .rank-tag.bh { background: rgba(150,100,255,0.1); color: #9664ff; border: 1px solid rgba(150,100,255,0.25); }
+        .rank-tag.sc { background: rgba(255,165,0,0.1); color: #ffa500; border: 1px solid rgba(255,165,0,0.25); }
+        .rank-tag.gm { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Connecteur entre les niveaux */
+        .tier-connector {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, #0a3cff, rgba(10,60,255,0.2));
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .tier-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 50%;
+            transform: translateX(-50%);
+            width: 8px; height: 8px;
+            background: #0a3cff;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+
+        /* Compteur stats */
+        .stat-counter {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 32px;
+            color: #0a3cff;
+            line-height: 1;
+            animation: countUp 1.5s ease-out forwards;
+        }
+
+        /* Grille membres (pour le bas) */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        /* Ligne déco */
+        .deco-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #0a3cff, transparent);
+            margin: 40px 0;
+        }
+
+        /* Fond animé HEX GRID */
+        .hex-grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(10,60,255,0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(10,60,255,0.03) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Animation d'entrée staggered */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CLASSIFIED STAMP */
+        .classified-stamp {
+            display: inline-block;
+            border: 3px solid rgba(255,50,50,0.3);
+            color: rgba(255,50,50,0.3);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            letter-spacing: 4px;
+            padding: 3px 10px;
+            transform: rotate(-2deg);
+            text-transform: uppercase;
+        }
+
+        /* TOTAL POWER BAR */
+        .power-bar-track {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .power-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0a3cff, #00bfff);
+            border-radius: 2px;
+            width: 0;
+            transition: width 1.5s ease-out;
+        }
+
+        /* Effet scanline sur les cartes membres */
+        .member-card .scan-effect {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: rgba(10,60,255,0.5);
+            animation: cardScan 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .member-card:hover .scan-effect {
+            opacity: 1;
+        }
+        @keyframes cardScan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Numéro de membre */
+        .member-number {
+            position: absolute;
+            top: 10px; right: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: rgba(255,255,255,0.08);
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body class="bg-black text-white">
@@ -162,23 +510,27 @@
             <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
                 <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
             </div>
+            <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="info">
+                <span>👥</span>
+                <div>
+                    <h3 class="text-sm font-bold">INFO</h3>
+                    <p class="text-[9px] text-gray-500">Hiérarchie · Membres</p>
+                </div>
+            </div>
         </nav>
 
-<div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <audio id="homeMusic" src="home_music.mp3" loop></audio>
-    
-    <div class="music-control-panel" style="display:flex; flex-direction:column; gap:10px; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(10,60,255,0.3); border-radius:4px;">
-        <!-- Bouton On/Off -->
-        <div onclick="toggleMusic()" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#7aa0c4;">
-            <span id="musicIcon" style="font-size:16px;">🔊</span>
-            <span style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">Ambiance NBN</span>
+        <div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <audio id="homeMusic" src="home_music.mp3" loop></audio>
+            
+            <div class="music-control-panel" style="display:flex; flex-direction:column; gap:10px; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(10,60,255,0.3); border-radius:4px;">
+                <div onclick="toggleMusic()" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#7aa0c4;">
+                    <span id="musicIcon" style="font-size:16px;">🔊</span>
+                    <span style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">Ambiance NBN</span>
+                </div>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" 
+                       style="width:100%; cursor:pointer; accent-color:#0a3cff; height:4px;">
+            </div>
         </div>
-        
-        <!-- Slider de Volume -->
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" 
-               style="width:100%; cursor:pointer; accent-color:#0a3cff; height:4px;">
-    </div>
-</div>
 
         <div class="footer pt-4 border-t border-white/10 text-[10px] text-red-600 font-bold">
             ● SYSTÈME ONLINE
@@ -224,7 +576,7 @@
                 </div>
 
                 <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="histoire">
-                    <img src="https://i.imgur.com/7b1Xv7z.jpg" class="card-bg-image">
+                    <img src="histoire.jpg" class="card-bg-image">
                     <div class="card-overlay"></div>
                     <div class="card-content">
                         <div class="card-icon text-gray-500">📖</div>
@@ -236,13 +588,13 @@
                 </div>
 
                 <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="info">
-                    <img src="https://i.imgur.com/W2iRk3S.jpg" class="card-bg-image">
+                    <img src="info.png" class="card-bg-image">
                     <div class="card-overlay"></div>
                     <div class="card-content">
-                        <div class="card-icon text-gray-500">👤</div>
+                        <div class="card-icon text-gray-500">👥</div>
                         <h3 class="card-title">INFO</h3>
                         <p class="card-desc">Hiérarchie & Membres actifs.</p>
-                        <div class="card-info-peek">42 O.G. & Membres</div>
+                        <div class="card-info-peek">9 Membres · 5 Rangs</div>
                     </div>
                     <div class="card-border-effect"></div>
                 </div>
@@ -254,8 +606,6 @@
         <!-- PAGE : CARTE GTA 5 -->
         <div id="map" class="page h-full">
             <div class="map-wrapper-nbn" id="nbnMapRoot">
-
-                <!-- Écran de chargement -->
                 <div class="map-loading" id="nbnMapLoading">
                     <div class="map-loading-logo">NORTHSIDE <span>BLUE</span> NATION</div>
                     <div class="map-loading-bar-track">
@@ -263,14 +613,11 @@
                     </div>
                     <div class="map-loading-text">Chargement de la carte...</div>
                 </div>
-
                 <div class="map-scanline"></div>
                 <div class="map-corner tl"></div>
                 <div class="map-corner tr"></div>
                 <div class="map-corner bl"></div>
                 <div class="map-corner br"></div>
-
-                <!-- HUD haut -->
                 <div class="map-hud-top">
                     <div>
                         <div class="map-hud-title">CARTE TACTIQUE — <span>NBN</span></div>
@@ -278,105 +625,394 @@
                     </div>
                     <div class="map-hud-coords" id="nbnCoords">X — · Y —</div>
                 </div>
-
-                <!-- Canvas carte -->
                 <div id="nbn-map-canvas">
-                    <!--
-                        IMPORTANT : Télécharge la carte GTA 5 ici :
-                        https://www.bragitoff.com/wp-content/uploads/2015/11/GTAV-HD-MAP-satellite.jpg
-                        Renomme-la "gta_map.jpg" et place-la dans ton dossier projet.
-                    -->
-                    <img
-                        id="nbnMapImg"
-                        src="gta_map.jpg"
-                        alt="Carte GTA 5 - San Andreas"
-                        draggable="false"
-                    />
-                    <!-- SVG pour les futurs points tactiques NBN -->
-                    <!-- Pour ajouter un point plus tard :
-                         <circle cx="XXXX" cy="YYYY" r="14" fill="#0a3cff" stroke="white" stroke-width="3"/>
-                    -->
+                    <img id="nbnMapImg" src="gta_map.jpg" alt="Carte GTA 5 - San Andreas" draggable="false"/>
                     <svg id="nbn-points-svg" xmlns="http://www.w3.org/2000/svg"></svg>
                 </div>
-
-                <!-- Boutons zoom -->
                 <div class="map-zoom-controls">
                     <button class="map-zoom-btn" id="nbnZoomIn">+</button>
                     <button class="map-zoom-btn" id="nbnZoomOut">−</button>
                     <button class="map-zoom-btn" id="nbnZoomReset" style="font-size:11px">⌂</button>
                 </div>
-
-                <!-- HUD bas -->
                 <div class="map-hud-bottom">
                     <div class="map-status">● SYSTÈME CARTOGRAPHIQUE NBN ONLINE</div>
                     <div class="map-hint">SCROLL → ZOOM &nbsp;·&nbsp; DRAG → DÉPLACER</div>
                 </div>
-
             </div>
         </div>
-        <!-- FIN PAGE CARTE -->
 
-        <!-- PAGE : HISTOIRE (placeholder) -->
+        <!-- PAGE : HISTOIRE -->
         <div id="histoire" class="page p-10 overflow-y-auto h-full bg-[#050505]">
-    <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
-            <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
-                DOSSIER <span class="text-[#0a3cff]">HISTORIQUE</span>
-            </h1>
-            <p class="text-sm font-mono text-[#0a3cff] mt-2 animate-pulse">CLASSIFIÉ : NBN NETWORK ACCESS ONLY</p>
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+                        DOSSIER <span class="text-[#0a3cff]">HISTORIQUE</span>
+                    </h1>
+                    <p class="text-sm font-mono text-[#0a3cff] mt-2 animate-pulse">CLASSIFIÉ : NBN NETWORK ACCESS ONLY</p>
+                </div>
+
+                <div id="story-content" class="space-y-8 font-mono text-gray-300 leading-relaxed">
+                    <div class="border-l-2 border-[#0a3cff] pl-6 py-4 bg-blue-900/5">
+                        <h2 class="text-[#0a3cff] font-bold mb-4 uppercase tracking-widest text-xl">I. Origine & Exode</h2>
+                        <p class="story-text" data-delay="0">
+                            Dans les quartiers oubliés du nord, là où les immeubles sont fatigués et les rêves souvent brisés avant même d'exister, une identité s'est forgée dans l'ombre… Une identité née de la douleur, de la rue, mais surtout de la loyauté.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1000">
+                            C'est là que tout commence avec <span class="text-white font-bold border-b border-[#0a3cff]">Mason Williams</span>. OG respecté, Mason observait, apprenait, comprenait. Là où d'autres voyaient le chaos, lui voyait une opportunité : construire quelque chose de solide.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                        <div class="border border-white/10 p-4 hover:border-[#0a3cff] transition-colors">
+                            <h3 class="text-[#0a3cff] text-xs mb-2 underline">LES PILIERS</h3>
+                            <ul class="text-sm space-y-2">
+                                <li><b class="text-white">Ace Ashler</b> — Le cerveau.</li>
+                                <li><b class="text-white">Karl Ashler</b> — La force.</li>
+                                <li><b class="text-white">Sékou Stone</b> — Le lien.</li>
+                                <li><b class="text-white">Deon Drayton</b> — La force tranquille.</li>
+                                <li><b class="text-white">Quincy Tillman</b> — Le soldat.</li>
+                            </ul>
+                        </div>
+                        <div class="border border-white/10 p-4 flex flex-col justify-center items-center text-center">
+                            <div class="text-4xl mb-2">🟦</div>
+                            <h3 class="text-white font-black">NORTHSIDE BLUE NATION</h3>
+                            <p class="text-[10px] text-gray-500 italic mt-2">"Le bleu, c'est le sang froid. Le contrôle. La discipline dans le chaos."</p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-2 border-red-600 pl-6 py-4 bg-red-900/5 mt-10">
+                        <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">II. L'Ascension & Le Choix</h2>
+                        <p class="story-text" data-delay="500">
+                            Les NorthSide n'ont jamais cherché à être la plus bruyante… Mais elle est rapidement devenue impossible à ignorer. Mason a compris avant les autres : "Si on reste ici… on tourne en rond. Si on bouge… on devient quelque chose de plus grand."
+                        </p>
+                    </div>
+
+                    <div class="relative p-8 border-2 border-[#0a3cff] bg-black group overflow-hidden">
+                        <div class="absolute top-0 right-0 p-2 text-[10px] text-[#0a3cff] font-bold">STATUS: EN CONQUÊTE</div>
+                        <h2 class="text-white font-black text-2xl mb-4">LOS SANTOS : NOUVEAU CHAPITRE</h2>
+                        <p class="text-sm italic text-gray-400">
+                            "Ils ne partent pas en fuite. Ils partent en conquête. À Los Santos, personne ne les attend. Et ça… ils aiment."
+                        </p>
+                        <div class="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
+                            <span class="text-[#0a3cff] font-black tracking-widest text-lg">FROM THE NORTH... TO THE THRONE.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="story-content" class="space-y-8 font-mono text-gray-300 leading-relaxed">
-            <div class="border-l-2 border-[#0a3cff] pl-6 py-4 bg-blue-900/5">
-                <h2 class="text-[#0a3cff] font-bold mb-4 uppercase tracking-widest text-xl">I. Origine & Exode</h2>
-                <p class="story-text" data-delay="0">
-                    Dans les quartiers oubliés du nord, là où les immeubles sont fatigués et les rêves souvent brisés avant même d’exister, une identité s’est forgée dans l’ombre… Une identité née de la douleur, de la rue, mais surtout de la loyauté.
-                </p>
-                <p class="story-text mt-4" data-delay="1000">
-                    C’est là que tout commence avec <span class="text-white font-bold border-b border-[#0a3cff]">Mason Williams</span>. OG respecté, Mason observait, apprenait, comprenait. Là où d’autres voyaient le chaos, lui voyait une opportunité : construire quelque chose de solide.
-                </p>
-             </div>
+        <!-- ===================================================== -->
+        <!-- PAGE : INFO — HIÉRARCHIE NBN                          -->
+        <!-- ===================================================== -->
+        <div id="info" class="page p-8 overflow-y-auto h-full bg-[#030305] relative">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                <div class="border border-white/10 p-4 hover:border-[#0a3cff] transition-colors">
-                    <h3 class="text-[#0a3cff] text-xs mb-2 underline">LES PILIERS</h3>
-                    <ul class="text-sm space-y-2">
-                        <li><b class="text-white">Ace Ashler</b> — Le cerveau.</li>
-                        <li><b class="text-white">Deon Drayton</b> — La force tranquille.</li>
-                        <li><b class="text-white">Quincy Tillman</b> — Le lien.</li>
-                        <li><b class="text-white">Youbi</b> — L'imprévisible.</li>
-                        <li><b class="text-white">Noowey</b> — L’ombre.</li>
-                        <li><b class="text-white">Shale</b> — Le soldat.</li>
-                        <li><b class="text-white">Azul</b> — L’avenir.</li>
-                    </ul>
-                </div>
-                <div class="border border-white/10 p-4 flex flex-col justify-center items-center text-center">
-                    <div class="text-4xl mb-2">🟦</div>
-                    <h3 class="text-white font-black">NORTHSIDE BLUE NATION</h3>
-                    <p class="text-[10px] text-gray-500 italic mt-2">"Le bleu, c’est le sang froid. Le contrôle. La discipline dans le chaos."</p>
+            <!-- Fond déco -->
+            <div class="hex-grid-bg"></div>
+
+            <!-- Ligne de scan -->
+            <div class="info-scanline"></div>
+
+            <!-- ===== HEADER ===== -->
+            <div class="info-header text-center mb-12 pb-8 border-b border-white/5">
+                <div class="classified-stamp mb-4">Accès Restreint</div>
+                <h1 class="text-6xl font-black uppercase tracking-tighter text-white mt-4 glitch-title" data-text="HIÉRARCHIE">
+                    HIÉRARCHIE
+                </h1>
+                <p class="text-[#0a3cff] font-mono text-xs tracking-[0.4em] mt-3 uppercase">
+                    Northside Blue Nation · Los Santos · 2026
+                </p>
+
+                <!-- Stats rapides -->
+                <div class="flex justify-center gap-12 mt-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#0a3cff]" id="cnt-members">9</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Membres actifs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#0a3cff]">5</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Rangs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#0a3cff]">100%</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Fidélité</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="border-l-2 border-red-600 pl-6 py-4 bg-red-900/5 mt-10">
-                <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">II. L’Ascension & Le Choix</h2>
-                <p class="story-text" data-delay="500">
-                    Les NorthSide n'ont jamais cherché à être la plus bruyante… Mais elle est rapidement devenue impossible à ignorer. Mason a compris avant les autres : "Si on reste ici… on tourne en rond. Si on bouge… on devient quelque chose de plus grand."
-                </p>
-            </div>
+            <!-- ===== HIÉRARCHIE VERTICALE ===== -->
+            <div class="max-w-3xl mx-auto relative">
 
-            <div class="relative p-8 border-2 border-[#0a3cff] bg-black group overflow-hidden">
-                <div class="absolute top-0 right-0 p-2 text-[10px] text-[#0a3cff] font-bold">STATUS: EN CONQUÊTE</div>
-                <h2 class="text-white font-black text-2xl mb-4">LOS SANTOS : NOUVEAU CHAPITRE</h2>
-                <p class="text-sm italic text-gray-400">
-                    "Ils ne partent pas en fuite. Ils partent en conquête. À Los Santos, personne ne les attend. Et ça… ils aiment."
-                </p>
-                <div class="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
-                    <span class="text-[#0a3cff] font-black tracking-widest text-lg">FROM THE NORTH... TO THE THRONE.</span>
+                <!-- Ligne centrale déco -->
+                <div class="hierarchy-line hidden md:block"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 1 : OG           -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-og">
+                    <div class="rank-badge">
+                        <span>👑</span> OG — Original Gangster
+                    </div>
+
+                    <div class="member-card og-card w-full max-w-md p-5 flex items-center gap-5" data-index="0">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#001</div>
+                        <div class="member-avatar gold relative">
+                            MW
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Mason Williams</h3>
+                                <span class="rank-tag og">OG</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">CHEF SUPRÊME · FONDATEUR</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 100%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : MAXIMUM</p>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 2 : DOUBLE OG    -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-dog">
+                    <div class="rank-badge">
+                        <span>⚡</span> Double OG
+                    </div>
+
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="1">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#002</div>
+                        <div class="member-avatar blue relative">
+                            AA
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Ace Ashler</h3>
+                                <span class="rank-tag dog">Double OG</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">BRAS DROIT · LE CERVEAU</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 88%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : ÉLEVÉE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 3 : BIG HOMIE    -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-bh">
+                    <div class="rank-badge">
+                        <span>🔵</span> Big Homie
+                    </div>
+
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="2">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#003</div>
+                        <div class="member-avatar dark relative">
+                            KA
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Karl Ashler</h3>
+                                <span class="rank-tag bh">Big Homie</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">LIEUTENANT · LA FORCE</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 72%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : FORTE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 4 : STREET CAP   -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-sc">
+                    <div class="rank-badge">
+                        <span>🎯</span> Street Captain
+                    </div>
+
+                    <!-- 2 captains côte à côte -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+
+                        <div class="member-card p-5 flex items-center gap-4" data-index="3">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#004</div>
+                            <div class="member-avatar dark relative">
+                                SS
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Sékou Stone</h3>
+                                    <span class="rank-tag sc">S.Captain</span>
+                                </div>
+                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN NORD</p>
+                                <div class="power-bar-track mt-2">
+                                    <div class="power-bar-fill" style="--target-w: 58%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-5 flex items-center gap-4" data-index="4">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#005</div>
+                            <div class="member-avatar dark relative">
+                                DD
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Deon Drayton</h3>
+                                    <span class="rank-tag sc">S.Captain</span>
+                                </div>
+                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN EST</p>
+                                <div class="power-bar-track mt-2">
+                                    <div class="power-bar-fill" style="--target-w: 56%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 5 : GANG MEMBER  -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-gm">
+                    <div class="rank-badge">
+                        <span>🔗</span> Gang Member
+                    </div>
+
+                    <div class="members-grid w-full max-w-2xl">
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="5">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#006</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                DC
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Dwayne Carter</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 40%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="6">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#007</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                SH
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Sean Holloway</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 38%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="7">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#008</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                QT
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Quincy Tillman</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 42%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="8">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#009</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                NK
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Nash Kouyaman</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 35%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="9">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#010</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                DK
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Danté Knox</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 37%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ===== FOOTER CITATION ===== -->
+                <div class="deco-line"></div>
+                <div class="text-center pb-10">
+                    <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
+                        "Un seul pour diriger. Tous pour la Nation."
+                    </p>
+                    <p class="text-[#0a3cff] font-black tracking-widest text-sm mt-3">
+                        NORTHSIDE BLUE NATION — DEPUIS LOS SANTOS
+                    </p>
+                </div>
+
             </div>
         </div>
-    </div>
-</div>
+        <!-- FIN PAGE INFO -->
 
     </main>
 </div>
@@ -393,14 +1029,16 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', () => {
             const pageId = item.getAttribute('data-page');
 
-            // Mettre à jour le menu actif
             menuItems.forEach(i => i.classList.remove('active', 'bg-[#0a3cff]/20'));
             item.classList.add('active', 'bg-[#0a3cff]/20');
 
-            // Afficher la bonne page
             pages.forEach(p => p.classList.remove('active'));
             const target = document.getElementById(pageId);
             if (target) target.classList.add('active');
+
+            // Déclenche les animations spéciales par page
+            if (pageId === 'info') animateInfoPage();
+            if (pageId === 'histoire') setTimeout(animateHistory, 300);
         });
     });
 
@@ -413,6 +1051,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/* ===== ANIMATIONS PAGE INFO ===== */
+function animateInfoPage() {
+    // Anime les cartes membres en cascade
+    const cards = document.querySelectorAll('#info .member-card');
+    cards.forEach((card, i) => {
+        card.classList.remove('visible');
+        card.style.transitionDelay = '0s';
+    });
+
+    // Re-déclenche en cascade
+    setTimeout(() => {
+        cards.forEach((card, i) => {
+            setTimeout(() => {
+                card.style.transitionDelay = `0s`;
+                card.classList.add('visible');
+            }, i * 80);
+        });
+    }, 100);
+
+    // Anime les barres de puissance
+    setTimeout(() => {
+        document.querySelectorAll('#info .power-bar-fill').forEach((bar, i) => {
+            setTimeout(() => {
+                const target = bar.style.getPropertyValue('--target-w') || '50%';
+                bar.style.width = target;
+            }, i * 120);
+        });
+    }, 400);
+}
 
 /* ===== CARTE GTA 5 INTERACTIVE ===== */
 (function () {
@@ -448,7 +1116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         coords.textContent = `X ${mx} · Y ${my}`;
     }
 
-    // Drag souris
     root.addEventListener('mousedown', e => {
         if (e.target.classList.contains('map-zoom-btn')) return;
         isDragging = true;
@@ -469,7 +1136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     root.addEventListener('mousemove', e => updateCoords(e.clientX, e.clientY));
 
-    // Zoom molette centré sur le curseur
     root.addEventListener('wheel', e => {
         e.preventDefault();
         const rect   = root.getBoundingClientRect();
@@ -483,7 +1149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTransform(false);
     }, { passive: false });
 
-    // Touch mobile
     let lastDist = null;
     root.addEventListener('touchstart', e => {
         if (e.touches.length === 1) {
@@ -510,7 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
     root.addEventListener('touchend', () => { isDragging = false; lastDist = null; });
 
-    // Boutons zoom
     function zoomAt(factor) {
         const rect = root.getBoundingClientRect();
         const cx = rect.width / 2, cy = rect.height / 2;
@@ -528,24 +1192,20 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTransform(true);
     });
 
-    // Fonction qui ferme l'écran de chargement
     function hideLoading() {
         if (!loading) return;
         loading.style.opacity = '0';
         setTimeout(() => { loading.style.display = 'none'; }, 600);
     }
 
-    // Lancer la barre de progression visuelle
     setTimeout(() => { if (loadBar) loadBar.style.width = '40%'; }, 100);
     setTimeout(() => { if (loadBar) loadBar.style.width = '75%'; }, 600);
 
-    // Si l'image charge correctement
     img.addEventListener('load', () => {
         if (loadBar) loadBar.style.width = '100%';
         setTimeout(hideLoading, 600);
     });
 
-    // Si l'image est introuvable → afficher message d'erreur PUIS fermer quand même après 3s
     img.addEventListener('error', () => {
         const txt = loading.querySelector('.map-loading-text');
         const bar = loading.querySelector('.map-loading-bar-track');
@@ -557,11 +1217,9 @@ document.addEventListener('DOMContentLoaded', () => {
             txt.style.letterSpacing = '1px';
         }
         if (bar) bar.style.display = 'none';
-        // Fermer automatiquement après 3 secondes malgré l'erreur
         setTimeout(hideLoading, 3000);
     });
 
-    // Sécurité : si ni load ni error ne se déclenchent après 5s, on ferme quand même
     setTimeout(() => {
         if (loading && loading.style.display !== 'none') {
             hideLoading();
