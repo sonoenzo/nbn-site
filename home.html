@@ -1623,207 +1623,104 @@
         <!-- ===================================================== -->
         <!-- PAGE : ARSENAL — ARMES & VÉHICULES                    -->
         <!-- ===================================================== -->
-        <div id="arsenal" class="page p-8 overflow-y-auto h-full bg-[#030305] relative">
+<!-- PAGE : ARSENAL -->
+<div id="arsenal" class="page p-10 overflow-y-auto h-full bg-black">
 
-            <!-- Scan line déco -->
-            <div class="info-scanline"></div>
+    <h1 class="text-4xl font-black text-[#0a3cff] mb-6">
+        ARSENAL NBN
+    </h1>
 
-            <!-- HEADER -->
-            <div class="text-center mb-12 pb-8 border-b border-white/5">
-                <div style="display:inline-block; border:1px solid rgba(10,60,255,0.4); padding:3px 14px; font-size:9px; letter-spacing:3px; color:#0a3cff; margin-bottom:16px; text-transform:uppercase;">
-                    ● CLASSIFIÉ · NBN ONLY
-                </div>
-                <h1 class="text-6xl font-black uppercase tracking-tighter text-white">
-                    ARSENAL <span class="text-[#0a3cff]">NBN</span>
-                </h1>
-                <p class="text-[#0a3cff] font-mono text-xs tracking-[0.4em] mt-3 uppercase">
-                    Armement · Flotte · Équipement · GTA RP
-                </p>
-                <div class="flex justify-center gap-12 mt-8">
-                    <div class="text-center">
-                        <div class="text-3xl font-black text-[#0a3cff]" id="cnt-weapons">0</div>
-                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Armes</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-black text-[#0a3cff]" id="cnt-vehicles">0</div>
-                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Véhicules</div>
-                    </div>
-                </div>
-            </div>
+    <!-- FILTRES -->
+    <div class="flex gap-3 mb-6">
+        <button class="arsenal-filter-btn active border px-3 py-1 text-xs" data-filter="all">TOUT</button>
+        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="weapon">ARMES</button>
+        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="vehicle">VÉHICULES</button>
+		<button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="DROGUES">DROGUES</button>
+    </div>
 
-            <!-- ===== FILTRES ===== -->
-            <div class="flex gap-3 mb-8 flex-wrap" id="arsenalFilters">
-                <button class="arsenal-filter-btn active" data-filter="all"
-                    style="border:1px solid #0a3cff; background:rgba(10,60,255,0.2); color:#fff; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
-                    TOUT
-                </button>
-                <button class="arsenal-filter-btn" data-filter="arme"
-                    style="border:1px solid rgba(10,60,255,0.3); background:transparent; color:#888; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
-                    🔫 ARMES
-                </button>
-                <button class="arsenal-filter-btn" data-filter="vehicule"
-                    style="border:1px solid rgba(10,60,255,0.3); background:transparent; color:#888; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
-                    🚗 VÉHICULES
-                </button>
-            </div>
+    <!-- GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <!-- ===== GRILLE ARSENAL ===== -->
-            <div id="arsenalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- ===== ARMES ===== -->
 
-                <!-- ─── ARMES ─── -->
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="tec9.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">TEC-9</h3>
+            <span class="arsenal-tag">PISTOLET-AUTO</span>
+        </div>
 
-                <div class="arsenal-item" data-type="arme" data-name="Pistolet .50"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · PISTOLET</span>
-                        <span style="font-size:18px;">🔫</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Pistolet .50</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Arme de poing compacte. Fiable et discrète.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag">Discret</span>
-                            <span class="arsenal-tag">Standard</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="uzi.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Uzi</h3>
+            <span class="arsenal-tag">Mitraillette</span>
+        </div>
 
-                <div class="arsenal-item" data-type="arme" data-name="Micro SMG"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SMG</span>
-                        <span style="font-size:18px;">🔫</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Micro SMG</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Cadence élevée. Idéal depuis un véhicule.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag">Drive-by</span>
-                            <span class="arsenal-tag">Rapide</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="pistol.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Beretta</h3>
+            <span class="arsenal-tag arsenal-tag-red">PISTOLET</span>
+        </div>
+		
+		<div class="arsenal-item border p-4" data-type="weapon">
+            <img src="glock.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Glock</h3>
+            <span class="arsenal-tag arsenal-tag-red">PISTOLET</span>
+        </div>
+		
+		        <!-- ===== DROGUES ===== -->
 
-                <div class="arsenal-item" data-type="arme" data-name="Carbine Rifle"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · ASSAULT</span>
-                        <span style="font-size:18px;">🪖</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Carbine Rifle</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Fusil d'assaut de référence. Polyvalent.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag arsenal-tag-gold">Lourd</span>
-                            <span class="arsenal-tag">Polyvalent</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="weed.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">WEED</h3>
+            <span class="arsenal-tag arsenal-tag-gold">BlueWeed</span>
+        </div>
 
-                <div class="arsenal-item" data-type="arme" data-name="Sniper Rifle"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SNIPER</span>
-                        <span style="font-size:18px;">🎯</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Sniper Rifle</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Longue portée. Précision maximale.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag arsenal-tag-red">Élite</span>
-                            <span class="arsenal-tag">Longue portée</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="cocaine.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">COCAINE</h3>
+            <span class="arsenal-tag">BlueWhite</span>
+        </div>
 
-                <div class="arsenal-item" data-type="arme" data-name="Shotgun"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SHOTGUN</span>
-                        <span style="font-size:18px;">💥</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Shotgun</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Dégâts massifs à courte portée. CQC.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag arsenal-tag-gold">Puissant</span>
-                            <span class="arsenal-tag">CQC</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="meth.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">METH</h3>
+            <span class="arsenal-tag">BlueIce</span>
+        </div>
 
-                <!-- ─── VÉHICULES ─── -->
+        <!-- ===== VEHICULES ===== -->
 
-                <div class="arsenal-item" data-type="vehicule" data-name="Sultan RS"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · SPORT</span>
-                        <span style="font-size:18px;">🚗</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Sultan RS</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Berline sport modifiée. Maniabilité hors pair.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag">Rapide</span>
-                            <span class="arsenal-tag">4x4</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="LOWRIDER.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">LOWRIDER</h3>
+            <span class="arsenal-tag arsenal-tag-gold">RIDE</span>
+        </div>
 
-                <div class="arsenal-item" data-type="vehicule" data-name="Insurgent"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · BLINDÉ</span>
-                        <span style="font-size:18px;">🚙</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Insurgent</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Véhicule blindé lourd. Résiste aux tirs.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag arsenal-tag-gold">Blindé</span>
-                            <span class="arsenal-tag arsenal-tag-red">Élite</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="primo.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">PRIMO</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
 
-                <div class="arsenal-item" data-type="vehicule" data-name="Schafter V12"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · BERLINE</span>
-                        <span style="font-size:18px;">🚘</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Schafter V12</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Berline de luxe blindée. Discrétion + protection.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag arsenal-tag-gold">Blindé</span>
-                            <span class="arsenal-tag">Discret</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="Moonbean.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Moonbean</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
+		
+		<div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="moto.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Scooter & Moto</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
 
-                <div class="arsenal-item" data-type="vehicule" data-name="Motorcycle Bati"
-                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
-                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · MOTO</span>
-                        <span style="font-size:18px;">🏍️</span>
-                    </div>
-                    <div style="padding:16px;">
-                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Bati 801</h3>
-                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Moto la plus rapide de Los Santos. Fuite assurée.</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="arsenal-tag">Ultra rapide</span>
-                            <span class="arsenal-tag">Fuite</span>
-                        </div>
-                    </div>
-                </div>
+    </div>
 
-            </div>
+</div>
 
             <!-- NOTE BAS DE PAGE -->
             <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
                 <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
-                <!--    ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html -->
+                 <!--   ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html -->
                 </p>
                 <p class="text-[#0a3cff] font-black tracking-widest text-sm mt-3">NORTHSIDE BLUE NATION — LOS SANTOS</p>
             </div>
@@ -2141,6 +2038,13 @@ function animateInfoPage() {
     }, 5000);
 })();
 </script>
+<div id="arsenalModal" class="member-modal hidden">
+    <div class="member-modal-bg" onclick="closeArsenalModal()"></div>
+
+    <div class="member-modal-content">
+        <img id="arsenalModalImg" src="">
+    </div>
+</div>
 <div id="memberModal" class="member-modal hidden">
 
     <div class="member-modal-bg" onclick="closeModal()"></div>
