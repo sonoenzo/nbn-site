@@ -437,12 +437,16 @@ aside.sidebar {
     bottom: 0;
     width: 100%;
     padding: 20px;
-    background: linear-gradient(to top, black, transparent);
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.4) 85%, transparent 100%);
+    color: white;
+    z-index: 5;
 }
 
 .gang-overlay h3 {
     font-weight: bold;
     font-size: 18px;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .gang-overlay p {
@@ -562,4 +566,29 @@ aside.sidebar {
     object-fit: contain;
     border: 2px solid #0a3cff;
     box-shadow: 0 0 60px rgba(10,60,255,0.4);
+}
+.gang-id {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    font-family: monospace;
+}
+
+.active-card {
+    border-color: #0a3cff !important;
+    box-shadow: 0 0 40px rgba(10,60,255,0.5);
+}
+
+.modal-loading {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #0a3cff;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }

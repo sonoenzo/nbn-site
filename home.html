@@ -487,6 +487,48 @@
             color: rgba(255,255,255,0.08);
             letter-spacing: 1px;
         }
+
+        /* ===== ARSENAL PAGE ===== */
+        .arsenal-item:hover {
+            border-color: rgba(10,60,255,0.5) !important;
+            background: #0a0a18 !important;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(10,60,255,0.15);
+        }
+        .arsenal-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 9px;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(10,60,255,0.3);
+            color: #0a3cff;
+            background: rgba(10,60,255,0.08);
+        }
+        .arsenal-tag-gold {
+            border-color: rgba(200,168,0,0.4) !important;
+            color: #c8a800 !important;
+            background: rgba(200,168,0,0.08) !important;
+        }
+        .arsenal-tag-red {
+            border-color: rgba(255,50,50,0.4) !important;
+            color: #ff3232 !important;
+            background: rgba(255,50,50,0.08) !important;
+        }
+        .arsenal-filter-btn:hover {
+            border-color: #0a3cff !important;
+            color: white !important;
+            background: rgba(10,60,255,0.15) !important;
+        }
+        .arsenal-filter-btn.active {
+            border-color: #0a3cff !important;
+            background: rgba(10,60,255,0.2) !important;
+            color: white !important;
+        }
+        .arsenal-item.hidden-item {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-black text-white">
@@ -521,6 +563,13 @@
         <div>
             <h3 class="text-sm font-bold">INFO</h3>
             <p class="text-[9px] text-gray-500">Hiérarchie · Membres</p>
+        </div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="arsenal">
+        <span>🔫</span>
+        <div>
+            <h3 class="text-sm font-bold">ARSENAL</h3>
+            <p class="text-[9px] text-gray-500">Armes · Véhicules</p>
         </div>
     </div>
 </nav>
@@ -601,6 +650,21 @@
                         <h3 class="card-title">INFO</h3>
                         <p class="card-desc">Hiérarchie & Membres actifs.</p>
                         <div class="card-info-peek">11 Membres · 5 Rangs</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="arsenal" style="grid-column: 1 / -1; height: 200px;">
+                    <div class="card-overlay" style="background: linear-gradient(90deg, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0.4) 100%);"></div>
+                    <div class="card-content" style="bottom: auto; top: 50%; transform: translateY(-50%); width: auto; padding: 30px 40px;">
+                        <div style="display:flex; align-items:center; gap:20px;">
+                            <div style="font-size:48px; filter: drop-shadow(0 0 20px rgba(10,60,255,0.6));">🔫</div>
+                            <div>
+                                <h3 class="card-title" style="font-size:36px;">ARSENAL <span style="color:#0a3cff">NBN</span></h3>
+                                <p class="card-desc" style="font-size:13px; margin:0;">Armement & Flotte de véhicules du gang · GTA RP</p>
+                                <div class="card-info-peek" style="max-height:none; opacity:0.6; margin-top:8px;">Armes · Véhicules blindés · Équipement de terrain</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-border-effect"></div>
                 </div>
@@ -712,116 +776,463 @@
                 </div>
             </div>
         </div>
-		
-		<!-- ===================================================== -->
-<!-- PAGE : GANG INFO                                      -->
-<!-- ===================================================== -->
-<div id="gang-info" class="page p-10 overflow-y-auto h-full bg-black">
+        <!-- FIN PAGE HISTOIRE -->
 
-    <h1 class="text-5xl font-black mb-10 text-white">
-        GANG <span class="text-[#0a3cff]">DOSSIERS</span>
-    </h1>
+        <!-- ===================================================== -->
+        <!-- PAGE : GANG INFO — REDESIGN PREMIUM                   -->
+        <!-- ===================================================== -->
+        <div id="gang-info" class="page overflow-y-auto h-full" style="background:#040408;">
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- ===== CSS GANG PAGE ===== -->
+    <style>
+        /* ── Fond grille déco ── */
+        #gang-info {
+            background-image:
+                linear-gradient(rgba(10,60,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10,60,255,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
 
-    <!-- Mason -->
-    <div class="gang-card" onclick="openModal(this)" data-img="mason-dossier.png">
-        <img src="mason-preview.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Mason Williams</h3>
-            <p>OG</p>
+        /* ── Header cinématique ── */
+        .gang-page-header {
+            position: relative;
+            padding: 48px 48px 36px;
+            border-bottom: 1px solid rgba(10,60,255,0.2);
+            overflow: hidden;
+        }
+        .gang-page-header::before {
+            content: 'NBN';
+            position: absolute;
+            right: -20px; top: -30px;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 200px;
+            color: rgba(10,60,255,0.04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+        .gang-header-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(10,60,255,0.5);
+            padding: 4px 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+            color: #0a3cff; margin-bottom: 16px;
+        }
+        .gang-header-tag::before {
+            content: ''; width: 6px; height: 6px;
+            background: #0a3cff; border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
+        .gang-page-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 64px; line-height: 0.9;
+            letter-spacing: -3px; text-transform: uppercase;
+            color: white; margin: 0;
+        }
+        .gang-page-title span { color: #0a3cff; }
+        .gang-stats-row {
+            display: flex; gap: 32px; margin-top: 24px; flex-wrap: wrap;
+        }
+        .gang-stat {
+            display: flex; flex-direction: column;
+        }
+        .gang-stat-num {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 28px; color: white; line-height: 1;
+        }
+        .gang-stat-num span { color: #0a3cff; }
+        .gang-stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px; letter-spacing: 2px;
+            text-transform: uppercase; color: #444; margin-top: 4px;
+        }
+
+        /* ── Barre recherche ── */
+        .gang-search-bar {
+            display: flex; gap: 12px; align-items: center;
+            padding: 24px 48px 0;
+        }
+        .gang-search-wrap {
+            position: relative; flex: 1;
+        }
+        .gang-search-wrap::before {
+            content: '⌕';
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: #0a3cff; font-size: 18px; pointer-events: none;
+        }
+        #searchInput {
+            width: 100%; background: rgba(10,60,255,0.05);
+            border: 1px solid rgba(10,60,255,0.25);
+            padding: 12px 16px 12px 42px;
+            font-family: 'Space Mono', monospace; font-size: 12px;
+            color: white; outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            box-sizing: border-box;
+        }
+        #searchInput::placeholder { color: #333; }
+        #searchInput:focus {
+            border-color: #0a3cff;
+            background: rgba(10,60,255,0.08);
+        }
+        #rankFilter {
+            background: rgba(10,60,255,0.05);
+            border: 1px solid rgba(10,60,255,0.25);
+            padding: 12px 16px; font-family: 'Space Mono', monospace;
+            font-size: 11px; color: white; outline: none; cursor: pointer;
+        }
+        #rankFilter:focus { border-color: #0a3cff; }
+        .gang-count-bar {
+            padding: 10px 48px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 2px;
+            color: #333; text-transform: uppercase;
+        }
+        .gang-count-bar span { color: #0a3cff; }
+
+        /* ── Grille ── */
+        #gangGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2px;
+            padding: 24px 48px 48px;
+        }
+
+        /* ── Carte membre ── */
+        .gang-card {
+            position: relative;
+            height: 380px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #060609;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .gang-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            border: 2px solid #0a3cff;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 8; pointer-events: none;
+        }
+        .gang-card:hover { transform: translateY(-6px); border-color: transparent; }
+        .gang-card:hover::after { opacity: 1; }
+
+        /* Image */
+        .gang-img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease, filter 0.4s ease;
+            filter: saturate(0.8) brightness(0.75);
+        }
+        .gang-card:hover .gang-img {
+            transform: scale(1.06);
+            filter: saturate(1.1) brightness(0.85);
+        }
+
+        /* Dégradé bas */
+        .gang-card-grad {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 65%;
+            background: linear-gradient(to top,
+                rgba(4,4,8,1) 0%,
+                rgba(4,4,8,0.9) 40%,
+                rgba(4,4,8,0.5) 70%,
+                transparent 100%);
+            z-index: 2;
+        }
+
+        /* Contenu texte bas */
+        .gang-card-body {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 20px 20px 22px;
+            z-index: 5;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        .gang-card:hover .gang-card-body { transform: translateY(-6px); }
+
+        .gang-card-rank {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+            padding: 3px 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(10,60,255,0.5);
+            color: #0a3cff;
+            background: rgba(10,60,255,0.1);
+        }
+        .gang-card-rank.rank-og    { border-color: rgba(10,60,255,0.8); color: #4d7fff; background: rgba(10,60,255,0.15); }
+        .gang-card-rank.rank-dog   { border-color: rgba(0,200,255,0.6); color: #00c8ff; background: rgba(0,200,255,0.08); }
+        .gang-card-rank.rank-bh    { border-color: rgba(150,100,255,0.6); color: #9664ff; background: rgba(150,100,255,0.08); }
+        .gang-card-rank.rank-ro    { border-color: rgba(0,255,180,0.4); color: #00ffb4; background: rgba(0,255,180,0.06); }
+        .gang-card-rank.rank-gm    { border-color: rgba(255,255,255,0.15); color: #aaa; background: rgba(255,255,255,0.04); }
+
+        .gang-card-name {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 22px; text-transform: uppercase;
+            letter-spacing: -0.5px; color: white;
+            line-height: 1; margin: 0;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+        }
+
+        /* Numéro dossier */
+        .gang-card-num {
+            position: absolute; top: 14px; right: 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; color: rgba(10,60,255,0.3);
+            letter-spacing: 1px; z-index: 6;
+            transition: color 0.3s;
+        }
+        .gang-card:hover .gang-card-num { color: rgba(10,60,255,0.7); }
+
+        /* Ligne déco top */
+        .gang-card-top-line {
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 2px; background: #0a3cff;
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.4s ease; z-index: 9;
+        }
+        .gang-card:hover .gang-card-top-line { transform: scaleX(1); }
+
+        /* Infos supplémentaires (apparaissent au hover) */
+        .gang-card-extra {
+            max-height: 0; overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            margin-top: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+        .gang-card:hover .gang-card-extra {
+            max-height: 30px; opacity: 1;
+        }
+
+        /* Icône oeil (ouvrir dossier) */
+        .gang-card-action {
+            position: absolute; bottom: 22px; right: 20px;
+            width: 32px; height: 32px;
+            border: 1px solid rgba(10,60,255,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: #0a3cff;
+            opacity: 0; transform: translateX(6px);
+            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            z-index: 7;
+        }
+        .gang-card:hover .gang-card-action {
+            opacity: 1; transform: translateX(0);
+        }
+        .gang-card-action:hover { background: rgba(10,60,255,0.2); }
+
+        /* ── No results ── */
+        .gang-no-results {
+            grid-column: 1/-1; text-align: center;
+            padding: 80px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px; color: #333;
+            letter-spacing: 2px; text-transform: uppercase;
+            display: none;
+        }
+    </style>
+
+    <!-- ── HEADER ── -->
+    <div class="gang-page-header">
+        <div class="gang-header-tag">NBN · DOSSIERS CLASSIFIÉS</div>
+        <h1 class="gang-page-title">GANG<br><span>DOSSIERS</span></h1>
+        <div class="gang-stats-row">
+            <div class="gang-stat">
+                <div class="gang-stat-num"><span id="gStat1">11</span></div>
+                <div class="gang-stat-label">Membres actifs</div>
+            </div>
+            <div class="gang-stat">
+                <div class="gang-stat-num"><span>5</span></div>
+                <div class="gang-stat-label">Rangs</div>
+            </div>
+            <div class="gang-stat">
+                <div class="gang-stat-num"><span>100</span>%</div>
+                <div class="gang-stat-label">Fidélité</div>
+            </div>
         </div>
     </div>
 
-    <!-- Ace -->
-    <div class="gang-card" onclick="openModal(this)" data-img="contentsono.png">
-        <img src="ace.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Ace Ashler</h3>
-            <p>Double OG</p>
+    <!-- ── RECHERCHE ── -->
+    <div class="gang-search-bar">
+        <div class="gang-search-wrap">
+            <input id="searchInput" type="text" placeholder="Rechercher un membre...">
         </div>
+        <select id="rankFilter" style="background:#040408; color:white;">
+            <option value="all">Tous les rangs</option>
+            <option value="OG">OG</option>
+            <option value="Double OG">Double OG</option>
+            <option value="Big Homie">Big Homie</option>
+            <option value="Réal One">Réal One</option>
+            <option value="Gang Member">Gang Member</option>
+        </select>
+    </div>
+    <div class="gang-count-bar">
+        Membres affichés : <span id="memberCount">11</span>
     </div>
 
-    <!-- Karl -->
-    <div class="gang-card" onclick="openModal(this)" data-img="youbibg.png">
-        <img src="youbi.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Karl Ashler</h3>
-            <p>Big Homie</p>
-        </div>
-    </div>
+    <!-- ── GRILLE ── -->
+    <div id="gangGrid">
 
-    <!-- Deon -->
-    <div class="gang-card" onclick="openModal(this)" data-img="Santibg.png">
-        <img src="Santi.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Deon Drayton</h3>
-            <p>Réal One</p>
+        <div class="gang-card" onclick="openModal(this)" data-img="mason-dossier.png" data-rank="OG" data-name="Mason Williams">
+            <div class="gang-card-top-line"></div>
+            <img src="mason-preview.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #001</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-og">◆ OG</div>
+                <p class="gang-card-name">Mason<br>Williams</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
         </div>
-    </div>
 
-    <!-- Tyler -->
-    <div class="gang-card" onclick="openModal(this)" data-img="azulbg.png">
-        <img src="AZUL.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Tyler Williams</h3>
-            <p>Réal One</p>
+        <div class="gang-card" onclick="openModal(this)" data-img="contentsono.png" data-rank="Double OG" data-name="Ace Ashler">
+            <div class="gang-card-top-line"></div>
+            <img src="ace.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #002</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-dog">◆ Double OG</div>
+                <p class="gang-card-name">Ace<br>Ashler</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
         </div>
-    </div>
 
-    <!-- Dante -->
-    <div class="gang-card" onclick="openModal(this)" data-img="shalebg.png">
-        <img src="Shales.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Danté Knox</h3>
-            <p>Gang Member</p>
+        <div class="gang-card" onclick="openModal(this)" data-img="youbibg.png" data-rank="Big Homie" data-name="Karl Ashler">
+            <div class="gang-card-top-line"></div>
+            <img src="youbi.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #003</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-bh">◆ Big Homie</div>
+                <p class="gang-card-name">Karl<br>Ashler</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
         </div>
-    </div>
 
-    <!-- Quincy -->
-    <div class="gang-card" onclick="openModal(this)" data-img="Peazzybg.png">
-        <img src="Peazzy.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Quincy Tillman</h3>
-            <p>Gang Member</p>
+        <div class="gang-card" onclick="openModal(this)" data-img="Santibg.png" data-rank="Réal One" data-name="Deon Drayton">
+            <div class="gang-card-top-line"></div>
+            <img src="Santi.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #004</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-ro">◆ Réal One</div>
+                <p class="gang-card-name">Deon<br>Drayton</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
         </div>
-    </div>
 
-    <!-- Nash -->
-    <div class="gang-card" onclick="openModal(this)" data-img="nashbg.png">
-        <img src="NOOWEY.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Nash Kouyaman</h3>
-            <p>Gang Member</p>
+        <div class="gang-card" onclick="openModal(this)" data-img="azulbg.png" data-rank="Réal One" data-name="Tyler Williams">
+            <div class="gang-card-top-line"></div>
+            <img src="AZUL.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #005</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-ro">◆ Réal One</div>
+                <p class="gang-card-name">Tyler<br>Williams</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
         </div>
-    </div>
-	    <!-- Sean -->
-    <div class="gang-card" onclick="openModal(this)" data-img="seanbg.png">
-        <img src="sean.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Sean Holloway</h3>
-            <p>Gang Member</p>
-        </div>
-    </div>
-		    <!-- Nate -->
-    <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg">
-        <img src="nate.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Nate Carter</h3>
-            <p>Gang Member</p>
-        </div>
-    </div>
-		    <!-- Dwayne -->
-    <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg">
-        <img src="xtase.png" class="gang-img">
-        <div class="gang-overlay">
-            <h3>Dwayne Carter</h3>
-            <p>Gang Member</p>
-        </div>
-    </div>
-</div>
 
-</div>
+        <div class="gang-card" onclick="openModal(this)" data-img="shalebg.png" data-rank="Gang Member" data-name="Danté Knox">
+            <div class="gang-card-top-line"></div>
+            <img src="Shales.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #006</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Danté<br>Knox</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-card" onclick="openModal(this)" data-img="Peazzybg.png" data-rank="Gang Member" data-name="Quincy Tillman">
+            <div class="gang-card-top-line"></div>
+            <img src="Peazzy.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #007</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Quincy<br>Tillman</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-card" onclick="openModal(this)" data-img="nashbg.png" data-rank="Gang Member" data-name="Nash Kouyaman">
+            <div class="gang-card-top-line"></div>
+            <img src="NOOWEY.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #008</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Nash<br>Kouyaman</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-card" onclick="openModal(this)" data-img="seanbg.png" data-rank="Gang Member" data-name="Sean Holloway">
+            <div class="gang-card-top-line"></div>
+            <img src="sean.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #009</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Sean<br>Holloway</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg" data-rank="Gang Member" data-name="Nate Carter">
+            <div class="gang-card-top-line"></div>
+            <img src="nate.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #010</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Nate<br>Carter</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-card" onclick="openModal(this)" data-img="clown.jpg" data-rank="Gang Member" data-name="Dwayne Carter">
+            <div class="gang-card-top-line"></div>
+            <img src="xtase.png" class="gang-img">
+            <div class="gang-card-grad"></div>
+            <div class="gang-card-num">DOSSIER #011</div>
+            <div class="gang-card-body">
+                <div class="gang-card-rank rank-gm">◆ Gang Member</div>
+                <p class="gang-card-name">Dwayne<br>Carter</p>
+                <div class="gang-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="gang-card-action">▶</div>
+        </div>
+
+        <div class="gang-no-results" id="gangNoResults">
+            ⚠ Aucun membre trouvé
+        </div>
+
+    </div>
+        <!-- FIN GRID -->
+
+        </div>
+        <!-- FIN PAGE GANG INFO -->
 
         <!-- ===================================================== -->
         <!-- PAGE : INFO — HIÉRARCHIE NBN                          -->
@@ -1152,6 +1563,217 @@
         </div>
         <!-- FIN PAGE INFO -->
 
+        <!-- ===================================================== -->
+        <!-- PAGE : ARSENAL — ARMES & VÉHICULES                    -->
+        <!-- ===================================================== -->
+        <div id="arsenal" class="page p-8 overflow-y-auto h-full bg-[#030305] relative">
+
+            <!-- Scan line déco -->
+            <div class="info-scanline"></div>
+
+            <!-- HEADER -->
+            <div class="text-center mb-12 pb-8 border-b border-white/5">
+                <div style="display:inline-block; border:1px solid rgba(10,60,255,0.4); padding:3px 14px; font-size:9px; letter-spacing:3px; color:#0a3cff; margin-bottom:16px; text-transform:uppercase;">
+                    ● CLASSIFIÉ · NBN ONLY
+                </div>
+                <h1 class="text-6xl font-black uppercase tracking-tighter text-white">
+                    ARSENAL <span class="text-[#0a3cff]">NBN</span>
+                </h1>
+                <p class="text-[#0a3cff] font-mono text-xs tracking-[0.4em] mt-3 uppercase">
+                    Armement · Flotte · Équipement · GTA RP
+                </p>
+                <div class="flex justify-center gap-12 mt-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#0a3cff]" id="cnt-weapons">0</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Armes</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#0a3cff]" id="cnt-vehicles">0</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Véhicules</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FILTRES ===== -->
+            <div class="flex gap-3 mb-8 flex-wrap" id="arsenalFilters">
+                <button class="arsenal-filter-btn active" data-filter="all"
+                    style="border:1px solid #0a3cff; background:rgba(10,60,255,0.2); color:#fff; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
+                    TOUT
+                </button>
+                <button class="arsenal-filter-btn" data-filter="arme"
+                    style="border:1px solid rgba(10,60,255,0.3); background:transparent; color:#888; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
+                    🔫 ARMES
+                </button>
+                <button class="arsenal-filter-btn" data-filter="vehicule"
+                    style="border:1px solid rgba(10,60,255,0.3); background:transparent; color:#888; padding:6px 18px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">
+                    🚗 VÉHICULES
+                </button>
+            </div>
+
+            <!-- ===== GRILLE ARSENAL ===== -->
+            <div id="arsenalGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
+                <!-- ─── ARMES ─── -->
+
+                <div class="arsenal-item" data-type="arme" data-name="Pistolet .50"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · PISTOLET</span>
+                        <span style="font-size:18px;">🔫</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Pistolet .50</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Arme de poing compacte. Fiable et discrète.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag">Discret</span>
+                            <span class="arsenal-tag">Standard</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="arme" data-name="Micro SMG"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SMG</span>
+                        <span style="font-size:18px;">🔫</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Micro SMG</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Cadence élevée. Idéal depuis un véhicule.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag">Drive-by</span>
+                            <span class="arsenal-tag">Rapide</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="arme" data-name="Carbine Rifle"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · ASSAULT</span>
+                        <span style="font-size:18px;">🪖</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Carbine Rifle</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Fusil d'assaut de référence. Polyvalent.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag arsenal-tag-gold">Lourd</span>
+                            <span class="arsenal-tag">Polyvalent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="arme" data-name="Sniper Rifle"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SNIPER</span>
+                        <span style="font-size:18px;">🎯</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Sniper Rifle</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Longue portée. Précision maximale.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag arsenal-tag-red">Élite</span>
+                            <span class="arsenal-tag">Longue portée</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="arme" data-name="Shotgun"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(10,60,255,0.08); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">ARME · SHOTGUN</span>
+                        <span style="font-size:18px;">💥</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Shotgun</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Dégâts massifs à courte portée. CQC.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag arsenal-tag-gold">Puissant</span>
+                            <span class="arsenal-tag">CQC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── VÉHICULES ─── -->
+
+                <div class="arsenal-item" data-type="vehicule" data-name="Sultan RS"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · SPORT</span>
+                        <span style="font-size:18px;">🚗</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Sultan RS</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Berline sport modifiée. Maniabilité hors pair.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag">Rapide</span>
+                            <span class="arsenal-tag">4x4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="vehicule" data-name="Insurgent"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · BLINDÉ</span>
+                        <span style="font-size:18px;">🚙</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Insurgent</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Véhicule blindé lourd. Résiste aux tirs.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag arsenal-tag-gold">Blindé</span>
+                            <span class="arsenal-tag arsenal-tag-red">Élite</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="vehicule" data-name="Schafter V12"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · BERLINE</span>
+                        <span style="font-size:18px;">🚘</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Schafter V12</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Berline de luxe blindée. Discrétion + protection.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag arsenal-tag-gold">Blindé</span>
+                            <span class="arsenal-tag">Discret</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arsenal-item" data-type="vehicule" data-name="Motorcycle Bati"
+                    style="background:#08080e; border:2px solid rgba(255,255,255,0.06); position:relative; overflow:hidden; transition:all 0.3s; cursor:default;">
+                    <div style="background:rgba(0,100,200,0.1); border-bottom:1px solid rgba(10,60,255,0.2); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9px; letter-spacing:2px; color:#0a3cff; font-family:'Space Mono',monospace; text-transform:uppercase;">VÉHICULE · MOTO</span>
+                        <span style="font-size:18px;">🏍️</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <h3 style="font-family:'Archivo Black',sans-serif; font-size:18px; text-transform:uppercase; color:white; margin-bottom:4px;">Bati 801</h3>
+                        <p style="font-size:11px; color:#666; font-family:'Space Mono',monospace; margin-bottom:12px;">Moto la plus rapide de Los Santos. Fuite assurée.</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span class="arsenal-tag">Ultra rapide</span>
+                            <span class="arsenal-tag">Fuite</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NOTE BAS DE PAGE -->
+            <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
+                <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
+                    ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html
+                </p>
+                <p class="text-[#0a3cff] font-black tracking-widest text-sm mt-3">NORTHSIDE BLUE NATION — LOS SANTOS</p>
+            </div>
+
+        </div>
+        <!-- FIN PAGE ARSENAL -->
+
     </main>
 </div>
 
@@ -1177,6 +1799,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Déclenche les animations spéciales par page
             if (pageId === 'info') animateInfoPage();
             if (pageId === 'histoire') setTimeout(animateHistory, 300);
+            if (pageId === 'arsenal') initArsenal();
+            if (pageId === 'gang-info') initGangSearch();
         });
     });
 
@@ -1189,6 +1813,101 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/* ===== ARSENAL — FILTRES & COMPTEURS ===== */
+function initArsenal() {
+    const items = document.querySelectorAll('.arsenal-item');
+    const btns  = document.querySelectorAll('.arsenal-filter-btn');
+
+    // Compteurs
+    const weapons  = [...items].filter(i => i.dataset.type === 'arme').length;
+    const vehicles = [...items].filter(i => i.dataset.type === 'vehicule').length;
+    const cntW = document.getElementById('cnt-weapons');
+    const cntV = document.getElementById('cnt-vehicles');
+    if (cntW) animateCount(cntW, weapons);
+    if (cntV) animateCount(cntV, vehicles);
+
+    // Animation entrée en cascade
+    items.forEach((item, i) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(16px)';
+        setTimeout(() => {
+            item.style.transition = 'opacity 0.35s ease, transform 0.35s ease, border-color 0.3s, background 0.3s, box-shadow 0.3s';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, i * 70);
+    });
+
+    // Filtres
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
+            items.forEach(item => {
+                if (filter === 'all' || item.dataset.type === filter) {
+                    item.classList.remove('hidden-item');
+                } else {
+                    item.classList.add('hidden-item');
+                }
+            });
+        });
+    });
+}
+
+function animateCount(el, target) {
+    let cur = 0;
+    const step = Math.ceil(target / 20);
+    const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = cur;
+        if (cur >= target) clearInterval(t);
+    }, 40);
+}
+
+/* ===== GANG INFO — RECHERCHE & FILTRE ===== */
+function initGangSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const rankFilter  = document.getElementById('rankFilter');
+    const memberCount = document.getElementById('memberCount');
+    const gangGrid    = document.getElementById('gangGrid');
+    const noResults   = document.getElementById('gangNoResults');
+
+    if (!searchInput || !rankFilter || !gangGrid) return;
+
+    // Évite de ré-attacher les listeners à chaque fois
+    if (searchInput.dataset.bound === '1') return;
+    searchInput.dataset.bound = '1';
+
+    function filterCards() {
+        const query = searchInput.value.trim().toLowerCase();
+        const rank  = rankFilter.value;
+        const cards = gangGrid.querySelectorAll('.gang-card[data-name]');
+        let visible = 0;
+
+        cards.forEach(card => {
+            const name     = (card.dataset.name || '').toLowerCase();
+            const cardRank = (card.dataset.rank  || '');
+            const matchName = query === '' || name.includes(query);
+            const matchRank = rank  === 'all' || cardRank === rank;
+
+            if (matchName && matchRank) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (memberCount) memberCount.textContent = visible;
+        if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    searchInput.addEventListener('input',  filterCards);
+    rankFilter.addEventListener('change', filterCards);
+    filterCards();
+}
+
 
 /* ===== ANIMATIONS PAGE INFO ===== */
 function animateInfoPage() {
