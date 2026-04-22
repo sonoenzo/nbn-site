@@ -606,18 +606,6 @@
 
             <div class="nbn-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="home">
-                    <img src="https://i.imgur.com/8QnU4B7.jpg" class="card-bg-image">
-                    <div class="card-overlay"></div>
-                    <div class="card-content">
-                        <div class="card-icon text-gray-500">🏠</div>
-                        <h3 class="card-title">DASHBOARD</h3>
-                        <p class="card-desc">Vue d'ensemble de la Nation.</p>
-                        <div class="card-info-peek">Braquage Pacific Standard • 100% Succès</div>
-                    </div>
-                    <div class="card-border-effect"></div>
-                </div>
-
                 <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="map">
                     <img src="gta_map.jpg" class="card-bg-image map-preview">
                     <div class="card-overlay"></div>
@@ -654,17 +642,13 @@
                     <div class="card-border-effect"></div>
                 </div>
 
-                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="arsenal" style="grid-column: 1 / -1; height: 200px;">
-                    <div class="card-overlay" style="background: linear-gradient(90deg, rgba(0,0,0,0.95) 30%, rgba(0,0,0,0.4) 100%);"></div>
-                    <div class="card-content" style="bottom: auto; top: 50%; transform: translateY(-50%); width: auto; padding: 30px 40px;">
-                        <div style="display:flex; align-items:center; gap:20px;">
-                            <div style="font-size:48px; filter: drop-shadow(0 0 20px rgba(10,60,255,0.6));">🔫</div>
-                            <div>
-                                <h3 class="card-title" style="font-size:36px;">ARSENAL <span style="color:#0a3cff">NBN</span></h3>
-                                <p class="card-desc" style="font-size:13px; margin:0;">Armement & Flotte de véhicules du gang · GTA RP</p>
-                                <div class="card-info-peek" style="max-height:none; opacity:0.6; margin-top:8px;">Armes · Véhicules blindés · Équipement de terrain</div>
-                            </div>
-                        </div>
+                <div class="nbn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="arsenal">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">🔫</div>
+                        <h3 class="card-title">ARSENAL <span style="color:#0a3cff">NBN</span></h3>
+                        <p class="card-desc">Armement & Flotte du gang.</p>
+                        <div class="card-info-peek">Armes · Véhicules blindés</div>
                     </div>
                     <div class="card-border-effect"></div>
                 </div>
@@ -722,13 +706,33 @@
                 </div>
 
                 <div id="story-content" class="space-y-8 font-mono text-gray-300 leading-relaxed">
+
                     <div class="border-l-2 border-[#0a3cff] pl-6 py-4 bg-blue-900/5">
                         <h2 class="text-[#0a3cff] font-bold mb-4 uppercase tracking-widest text-xl">I. Origine & Exode</h2>
                         <p class="story-text" data-delay="0">
-                            Dans les quartiers oubliés du nord, là où les immeubles sont fatigués et les rêves souvent brisés avant même d'exister, une identité s'est forgée dans l'ombre… Une identité née de la douleur, de la rue, mais surtout de la loyauté.
+                            Tout commence bien avant le bleu. Avant le nom. Avant même l'idée. Dans les quartiers oubliés du <span class="text-white font-bold">Northside</span>, là où les immeubles sont fatigués, où les lampadaires grésillent plus qu'ils n'éclairent, une génération entière a grandi avec une seule règle gravée dans la tête : <span class="text-white italic">"Personne ne viendra te sauver."</span> Ni la police, ni les politiques, ni les promesses. Personne.
                         </p>
-                        <p class="story-text mt-4" data-delay="1000">
-                            C'est là que tout commence avec <span class="text-white font-bold border-b border-[#0a3cff]">Mason Williams</span>. OG respecté, Mason observait, apprenait, comprenait. Là où d'autres voyaient le chaos, lui voyait une opportunité : construire quelque chose de solide.
+                        <p class="story-text mt-4" data-delay="800">
+                            Les rêves, dans ce coin-là, s'effritent avant même d'avoir eu le temps d'exister. On ne rêvait pas grand — on rêvait de tenir. De tenir le loyer, de tenir la nuit, de tenir le coup. Et dans ce bruit sourd du nord, là où la rue élève plus vite que les écoles, une identité s'est forgée lentement. Une identité née de la douleur, des nuits passées à dormir à moitié, des amis enterrés trop tôt. Mais surtout — née de la loyauté.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1600">
+                            Au centre de ça, il y avait <span class="text-white font-bold border-b border-[#0a3cff]">Mason Williams</span>. Un OG respecté. Pas le plus bruyant, pas le plus violent — mais celui qu'on écoutait quand tout le monde arrêtait de parler. Mason observait. Il apprenait. Il comprenait. Là où la plupart voyaient le chaos comme une fatalité, lui y voyait une architecture cachée. Il savait que la rue suit une logique, que chaque trahison raconte une histoire, et que chaque silence vaut une confession.
+                        </p>
+                        <p class="story-text mt-4" data-delay="2400">
+                            Il ne voulait pas juste "survivre". Il voulait bâtir. Construire quelque chose de plus solide que les briques fissurées du quartier. Quelque chose qui tiendrait même quand lui ne serait plus là. C'est cette idée — cette obsession silencieuse — qui allait devenir la première pierre du projet.
+                        </p>
+                    </div>
+
+                    <div class="border-l-2 border-white/40 pl-6 py-4 bg-white/5 mt-10">
+                        <h2 class="text-white font-bold mb-4 uppercase tracking-widest text-xl">II. La Fondation</h2>
+                        <p class="story-text" data-delay="300">
+                            Autour de Mason, les premiers se sont rassemblés sans qu'aucun discours ne soit prononcé. <span class="text-white font-bold">Ace Ashler</span> fut le premier — double OG, frère de rue avant d'être frère de sang. Puis <span class="text-white font-bold">Karl Ashler</span>, le Big Homie, la voix calme qui réglait ce que les poings ne pouvaient pas. Trois hommes, trois visions, une seule direction.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1100">
+                            Ils l'ont appelée la <span class="text-[#0a3cff] font-bold">Northside Blue Nation</span>. Le nord, parce que c'est là qu'ils étaient nés. Le bleu, parce que c'était la couleur qu'ils avaient choisie pour se reconnaître dans une ville où tout le monde hurle pour exister. Nation, parce qu'ils n'étaient pas un gang — ils étaient une famille avec un territoire, des règles, un code.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1900">
+                            La règle numéro un n'a jamais changé : <span class="text-white italic">la loyauté avant le profit</span>. Tu peux tout perdre — l'argent, la maison, la réputation — mais si tu perds ta parole, tu n'es plus rien pour les NBN. Cette règle a fait plus pour la cohésion du gang que toutes les armes réunies.
                         </p>
                     </div>
 
@@ -736,17 +740,17 @@
                         <div class="border border-white/10 p-4 hover:border-[#0a3cff] transition-colors">
                             <h3 class="text-[#0a3cff] text-xs mb-2 underline">LES PILIERS</h3>
                             <ul class="text-sm space-y-2">
-								<li><b class="text-white">Mason Williams</b> — OG.</li>
+                                <li><b class="text-white">Mason Williams</b> — OG.</li>
                                 <li><b class="text-white">Ace Ashler</b> — Double OG.</li>
                                 <li><b class="text-white">Karl Ashler</b> — Big Homie</li>
                                 <li><b class="text-white">Tyler Williams</b> — Real One</li>
                                 <li><b class="text-white">Deon Drayton</b> — Real One</li>
                                 <li><b class="text-white">Quincy Tillman</b> — Gang Member</li>
-								<li><b class="text-white">Nate Carter</b> — Gang Member</li>
-								<li><b class="text-white">Sean Holloway</b> — Gang Member</li>
-								<li><b class="text-white">Dwayne Carter</b> — Gang Member</li>
-								<li><b class="text-white">Nash Kouyaman</b> — Gang Member</li>
-								<li><b class="text-white">Danté Knox</b> — Gang Member</li>
+                                <li><b class="text-white">Nate Carter</b> — Gang Member</li>
+                                <li><b class="text-white">Sean Holloway</b> — Gang Member</li>
+                                <li><b class="text-white">Dwayne Carter</b> — Gang Member</li>
+                                <li><b class="text-white">Nash Kouyaman</b> — Gang Member</li>
+                                <li><b class="text-white">Danté Knox</b> — Gang Member</li>
                             </ul>
                         </div>
                         <div class="border border-white/10 p-4 flex flex-col justify-center items-center text-center">
@@ -757,22 +761,75 @@
                     </div>
 
                     <div class="border-l-2 border-red-600 pl-6 py-4 bg-red-900/5 mt-10">
-                        <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">II. L'Ascension & Le Choix</h2>
-                        <p class="story-text" data-delay="500">
-                            Les NorthSide n'ont jamais cherché à être la plus bruyante… Mais elle est rapidement devenue impossible à ignorer. Mason a compris avant les autres : "Si on reste ici… on tourne en rond. Si on bouge… on devient quelque chose de plus grand."
+                        <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">III. L'Ascension & Le Choix</h2>
+                        <p class="story-text" data-delay="300">
+                            Les NBN n'ont jamais cherché à être les plus bruyants. Ça, c'était le piège dans lequel tous les autres tombaient : croire que crier fort, c'est régner. Les NBN ont choisi l'inverse. <span class="text-white italic">Parler bas. Frapper une seule fois. Ne jamais prévenir.</span> Et en quelques mois, ils sont devenus impossibles à ignorer.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1100">
+                            Les petits dealers du nord ont compris qu'il valait mieux travailler avec eux que contre eux. Les anciens gangs rivaux ont commencé à reculer, un bloc après l'autre. Ce n'était pas une guerre — c'était une reprise. Chaque rue reprise était une promesse tenue : le nord appartient au nord, et personne d'autre ne décide ici.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1900">
+                            Mais avec l'ascension vient le plafond. Mason l'a senti avant les autres. Un soir, sur le toit d'un immeuble du quartier, il a réuni les piliers. Pas de discours, juste une phrase : <span class="text-white italic">"Si on reste ici… on tourne en rond. Si on bouge… on devient quelque chose de plus grand."</span> Personne n'a répondu. Tout le monde savait qu'il avait raison.
                         </p>
                     </div>
 
-                    <div class="relative p-8 border-2 border-[#0a3cff] bg-black group overflow-hidden">
+                    <div class="border-l-2 border-[#0a3cff] pl-6 py-4 bg-blue-900/5 mt-10">
+                        <h2 class="text-[#0a3cff] font-bold mb-4 uppercase tracking-widest text-xl">IV. Le Sang Bleu</h2>
+                        <p class="story-text" data-delay="300">
+                            Ce qui rend les NBN différents, ce n'est pas leur puissance de feu. Ce n'est pas leur territoire. C'est la manière dont ils se tiennent les uns aux autres. <span class="text-white font-bold">Tyler Williams</span> et <span class="text-white font-bold">Deon Drayton</span>, les Real Ones, sont la colonne vertébrale silencieuse du gang — ceux qui ne posent jamais de questions quand un frère appelle à trois heures du matin.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1100">
+                            Puis il y a les soldats — <span class="text-white font-bold">Quincy, Nate, Sean, Dwayne, Nash, Danté</span>. Chacun avec son histoire, ses cicatrices, sa raison d'être là. Certains ont rejoint la famille par nécessité, d'autres par conviction. Mais une fois le bleu porté, la raison d'origine n'a plus d'importance. Il ne reste que la famille.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1900">
+                            Les NBN ont un rituel non-écrit : avant chaque opération importante, les membres se réunissent et ne disent rien pendant une minute. Juste le silence. Pour se rappeler d'où on vient, et qu'on n'y retourne jamais seul. <span class="text-white italic">"On entre ensemble. On sort ensemble. Ou on ne sort pas."</span>
+                        </p>
+                    </div>
+
+                    <div class="border-l-2 border-white/40 pl-6 py-4 bg-white/5 mt-10">
+                        <h2 class="text-white font-bold mb-4 uppercase tracking-widest text-xl">V. La Guerre Silencieuse</h2>
+                        <p class="story-text" data-delay="300">
+                            Toutes les montées ont leur prix. Plus les NBN grandissaient, plus ils attiraient les regards — ceux des flics corrompus qui voulaient leur part, ceux des cartels qui voyaient en eux une menace, ceux des gangs rivaux qui ne supportaient pas qu'une bande du nord dicte sa loi.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1100">
+                            Les NBN ont perdu des frères. Pas beaucoup — mais chaque perte a été gravée. Pas de vengeance impulsive. Pas de guerres médiatiques. Juste des réponses calculées, souvent des mois plus tard, toujours précises. La rue savait : toucher un NBN, c'est signer quelque chose qui reviendra, un jour, à l'heure choisie.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1900">
+                            C'est dans cette guerre silencieuse qu'ils ont gagné leur vraie réputation. Pas celle qu'on met dans les clips. Celle qu'on chuchote dans les arrière-salles, quand quelqu'un demande qui contrôle réellement le nord. La réponse est toujours la même : <span class="text-[#0a3cff] font-bold">NBN</span>.
+                        </p>
+                    </div>
+
+                    <div class="border-l-2 border-red-600 pl-6 py-4 bg-red-900/5 mt-10">
+                        <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">VI. Le Départ</h2>
+                        <p class="story-text" data-delay="300">
+                            Puis est venu le jour du départ. Pas une fuite. Pas un abandon. Un choix. Le nord, à force d'être conquis, devenait trop petit. Le plafond de verre s'était rapproché. Rester, c'était se figer. Bouger, c'était tout risquer — mais aussi tout gagner.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1100">
+                            Mason a choisi <span class="text-white font-bold">Los Santos</span>. Pas par hasard. Los Santos, c'est la ville où tout le monde veut sa part et où personne n'a jamais fini de se battre. Une ville qui broie les faibles et qui élève ceux qui savent attendre. Exactement le terrain que les NBN avaient appris à maîtriser.
+                        </p>
+                        <p class="story-text mt-4" data-delay="1900">
+                            Le départ s'est fait sans annonce. Un matin, la moitié de la famille n'était plus dans le nord. Les rumeurs ont circulé pendant des semaines. Personne ne savait vraiment. Et c'est exactement ce qu'ils voulaient. <span class="text-white italic">Arriver avant qu'on sache qu'on arrive.</span>
+                        </p>
+                    </div>
+
+                    <div class="relative p-8 border-2 border-[#0a3cff] bg-black group overflow-hidden mt-10">
                         <div class="absolute top-0 right-0 p-2 text-[10px] text-[#0a3cff] font-bold">STATUS: EN CONQUÊTE</div>
                         <h2 class="text-white font-black text-2xl mb-4">LOS SANTOS : NOUVEAU CHAPITRE</h2>
-                        <p class="text-sm italic text-gray-400">
+                        <p class="text-sm italic text-gray-400 mb-4">
                             "Ils ne partent pas en fuite. Ils partent en conquête. À Los Santos, personne ne les attend. Et ça… ils aiment."
+                        </p>
+                        <p class="text-sm text-gray-400 mb-4">
+                            Les NBN posent leurs pions un par un dans la nouvelle ville. Pas de déclaration, pas de provocation. Un commerce racheté ici, un contact pris là, une promesse échangée dans une ruelle que personne ne regarde. La ville ne sait pas encore ce qui se passe. Mais elle le saura.
+                        </p>
+                        <p class="text-sm text-gray-400">
+                            Le nord leur a appris la patience. Los Santos va leur apprendre l'ambition. Et quand les deux se rencontrent — la patience du nord et l'ambition du sud — il ne reste plus qu'un seul mot pour décrire la suite : <span class="text-[#0a3cff] font-bold">inévitable</span>.
                         </p>
                         <div class="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
                             <span class="text-[#0a3cff] font-black tracking-widest text-lg">FROM THE NORTH... TO THE THRONE.</span>
+                            <span class="text-[10px] text-gray-600 font-mono">— NBN NETWORK v4.0</span>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -1766,7 +1823,7 @@
             <!-- NOTE BAS DE PAGE -->
             <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
                 <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
-                  <!--  ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html -->
+                    ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html
                 </p>
                 <p class="text-[#0a3cff] font-black tracking-widest text-sm mt-3">NORTHSIDE BLUE NATION — LOS SANTOS</p>
             </div>
