@@ -2,22 +2,22 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Authentification | NBN</title>
+    <title>Authentification | LEGION</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --blue: #0a3cff;
-            --blue-glow: rgba(10, 60, 255, 0.6);
-            --blue-dim: rgba(10, 60, 255, 0.15);
+            --blue: #687052;
+            --blue-glow: rgba(104, 112, 82, 0.6);
+            --blue-dim: rgba(104, 112, 82, 0.15);
             --green: #00ff88;
             --red: #ff2244;
         }
 
         body {
-            background: #020208;
+            background: #080a06;
             color: white;
             font-family: 'Space Mono', monospace;
             height: 100vh;
@@ -61,7 +61,7 @@
             width: 480px;
         }
 
-        /* ===== HEADER NBN ===== */
+        /* ===== HEADER LEGION ===== */
         .auth-header {
             text-align: center;
             margin-bottom: 32px;
@@ -99,8 +99,8 @@
         /* ===== BOÎTE CENTRALE ===== */
         .auth-box {
             width: 100%;
-            background: rgba(2, 2, 15, 0.95);
-            border: 1px solid rgba(10, 60, 255, 0.3);
+            background: rgba(8, 10, 6, 0.95);
+            border: 1px solid rgba(104, 112, 82, 0.3);
             position: relative;
             padding: 40px;
             display: flex;
@@ -154,7 +154,7 @@
         .scanner-frame {
             position: absolute;
             inset: 0;
-            border: 1px solid rgba(10, 60, 255, 0.3);
+            border: 1px solid rgba(104, 112, 82, 0.3);
         }
         .scanner-frame .sf-tl,
         .scanner-frame .sf-tr,
@@ -176,7 +176,7 @@
             width: 75%;
             opacity: 0.12;
             transition: opacity 1s ease, filter 1s ease;
-            filter: hue-rotate(200deg) brightness(2);
+            filter: sepia(0.25) saturate(0.7) brightness(1.8);
         }
         .scanner-wrap.scanning .fingerprint-img {
             opacity: 0.35;
@@ -278,7 +278,7 @@
             position: relative;
         }
         .terminal-box::before {
-            content: 'NBN_OS v4.0 // TERMINAL';
+            content: 'LEGION_OS v4.0 // TERMINAL';
             display: block;
             font-size: 8px;
             letter-spacing: 2px;
@@ -367,8 +367,8 @@
             animation: pulse-border 2s ease-in-out infinite;
         }
         @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(10,60,255,0); }
-            50%       { box-shadow: 0 0 0 4px rgba(10,60,255,0.15); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(104,112,82,0); }
+            50%       { box-shadow: 0 0 0 4px rgba(104,112,82,0.15); }
         }
         .access-btn::before {
             content: '';
@@ -432,12 +432,12 @@
 
 <body>
 <!-- Écran d'initialisation pour débloquer l'audio -->
-<div id="boot-overlay" style="position: fixed; inset: 0; z-index: 10000; background: #020208; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+<div id="boot-overlay" style="position: fixed; inset: 0; z-index: 10000; background: #080a06; display: flex; align-items: center; justify-content: center; cursor: pointer;">
     <div style="text-align: center;">
-        <div style="font-family: 'Space Mono', monospace; color: #0a3cff; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px; animation: blink 1s infinite;">
+        <div style="font-family: 'Space Mono', monospace; color: #687052; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px; animation: blink 1s infinite;">
             [ SYSTÈME HORS LIGNE ]
         </div>
-        <div style="font-family: 'Archivo Black', sans-serif; color: white; font-size: 24px; border: 1px solid #0a3cff; padding: 20px 40px; transition: all 0.3s;">
+        <div style="font-family: 'Archivo Black', sans-serif; color: white; font-size: 24px; border: 1px solid #687052; padding: 20px 40px; transition: all 0.3s;">
             CLIQUEZ POUR INITIALISER
         </div>
     </div>
@@ -462,7 +462,7 @@
         <!-- Header -->
         <div class="auth-header">
             <div class="auth-logo-text">Système Sécurisé</div>
-            <div class="auth-title">NORTHSIDE <span>BLUE</span> NATION</div>
+            <div class="auth-title">LA <span>LEGION</span> </div>
             <div class="auth-subtitle">Protocole d'authentification — 2026</div>
         </div>
 
@@ -508,9 +508,9 @@
             <!-- Bouton + message -->
             <div style="text-align:center; min-height:60px; display:flex; flex-direction:column; align-items:center; gap:12px;">
                 <button class="access-btn" id="accessBtn" onclick="enterNation()">
-                    <span>▶ Entrer dans la Nation</span>
+                    <span>▶ Entrer dans LA LEGION</span>
                 </button>
-                <div class="welcome-msg" id="welcomeMsg">● ACCÈS VALIDÉ — BIENVENUE DANS LA NATION ●</div>
+                <div class="welcome-msg" id="welcomeMsg">● ACCÈS VALIDÉ — BIENVENUE DANS LA LEGION ●</div>
             </div>
 
         </div>
@@ -553,7 +553,7 @@
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist < 120) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(10, 60, 255, ${0.08 * (1 - dist/120)})`;
+                        ctx.strokeStyle = `rgba(104, 112, 82, ${0.08 * (1 - dist/120)})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -573,7 +573,7 @@
 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(10, 60, 255, ${p.opacity})`;
+                ctx.fillStyle = `rgba(104, 112, 82, ${p.opacity}))`;
                 ctx.fill();
             });
 
@@ -606,15 +606,15 @@
     const authBox      = document.getElementById('authBox');
 
     const lines = [
-        { text: 'NBN_NETWORK_OS v4.0 — BOOT OK',       cls: 'bright',  delay: 800  },
+        { text: 'LEGION_NETWORK_OS v4.0 — BOOT OK',       cls: 'bright',  delay: 800  },
         { text: 'Connexion au serveur sécurisé...',      cls: '',        delay: 500  },
         { text: 'Chiffrement AES-256 activé',            cls: 'bright',  delay: 400  },
         { text: 'Initialisation scanner biométrique...',  cls: '',        delay: 600  },
         { text: 'Lecture empreinte en cours...',          cls: 'warning', delay: 400  },
         { text: 'Analyse des données : 100%',             cls: 'bright',  delay: 2800 },
-        { text: 'Correspondance trouvée — ID : NBN_MEMBRE', cls: 'success', delay: 500 },
+        { text: 'Correspondance trouvée — ID : LEGION_MEMBRE', cls: 'success', delay: 500 },
         { text: 'ACCÈS AUTORISÉ AU HUB TACTIQUE',        cls: 'success', delay: 600  },
-        { text: 'Bienvenue dans la Nation.',              cls: 'success', delay: 400  },
+        { text: 'Bienvenue dans LA LEGION.',              cls: 'success', delay: 400  },
     ];
 
     let lineIdx = 0;
