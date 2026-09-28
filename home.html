@@ -544,6 +544,7 @@
             <p class="text-[10px] text-gray-500 tracking-widest">LOS SANTOS</p>
         </div>
 
+        <nav class="flex-1 space-y-2">
     <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
         <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
     </div>
@@ -1446,27 +1447,19 @@
         <!-- FIN PAGE ORGA INFO -->
 
         <!-- ===================================================== -->
-        <!-- PAGE : INFO — HIÉRARCHIE lgn                          -->
+        <!-- PAGE : INFO — HIÉRARCHIE                              -->
         <!-- ===================================================== -->
         <div id="info" class="page p-8 overflow-y-auto h-full bg-[#030305] relative">
 
-            <!-- Fond déco -->
             <div class="hex-grid-bg"></div>
-
-            <!-- Ligne de scan -->
             <div class="info-scanline"></div>
 
-            <!-- ===== HEADER ===== -->
+            <!-- HEADER -->
             <div class="info-header text-center mb-12 pb-8 border-b border-white/5">
                 <div class="classified-stamp mb-4">Accès Restreint</div>
-                <h1 class="text-6xl font-black uppercase tracking-tighter text-white mt-4 glitch-title" data-text="HIÉRARCHIE">
-                    HIÉRARCHIE
-                </h1>
-                <p class="text-[#4b5320] font-mono text-xs tracking-[0.4em] mt-3 uppercase">
-                    LEGION · Los Santos · 2026
-                </p>
+                <h1 class="text-6xl font-black uppercase tracking-tighter text-white mt-4 glitch-title" data-text="HIÉRARCHIE">HIÉRARCHIE</h1>
+                <p class="text-[#4b5320] font-mono text-xs tracking-[0.4em] mt-3 uppercase">LEGION · Los Santos · 2026</p>
 
-                <!-- Stats rapides -->
                 <div class="flex justify-center gap-12 mt-8">
                     <div class="text-center">
                         <div class="text-3xl font-black text-[#4b5320]" id="cnt-members">11</div>
@@ -1483,219 +1476,163 @@
                 </div>
             </div>
 
-            <!-- ===== HIÉRARCHIE VERTICALE ===== -->
+            <!-- HIÉRARCHIE -->
             <div class="max-w-3xl mx-auto relative">
-
-                <!-- Ligne centrale déco -->
                 <div class="hierarchy-line hidden md:block"></div>
 
-                <!-- ===================== -->
-                <!-- RANG 1 : Boss         -->
-                <!-- ===================== -->
                 <div class="rank-tier" id="tier-og">
-                    <div class="rank-badge">
-                        <span>👑</span> Boss — 
-                    </div>
-
-                    <div class="member-card og-card w-full max-w-md p-5 flex items-center gap-5" data-index="0">
+                    <div class="rank-badge"><span>👑</span> Boss</div>
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="0">
                         <div class="scan-effect"></div>
                         <div class="member-number">#001</div>
                         <div class="member-avatar relative">
-    <img src="mason-preview.png" class="w-full h-full object-cover rounded-full">
-    <div class="status-dot"></div>
-</div>
+                            <img src="mason-preview.png" alt="" class="w-full h-full object-cover rounded-full">
+                            <div class="status-dot"></div>
+                        </div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <h3 class="font-black text-lg uppercase tracking-tight text-white">Lero Roma</h3>
                                 <span class="rank-tag og">Boss</span>
                             </div>
                             <p class="text-[10px] text-gray-500 font-mono tracking-wider">CHEF SUPRÊME · FONDATEUR</p>
-                            <div class="power-bar-track mt-2">
-                                <div class="power-bar-fill" style="--target-w: 100%;"></div>
-                            </div>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 100%;"></div></div>
                             <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : MAXIMUM</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Connecteur -->
                 <div class="tier-connector mb-2"></div>
 
-                <!-- ===================== -->
-                <!-- RANG 2 : Bras droit   -->
-                <!-- ===================== -->
                 <div class="rank-tier" id="tier-dog">
-                    <div class="rank-badge">
-                        <span>⚡</span> Bras droit
-                    </div>
-
+                    <div class="rank-badge"><span>⚡</span> Bras droit</div>
                     <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="1">
                         <div class="scan-effect"></div>
                         <div class="member-number">#002</div>
                         <div class="member-avatar blue relative">
-                            <img src="ace.png" class="w-full h-full object-cover rounded-full">
+                            <img src="ace.png" alt="" class="w-full h-full object-cover rounded-full">
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <h3 class="font-black text-lg uppercase tracking-tight text-white">Orso Verano</h3>
                                 <span class="rank-tag dog">Bras droit</span>
                             </div>
                             <p class="text-[10px] text-gray-500 font-mono tracking-wider">BRAS DROIT · LE CERVEAU</p>
-                            <div class="power-bar-track mt-2">
-                                <div class="power-bar-fill" style="--target-w: 88%;"></div>
-                            </div>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 88%;"></div></div>
                             <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : ÉLEVÉE</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Connecteur -->
                 <div class="tier-connector mb-2"></div>
 
-                <!-- ===================== -->
-                <!-- RANG 3 : Lieutenant    -->
-                <!-- ===================== -->
                 <div class="rank-tier" id="tier-bh">
-                    <div class="rank-badge">
-                        <span>🟢</span> Lieutenant
-                    </div>
-
+                    <div class="rank-badge"><span>🟢</span> Lieutenants</div>
+                    <div class="flex flex-col items-center gap-4 w-full">
                     <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="2">
                         <div class="scan-effect"></div>
                         <div class="member-number">#003</div>
                         <div class="member-avatar dark relative">
-                            KA
+                            <img src="sergio.png" alt="" class="w-full h-full object-cover rounded-full">
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <h3 class="font-black text-lg uppercase tracking-tight text-white">Sergio Ramirez</h3>
                                 <span class="rank-tag bh">Lieutenant</span>
                             </div>
                             <p class="text-[10px] text-gray-500 font-mono tracking-wider">LIEUTENANT · LA FORCE</p>
-                            <div class="power-bar-track mt-2">
-                                <div class="power-bar-fill" style="--target-w: 72%;"></div>
-                            </div>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 72%;"></div></div>
                             <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : FORTE</p>
                         </div>
                     </div>
-                </div>
-				
-				                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="2">
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="3">
                         <div class="scan-effect"></div>
-                        <div class="member-number">#003</div>
+                        <div class="member-number">#004</div>
                         <div class="member-avatar dark relative">
-                            KA
+                            KB
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <h3 class="font-black text-lg uppercase tracking-tight text-white">Kade Brooks</h3>
                                 <span class="rank-tag bh">Lieutenant</span>
                             </div>
-                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">LIEUTENANT · LA FORCE</p>
-                            <div class="power-bar-track mt-2">
-                                <div class="power-bar-fill" style="--target-w: 72%;"></div>
-                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">LIEUTENANT · OPÉRATIONS</p>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 70%;"></div></div>
                             <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : FORTE</p>
                         </div>
                     </div>
+                    </div>
                 </div>
 
-                <!-- Connecteur -->
                 <div class="tier-connector mb-2"></div>
 
-                <!-- ===================== -->
-                <!-- RANG 4 : Sergent   -->
-                <!-- ===================== -->
                 <div class="rank-tier" id="tier-sc">
-                    <div class="rank-badge">
-                        <span>🎯</span> Sergent
+                    <div class="rank-badge"><span>🎯</span> Sergents</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+                    <div class="member-card p-5 flex items-center gap-4" data-index="4">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#005</div>
+                        <div class="member-avatar dark relative">
+                            SH
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <h3 class="font-black text-base uppercase tracking-tight text-white">Sean Holloway</h3>
+                                <span class="rank-tag sc">Sergent</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">TERRAIN NORD</p>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 58%;"></div></div>
+                            
+                        </div>
                     </div>
-
-                    <!-- 2 captains côte à côte -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-
-                        <div class="member-card p-5 flex items-center gap-4" data-index="3">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#004</div>
-                            <div class="member-avatar dark relative">
-                                SS
-                                <div class="status-dot"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Sean Holloway</h3>
-                                    <span class="rank-tag sc">Sergent</span>
-                                </div>
-                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN NORD</p>
-                                <div class="power-bar-track mt-2">
-                                    <div class="power-bar-fill" style="--target-w: 58%;"></div>
-                                </div>
-                            </div>
+                    <div class="member-card p-5 flex items-center gap-4" data-index="5">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#006</div>
+                        <div class="member-avatar dark relative">
+                            HM
+                            <div class="status-dot"></div>
                         </div>
-
-                        <div class="member-card p-5 flex items-center gap-4" data-index="4">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#005</div>
-                            <div class="member-avatar dark relative">
-                                DD
-                                <div class="status-dot"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <h3 class="font-black text-base uppercase tracking-tight text-white">Harrison Morreti</h3>
+                                <span class="rank-tag sc">Sergent</span>
                             </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Harrison Morreti</h3>
-                                    <span class="rank-tag sc">Sergent</span>
-                                </div>
-                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN EST</p>
-                                <div class="power-bar-track mt-2">
-                                    <div class="power-bar-fill" style="--target-w: 56%;"></div>
-                                </div>
-                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">TERRAIN EST</p>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 56%;"></div></div>
+                            
                         </div>
-
                     </div>
-                </div>
-				
-				                        <div class="member-card p-5 flex items-center gap-4" data-index="4">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#005</div>
-                            <div class="member-avatar dark relative">
-                                DD
-                                <div class="status-dot"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Santi Cordoba</h3>
-                                    <span class="rank-tag sc">Sergent</span>
-                                </div>
-                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN EST</p>
-                                <div class="power-bar-track mt-2">
-                                    <div class="power-bar-fill" style="--target-w: 56%;"></div>
-                                </div>
-                            </div>
+                    <div class="member-card p-5 flex items-center gap-4" data-index="6">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#007</div>
+                        <div class="member-avatar dark relative">
+                            <img src="Santi.png" alt="" class="w-full h-full object-cover rounded-full">
+                            <div class="status-dot"></div>
                         </div>
-
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <h3 class="font-black text-base uppercase tracking-tight text-white">Santi Cordoba</h3>
+                                <span class="rank-tag sc">Sergent</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">TERRAIN SUD</p>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 55%;"></div></div>
+                            
+                        </div>
+                    </div>
                     </div>
                 </div>
 
-                <!-- Connecteur -->
                 <div class="tier-connector mb-2"></div>
 
-                <!-- ===================== -->
-                <!-- RANG 5 : Mercenaire experimente  -->
-                <!-- ===================== -->
                 <div class="rank-tier" id="tier-gm">
-                    <div class="rank-badge">
-                        <span>🔗</span> ORGA Member
-                    </div>
-
+                    <div class="rank-badge"><span>🔗</span> ORGA Members</div>
                     <div class="members-grid w-full max-w-2xl">
-
-                        <div class="member-card p-4 flex items-center gap-4" data-index="5">
+                        <div class="member-card p-4 flex items-center gap-4" data-index="7">
                             <div class="scan-effect"></div>
-                            <div class="member-number">#006</div>
+                            <div class="member-number">#008</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
                                 DC
                                 <div class="status-dot"></div>
@@ -1703,73 +1640,46 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <h3 class="font-black text-sm uppercase tracking-tight text-white">Dwayne Carter</h3>
-                                    <span class="rank-tag gm">Mercenaire experimente</span>
+                                    <span class="rank-tag gm">Mercenaire expérimenté</span>
                                 </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 40%;"></div>
-                                </div>
+                                <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 40%;"></div></div>
                             </div>
                         </div>
-
-                        <div class="member-card p-4 flex items-center gap-4" data-index="6">
+                        <div class="member-card p-4 flex items-center gap-4" data-index="8">
                             <div class="scan-effect"></div>
-                            <div class="member-number">#007</div>
+                            <div class="member-number">#009</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                SH
+                                NH
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <h3 class="font-black text-sm uppercase tracking-tight text-white">Nash Harris</h3>
-                                    <span class="rank-tag gm">Mercenaire experimente</span>
+                                    <span class="rank-tag gm">Mercenaire expérimenté</span>
                                 </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 38%;"></div>
-                                </div>
+                                <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 38%;"></div></div>
                             </div>
                         </div>
-
-                        <div class="member-card p-4 flex items-center gap-4" data-index="7">
+                        <div class="member-card p-4 flex items-center gap-4" data-index="9">
                             <div class="scan-effect"></div>
-                            <div class="member-number">#008</div>
+                            <div class="member-number">#010</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                QT
+                                MP
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <h3 class="font-black text-sm uppercase tracking-tight text-white">Mario Pavo</h3>
-                                    <span class="rank-tag gm">Mercenaire experimente</span>
+                                    <span class="rank-tag gm">Mercenaire expérimenté</span>
                                 </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 42%;"></div>
-                                </div>
+                                <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 42%;"></div></div>
                             </div>
                         </div>
-
-                        <div class="member-card p-4 flex items-center gap-4" data-index="8">
+                        <div class="member-card p-4 flex items-center gap-4" data-index="10">
                             <div class="scan-effect"></div>
-                            <div class="member-number">#009</div>
+                            <div class="member-number">#011</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                NK
-                                <div class="status-dot"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Santi Cordoba</h3>
-                                    <span class="rank-tag gm">Sergent</span>
-                                </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 35%;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="member-card p-4 flex items-center gap-4" data-index="9">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#010</div>
-                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                DK
+                                AV
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
@@ -1777,149 +1687,103 @@
                                     <h3 class="font-black text-sm uppercase tracking-tight text-white">Aleixei Volkov</h3>
                                     <span class="rank-tag gm">Caporal-Chef</span>
                                 </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 37%;"></div>
-                                </div>
-                            </div>
-                        </div>
-						<div class="member-card p-4 flex items-center gap-4" data-index="8">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#011</div>
-                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                NC
-                                <div class="status-dot"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Mario Pavo</h3>
-                                    <span class="rank-tag gm">Mercenaire experimente</span>
-                                </div>
-                                <div class="power-bar-track mt-1">
-                                    <div class="power-bar-fill" style="--target-w: 35%;"></div>
-                                </div>
+                                <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 37%;"></div></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ===== FOOTER CITATION ===== -->
+                <!-- CITATION -->
                 <div class="deco-line"></div>
                 <div class="text-center pb-10">
-                    <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
-                        "Un seul pour diriger. Tous pour la Nation."
-                    </p>
-                    <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">
-                        LEGION — DEPUIS LOS SANTOS
-                    </p>
+                    <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">"Un seul pour diriger. Tous pour la Nation."</p>
+                    <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">LEGION — DEPUIS LOS SANTOS</p>
                 </div>
-
             </div>
         </div>
         <!-- FIN PAGE INFO -->
 
+<!-- ===================================================== -->
+        <!-- PAGE : ARSENAL — ARMES, DROGUES & VÉHICULES           -->
         <!-- ===================================================== -->
-        <!-- PAGE : ARSENAL — ARMES & VÉHICULES                    -->
-        <!-- ===================================================== -->
-<!-- PAGE : ARSENAL -->
-<div id="arsenal" class="page p-10 overflow-y-auto h-full bg-black">
+        <div id="arsenal" class="page p-10 overflow-y-auto h-full bg-black">
+            <h1 class="text-4xl font-black text-[#4b5320] mb-6">ARSENAL LEGION</h1>
 
-    <h1 class="text-4xl font-black text-[#4b5320] mb-6">
-        ARSENAL lgn
-    </h1>
-
-    <!-- FILTRES -->
-    <div class="flex gap-3 mb-6">
-        <button class="arsenal-filter-btn active border px-3 py-1 text-xs" data-filter="all">TOUT</button>
-        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="weapon">ARMES</button>
-        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="vehicle">VÉHICULES</button>
-		<button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="DROGUES">DROGUES</button>
-    </div>
-
-    <!-- GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        <!-- ===== ARMES ===== -->
-
-        <div class="arsenal-item border p-4" data-type="weapon">
-            <img src="tec9.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">P90</h3>
-            <span class="arsenal-tag">Mitraillette</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="weapon">
-            <img src="uzi.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Uzi</h3>
-            <span class="arsenal-tag">Mitraillette</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="weapon">
-            <img src="pistol.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Pistolet de combat</h3>
-            <span class="arsenal-tag arsenal-tag-red">PISTOLET</span>
-        </div>
-		
-		<div class="arsenal-item border p-4" data-type="weapon">
-            <img src="glock.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Spas12</h3>
-            <span class="arsenal-tag arsenal-tag-red">pompe</span>
-        </div>
-		
-		        <!-- ===== DROGUES ===== -->
-
-        <div class="arsenal-item border p-4" data-type="DROGUES">
-            <img src="weed.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">WEED</h3>
-            <span class="arsenal-tag arsenal-tag-gold">BlueWeed</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="DROGUES">
-            <img src="cocaine.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">COCAINE</h3>
-            <span class="arsenal-tag">BlueWhite</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="DROGUES">
-            <img src="meth.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">METH</h3>
-            <span class="arsenal-tag">BlueIce</span>
-        </div>
-
-        <!-- ===== VEHICULES ===== -->
-
-        <div class="arsenal-item border p-4" data-type="vehicle">
-            <img src="buffalo.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">BUFALLO H</h3>
-            <span class="arsenal-tag arsenal-tag-gold">RIDE</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="vehicle">
-            <img src="Glendal.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Glendal</h3>
-            <span class="arsenal-tag">RIDE</span>
-        </div>
-
-        <div class="arsenal-item border p-4" data-type="vehicle">
-            <img src="4x4.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Landstalker xl</h3>
-            <span class="arsenal-tag">RIDE</span>
-        </div>
-		
-		<div class="arsenal-item border p-4" data-type="vehicle">
-            <img src="voiture.png" onclick="openArsenalModal(this)">
-            <h3 class="font-bold">Faction custom</h3>
-            <span class="arsenal-tag">RIDE</span>
-        </div>
-
-    </div>
-
-            <!-- NOTE BAS DE PAGE -->
-            <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
-                <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
-                 <!--   ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html -->
-                </p>
-                <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">LEGION — LOS SANTOS</p>
+            <!-- FILTRES -->
+            <div class="flex flex-wrap gap-3 mb-6">
+                <button class="arsenal-filter-btn active border px-3 py-1 text-xs" data-filter="all">TOUT</button>
+                <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="weapon">ARMES</button>
+                <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="drug">DROGUES</button>
+                <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="vehicle">VÉHICULES</button>
             </div>
 
+            <!-- GRILLE -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- ARMES -->
+            <div class="arsenal-item border p-4" data-type="weapon">
+                <img src="tec9.png" alt="P90" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">P90</h3>
+                <span class="arsenal-tag ">Mitraillette</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="weapon">
+                <img src="uzi.png" alt="Uzi" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Uzi</h3>
+                <span class="arsenal-tag ">Mitraillette</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="weapon">
+                <img src="pistol.png" alt="Pistolet de combat" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Pistolet de combat</h3>
+                <span class="arsenal-tag arsenal-tag-red">Pistolet</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="weapon">
+                <img src="glock.png" alt="Spas12" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Spas12</h3>
+                <span class="arsenal-tag arsenal-tag-red">Pompe</span>
+            </div>
+
+            <!-- DROGUES -->
+            <div class="arsenal-item border p-4" data-type="drug">
+                <img src="weed.png" alt="Weed" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Weed</h3>
+                <span class="arsenal-tag arsenal-tag-gold">BlueWeed</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="drug">
+                <img src="cocaine.png" alt="Cocaine" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Cocaine</h3>
+                <span class="arsenal-tag ">BlueWhite</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="drug">
+                <img src="meth.png" alt="Meth" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Meth</h3>
+                <span class="arsenal-tag ">BlueIce</span>
+            </div>
+
+            <!-- VÉHICULES -->
+            <div class="arsenal-item border p-4" data-type="vehicle">
+                <img src="buffalo.png" alt="Buffalo H" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Buffalo H</h3>
+                <span class="arsenal-tag arsenal-tag-gold">Ride</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="vehicle">
+                <img src="Glendal.png" alt="Glendale" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Glendale</h3>
+                <span class="arsenal-tag ">Ride</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="vehicle">
+                <img src="4x4.png" alt="Landstalker XL" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Landstalker XL</h3>
+                <span class="arsenal-tag ">Ride</span>
+            </div>
+            <div class="arsenal-item border p-4" data-type="vehicle">
+                <img src="voiture.png" alt="Faction custom" onclick="openArsenalModal(this)">
+                <h3 class="font-bold">Faction custom</h3>
+                <span class="arsenal-tag ">Ride</span>
+            </div>
+            </div>
+
+            <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
+                <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">LEGION — LOS SANTOS</p>
+            </div>
         </div>
         <!-- FIN PAGE ARSENAL -->
 
