@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | LEGION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ===== SYSTÈME DE PAGES ===== */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ===== CARTE GTA 5 ===== */
+        #map.active { display:flex !important; flex-direction:column; }
+        #map > div { height:100%; }
+        .map-wrapper-lgn {
+            background: #050505;
+            border: 2px solid #4b5320;
+            font-family: 'Space Mono', monospace;
+            position: relative;
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            cursor: grab;
+            user-select: none;
+        }
+        .map-wrapper-lgn.dragging { cursor: grabbing; }
+
+        #lgn-map-canvas {
+            position: absolute;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+        #lgn-map-canvas img {
+            display: block;
+            width: 4096px;
+            max-width: none;
+            image-rendering: auto;
+            -webkit-user-drag: none;
+        }
+
+        .map-hud-top {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 12px 16px;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+        }
+        .map-hud-title {
+            color: white;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .map-hud-title span { color: #4b5320; }
+        .map-hud-sub {
+            color: #444;
+            font-size: 8px;
+            letter-spacing: 1px;
+            margin-top: 3px;
+            font-family: 'Space Mono', monospace;
+        }
+        .map-hud-coords {
+            color: #4b5320;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-align: right;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .map-scanline {
+            position: absolute; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #4b532055, transparent);
+            animation: lgn-scan 5s linear infinite;
+            z-index: 15; pointer-events: none;
+        }
+        @keyframes lgn-scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .map-corner { position: absolute; width: 16px; height: 16px; z-index: 25; pointer-events: none; }
+        .map-corner.tl { top:0; left:0; border-top:2px solid #4b5320; border-left:2px solid #4b5320; }
+        .map-corner.tr { top:0; right:0; border-top:2px solid #4b5320; border-right:2px solid #4b5320; }
+        .map-corner.bl { bottom:0; left:0; border-bottom:2px solid #4b5320; border-left:2px solid #4b5320; }
+        .map-corner.br { bottom:0; right:0; border-bottom:2px solid #4b5320; border-right:2px solid #4b5320; }
+
+        .map-zoom-controls {
+            position: absolute; bottom: 16px; right: 16px;
+            z-index: 20; display: flex; flex-direction: column; gap: 4px;
+        }
+        .map-zoom-btn {
+            width: 32px; height: 32px;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #4b5320;
+            color: #4b5320; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; pointer-events: all;
+            font-family: monospace; line-height: 1;
+        }
+        .map-zoom-btn:hover { background: rgba(75,83,32,0.25); color: white; }
+
+        .map-hud-bottom {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+            padding: 8px 16px;
+            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+            pointer-events: none;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .map-status { font-size: 8px; color: #4b5320; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+        .map-hint   { font-size: 8px; color: #333; letter-spacing: 1px; text-transform: uppercase; }
+
+        .map-loading {
+            position: absolute; inset: 0; background: #050505;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 50; gap: 20px;
+            transition: opacity 0.6s;
+        }
+        .map-loading-logo {
+            color: white;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 20px; letter-spacing: -1px;
+        }
+        .map-loading-logo span { color: #4b5320; }
+        .map-loading-bar-track { width: 220px; height: 2px; background: #111; }
+        .map-loading-bar-fill  { height: 2px; background: #4b5320; width: 0; transition: width 1.5s ease-out; }
+        .map-loading-text { color: #4b5320; font-size: 9px; letter-spacing: 3px; font-family: 'Space Mono', monospace; text-transform: uppercase; }
+
+        #lgn-points-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 4096px; height: 4096px;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* ===== PAGE HOME — wrapping ===== */
+        #home { animation: pageIn 0.4s ease-out; }
+        #map  { animation: pageIn 0.4s ease-out; }
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== PAGE INFO — HIÉRARCHIE lgn ===== */
+        #info {
+            animation: pageIn 0.4s ease-out;
+        }
+
+        /* Ligne de scan globale sur la page info */
+        .info-scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(75,83,32,0.4), transparent);
+            animation: infoScan 4s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+        @keyframes infoScan {
+            0% { top: 0; }
+            100% { top: 100vh; }
+        }
+
+        /* Header section */
+        .info-header {
+            position: relative;
+            overflow: hidden;
+        }
+        .info-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(75,83,32,0.02) 2px,
+                rgba(75,83,32,0.02) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Titre animé glitch */
+        .glitch-title {
+            position: relative;
+            display: inline-block;
+        }
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            inset: 0;
+            font-family: 'Archivo Black', sans-serif;
+        }
+        .glitch-title::before {
+            color: #6b7a32;
+            animation: glitch1 3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+        .glitch-title::after {
+            color: #ff3333;
+            animation: glitch2 3s infinite;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+        @keyframes glitch1 {
+            0%, 90%, 100% { transform: translate(0); opacity: 0; }
+            92% { transform: translate(-3px, 1px); opacity: 0.7; }
+            95% { transform: translate(3px, -1px); opacity: 0.7; }
+            97% { transform: translate(-1px, 2px); opacity: 0.7; }
+        }
+        @keyframes glitch2 {
+            0%, 88%, 100% { transform: translate(0); opacity: 0; }
+            90% { transform: translate(3px, -1px); opacity: 0.5; }
+            93% { transform: translate(-2px, 1px); opacity: 0.5; }
+            96% { transform: translate(2px, -2px); opacity: 0.5; }
+        }
+
+        /* ===== HIÉRARCHIE VERTICALE ===== */
+        .hierarchy-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* Ligne verticale centrale */
+        .hierarchy-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #4b5320 10%, #4b5320 90%, transparent);
+            transform: translateX(-50%);
+        }
+
+        /* Niveau de hiérarchie */
+        .rank-tier {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        /* Badge de rang */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(75,83,32,0.12);
+            border: 1px solid rgba(75,83,32,0.4);
+            padding: 4px 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #4b5320;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+        .rank-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: #4b5320;
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.6); }
+        }
+
+        /* Carte membre */
+        .member-card {
+            background: #080808;
+            border: 2px solid rgba(255,255,255,0.06);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: default;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .member-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(75,83,32,0.06), transparent);
+            transition: left 0.5s ease;
+        }
+        .member-card:hover::before {
+            left: 100%;
+        }
+        .member-card:hover {
+            border-color: rgba(75,83,32,0.5);
+            background: #0a0a12;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(75,83,32,0.2);
+        }
+
+        /* Carte OG (spéciale) */
+        .member-card.og-card {
+            border: 2px solid rgba(75,83,32,0.4);
+            background: linear-gradient(135deg, #060610 0%, #080815 100%);
+        }
+        .member-card.og-card:hover {
+            border-color: #4b5320;
+            box-shadow: 0 0 40px rgba(75,83,32,0.35), inset 0 0 20px rgba(75,83,32,0.05);
+        }
+
+        /* Avatar placeholder */
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .member-avatar.blue {
+            background: linear-gradient(135deg, #4b5320, #2f3815);
+            color: white;
+            box-shadow: 0 0 15px rgba(75,83,32,0.4);
+        }
+        .member-avatar.dark {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            color: #4b5320;
+            border: 2px solid rgba(75,83,32,0.3);
+        }
+        .member-avatar.gold {
+            background: linear-gradient(135deg, #1a1400, #2a2000);
+            color: #c8a800;
+            border: 2px solid rgba(200,168,0,0.4);
+            box-shadow: 0 0 15px rgba(200,168,0,0.15);
+        }
+
+        /* Badge de statut */
+        .status-dot {
+            position: absolute;
+            bottom: 2px; right: 2px;
+            width: 10px; height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            border: 2px solid #080808;
+            animation: statusPulse 2s infinite;
+        }
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(0,255,136,0); }
+        }
+
+        /* Tag du rang */
+        .rank-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+        .rank-tag.og { background: rgba(75,83,32,0.15); color: #4b5320; border: 1px solid rgba(75,83,32,0.3); }
+        .rank-tag.dog { background: rgba(107,122,50,0.1); color: #6b7a32; border: 1px solid rgba(107,122,50,0.25); }
+        .rank-tag.bh { background: rgba(150,100,255,0.1); color: #9664ff; border: 1px solid rgba(150,100,255,0.25); }
+        .rank-tag.sc { background: rgba(255,165,0,0.1); color: #ffa500; border: 1px solid rgba(255,165,0,0.25); }
+        .rank-tag.gm { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Connecteur entre les niveaux */
+        .tier-connector {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, #4b5320, rgba(75,83,32,0.2));
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .tier-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 50%;
+            transform: translateX(-50%);
+            width: 8px; height: 8px;
+            background: #4b5320;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+
+        /* Compteur stats */
+        .stat-counter {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 32px;
+            color: #4b5320;
+            line-height: 1;
+            animation: countUp 1.5s ease-out forwards;
+        }
+
+        /* Grille membres (pour le bas) */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        /* Ligne déco */
+        .deco-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #4b5320, transparent);
+            margin: 40px 0;
+        }
+
+        /* Fond animé HEX GRID */
+        .hex-grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(75,83,32,0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(75,83,32,0.03) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Animation d'entrée staggered */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CLASSIFIED STAMP */
+        .classified-stamp {
+            display: inline-block;
+            border: 3px solid rgba(255,50,50,0.3);
+            color: rgba(255,50,50,0.3);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            letter-spacing: 4px;
+            padding: 3px 10px;
+            transform: rotate(-2deg);
+            text-transform: uppercase;
+        }
+
+        /* TOTAL POWER BAR */
+        .power-bar-track {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .power-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4b5320, #6b7a32);
+            border-radius: 2px;
+            width: 0;
+            transition: width 1.5s ease-out;
+        }
+
+        /* Effet scanline sur les cartes membres */
+        .member-card .scan-effect {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: rgba(75,83,32,0.5);
+            animation: cardScan 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .member-card:hover .scan-effect {
+            opacity: 1;
+        }
+        @keyframes cardScan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Numéro de membre */
+        .member-number {
+            position: absolute;
+            top: 10px; right: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: rgba(255,255,255,0.08);
+            letter-spacing: 1px;
+        }
+
+        /* ===== ARSENAL PAGE ===== */
+        .arsenal-item:hover {
+            border-color: rgba(75,83,32,0.5) !important;
+            background: #0a0a18 !important;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(75,83,32,0.15);
+        }
+        .arsenal-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 9px;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(75,83,32,0.3);
+            color: #4b5320;
+            background: rgba(75,83,32,0.08);
+        }
+        .arsenal-tag-gold {
+            border-color: rgba(200,168,0,0.4) !important;
+            color: #c8a800 !important;
+            background: rgba(200,168,0,0.08) !important;
+        }
+        .arsenal-tag-red {
+            border-color: rgba(255,50,50,0.4) !important;
+            color: #ff3232 !important;
+            background: rgba(255,50,50,0.08) !important;
+        }
+        .arsenal-filter-btn:hover {
+            border-color: #4b5320 !important;
+            color: white !important;
+            background: rgba(75,83,32,0.15) !important;
+        }
+        .arsenal-filter-btn.active {
+            border-color: #4b5320 !important;
+            background: rgba(75,83,32,0.2) !important;
+            color: white !important;
+        }
+        .arsenal-item.hidden-item {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+<div class="layout flex h-screen">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar w-64 bg-black/90 border-r-4 border-[#4b5320] p-6 flex flex-col">
+        <div class="logo text-center mb-10">
+            <img src="logo.png" class="w-20 mx-auto mb-2">
+            <h2 class="font-black text-[#4b5320]">LEGION</h2>
+            <p class="text-[10px] text-gray-500 tracking-widest">LOS SANTOS</p>
+        </div>
+
+    <div class="menu-item active flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="home">
+        <span>🏠</span> <div><h3 class="text-sm font-bold">ACCUEIL</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="map">
+        <span>🗺️</span> <div><h3 class="text-sm font-bold">CARTE</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="histoire">
+        <span>📖</span> <div><h3 class="text-sm font-bold">HISTOIRE</h3></div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="ORGA-info">
+        <span>🟢</span>
+        <div>
+            <h3 class="text-sm font-bold">ORGA - INFO</h3>
+            <p class="text-[9px] text-gray-500">Histoire membres</p>
+        </div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="info">
+        <span>👥</span>
+        <div>
+            <h3 class="text-sm font-bold">INFO</h3>
+            <p class="text-[9px] text-gray-500">Hiérarchie · Membres</p>
+        </div>
+    </div>
+    <div class="menu-item flex items-center gap-4 p-3 cursor-pointer hover:bg-white/10 transition" data-page="arsenal">
+        <span>🔫</span>
+        <div>
+            <h3 class="text-sm font-bold">ARSENAL</h3>
+            <p class="text-[9px] text-gray-500">Armes · Véhicules</p>
+        </div>
+    </div>
+</nav>
+
+        <div style="margin-top: auto; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <audio id="homeMusic" src="home_music.mp3" loop></audio>
+            
+            <div class="music-control-panel" style="display:flex; flex-direction:column; gap:10px; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(75,83,32,0.3); border-radius:4px;">
+                <div onclick="toggleMusic()" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#7aa0c4;">
+                    <span id="musicIcon" style="font-size:16px;">🔊</span>
+                    <span style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">Ambiance LEGION</span>
+                </div>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" 
+                       style="width:100%; cursor:pointer; accent-color:#4b5320; height:4px;">
+            </div>
+        </div>
+
+        <div class="footer pt-4 border-t border-white/10 text-[10px] text-red-600 font-bold">
+            ● SYSTÈME ONLINE
+        </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="flex-1 overflow-hidden bg-black/90 relative">
+
+        <!-- PAGE : ACCUEIL -->
+        <div id="home" class="page active p-10 overflow-y-auto h-full">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+                    HUB TACTIQUE <span class="text-[#4b5320]">LEGION</span>
+                </h1>
+                <p class="text-sm font-mono text-gray-400 mt-2">LOS SANTOS • SYSTÈME SÉCURISÉ • CONFIDENTIEL</p>
+            </div>
+
+            <div class="lgn-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="lgn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="map">
+                    <img src="gta_map.jpg" class="card-bg-image map-preview">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">🗺️</div>
+                        <h3 class="card-title">CARTE</h3>
+                        <p class="card-desc">Territoire lgn & Points tactiques.</p>
+                        <div class="card-info-peek">District Legion</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="lgn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="histoire">
+                    <img src="histoire.jpg" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">📖</div>
+                        <h3 class="card-title">HISTOIRE</h3>
+                        <p class="card-desc">Les origines et l'ascension.</p>
+                        <div class="card-info-peek">legion Network v4.0</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="lgn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="info">
+                    <img src="info.png" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">👥</div>
+                        <h3 class="card-title">INFO</h3>
+                        <p class="card-desc">Hiérarchie & Membres actifs.</p>
+                        <div class="card-info-peek">11 Membres · 5 Rangs</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+                <div class="lgn-hub-card relative group overflow-hidden border-2 border-white/10" data-target="arsenal">
+				<img src="ARSENAL.png" class="card-bg-image">
+                    <div class="card-overlay"></div>
+                    <div class="card-content">
+                        <div class="card-icon text-gray-500">🔫</div>
+                        <h3 class="card-title">ARSENAL <span style="color:#4b5320">lgn</span></h3>
+                        <p class="card-desc">Armement & Flotte de L'ORGA.</p>
+                        <div class="card-info-peek">Armes · Véhicules blindés</div>
+                    </div>
+                    <div class="card-border-effect"></div>
+                </div>
+
+            </div>
+        </div>
+        <!-- FIN PAGE ACCUEIL -->
+
+        <!-- PAGE : CARTE GTA 5 INTERACTIVE lgn -->
+        <div id="map" class="page h-full">
+            <div style="display:flex; height:100%; position:relative;">
+
+                <!-- ===== PANNEAU LATÉRAL GAUCHE ===== -->
+                <div id="mapSidebar" style="
+                    width: 220px; flex-shrink:0;
+                    background: #020205;
+                    border-right: 2px solid rgba(75,83,32,0.4);
+                    display: flex; flex-direction: column;
+                    z-index: 50; overflow: hidden;
+                ">
+                    <!-- Header -->
+                    <div style="padding:14px 16px; border-bottom:1px solid rgba(75,83,32,0.2); background:rgba(75,83,32,0.05);">
+                        <div style="font-family:'Archivo Black',sans-serif; font-size:11px; letter-spacing:3px; color:white; text-transform:uppercase;">CARTE TACTIQUE</div>
+                        <div style="font-family:'Space Mono',monospace; font-size:8px; color:#4b5320; letter-spacing:2px; margin-top:3px;">lgn · LOS SANTOS</div>
+                    </div>
+
+                    <!-- MODE toggle -->
+                    <div style="padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="font-family:'Space Mono',monospace; font-size:8px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">MODE</div>
+                        <div style="display:flex; gap:6px;">
+                            <button id="modeNav" onclick="setMapMode('nav')" style="
+                                flex:1; padding:7px 4px; font-family:'Space Mono',monospace; font-size:9px;
+                                background:rgba(75,83,32,0.25); border:1px solid #4b5320; color:white;
+                                cursor:pointer; letter-spacing:1px; transition:all 0.2s;
+                            ">🧭 NAV</button>
+                            <button id="modeAdd" onclick="setMapMode('add')" style="
+                                flex:1; padding:7px 4px; font-family:'Space Mono',monospace; font-size:9px;
+                                background:transparent; border:1px solid rgba(255,255,255,0.1); color:#555;
+                                cursor:pointer; letter-spacing:1px; transition:all 0.2s;
+                            ">📍 POSER</button>
+                        </div>
+                    </div>
+
+                    <!-- Catégories -->
+                    <div style="padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.05); flex:1; overflow-y:auto;">
+                        <div style="font-family:'Space Mono',monospace; font-size:8px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">CATÉGORIE</div>
+                        <div id="catList" style="display:flex; flex-direction:column; gap:5px;"></div>
+                    </div>
+
+                    <!-- Stats points -->
+                    <div style="padding:12px 14px; border-top:1px solid rgba(75,83,32,0.15); background:rgba(75,83,32,0.03);">
+                        <div style="font-family:'Space Mono',monospace; font-size:8px; color:#444; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">STATISTIQUES</div>
+                        <div id="mapStats" style="font-family:'Space Mono',monospace; font-size:10px; color:#4b5320;"></div>
+                    </div>
+
+                    <!-- Bouton effacer -->
+                    <div style="padding:10px 14px; border-top:1px solid rgba(255,50,50,0.15);">
+                        <button onclick="clearAllPoints()" style="
+                            width:100%; padding:7px; font-family:'Space Mono',monospace; font-size:8px;
+                            background:transparent; border:1px solid rgba(255,50,50,0.3); color:rgba(255,50,50,0.5);
+                            cursor:pointer; letter-spacing:2px; text-transform:uppercase; transition:all 0.2s;
+                        " onmouseover="this.style.background='rgba(255,50,50,0.1)'; this.style.color='#ff3232'; this.style.borderColor='#ff3232';"
+                           onmouseout="this.style.background='transparent'; this.style.color='rgba(255,50,50,0.5)'; this.style.borderColor='rgba(255,50,50,0.3)';">
+                            ✕ TOUT EFFACER
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== ZONE CARTE ===== -->
+                <div style="flex:1; position:relative; overflow:hidden;">
+                    <div class="map-wrapper-lgn" id="lgnMapRoot">
+                        <div class="map-loading" id="lgnMapLoading">
+                            <div class="map-loading-logo">LA <span>LEGION</span> si vis pacem para bellum</div>
+                            <div class="map-loading-bar-track">
+                                <div class="map-loading-bar-fill" id="lgnLoadBar"></div>
+                            </div>
+                            <div class="map-loading-text">Chargement de la carte...</div>
+                        </div>
+                        <div class="map-scanline"></div>
+                        <div class="map-corner tl"></div>
+                        <div class="map-corner tr"></div>
+                        <div class="map-corner bl"></div>
+                        <div class="map-corner br"></div>
+
+                        <!-- HUD haut -->
+                        <div class="map-hud-top">
+                            <div>
+                                <div class="map-hud-title">CARTE TACTIQUE — <span>legion</span></div>
+                                <div class="map-hud-sub">LOS SANTOS · SAN ANDREAS · 2026</div>
+                            </div>
+                            <div class="map-hud-coords" id="lgnCoords">X — · Y —</div>
+                        </div>
+
+                        <!-- Canvas carte -->
+                        <div id="lgn-map-canvas">
+                            <img id="lgnMapImg" src="gta_map.jpg" alt="Carte GTA 5" draggable="false"/>
+                            <svg id="lgn-points-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                        </div>
+
+                        <!-- Curseur mode POSER -->
+                        <div id="mapCrosshair" style="
+                            display:none; position:absolute; pointer-events:none; z-index:30;
+                            transform:translate(-50%,-50%);
+                        ">
+                            <svg width="32" height="32" viewBox="0 0 32 32">
+                                <line x1="16" y1="0" x2="16" y2="12" stroke="#4b5320" stroke-width="1.5"/>
+                                <line x1="16" y1="20" x2="16" y2="32" stroke="#4b5320" stroke-width="1.5"/>
+                                <line x1="0" y1="16" x2="12" y2="16" stroke="#4b5320" stroke-width="1.5"/>
+                                <line x1="20" y1="16" x2="32" y2="16" stroke="#4b5320" stroke-width="1.5"/>
+                                <circle cx="16" cy="16" r="4" fill="none" stroke="#4b5320" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+
+                        <!-- Zoom controls -->
+                        <div class="map-zoom-controls">
+                            <button class="map-zoom-btn" id="lgnZoomIn">+</button>
+                            <button class="map-zoom-btn" id="lgnZoomOut">−</button>
+                            <button class="map-zoom-btn" id="lgnZoomReset" style="font-size:11px">⌂</button>
+                        </div>
+
+                        <!-- HUD bas -->
+                        <div class="map-hud-bottom">
+                            <div class="map-status" id="mapModeStatus">● SYSTÈME CARTOGRAPHIQUE lgn ONLINE</div>
+                            <div class="map-hint" id="mapHint">SCROLL → ZOOM &nbsp;·&nbsp; DRAG → DÉPLACER</div>
+                        </div>
+                    </div>
+
+                    <!-- ===== POPUP POINT ===== -->
+                    <div id="pointPopup" style="
+                        display:none; position:absolute; z-index:200;
+                        background:#020205; border:1px solid #4b5320;
+                        padding:14px 16px; min-width:200px;
+                        box-shadow: 0 0 40px rgba(75,83,32,0.3);
+                        font-family:'Space Mono',monospace;
+                        pointer-events:all;
+                        animation: popupIn 0.2s ease;
+                    ">
+                        <style>@keyframes popupIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }</style>
+                        <div style="position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, #4b5320, transparent);"></div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                            <div>
+                                <div id="popupCatBadge" style="font-size:8px; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px;"></div>
+                                <div id="popupLabel" style="font-size:13px; color:white; font-weight:bold; margin-bottom:3px;"></div>
+                                <div id="popupCoords" style="font-size:8px; color:#444; letter-spacing:1px;"></div>
+                            </div>
+                            <button onclick="closePopup()" style="background:transparent; border:none; color:#444; cursor:pointer; font-size:16px; line-height:1; padding:0; flex-shrink:0;">✕</button>
+                        </div>
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); display:flex; gap:6px;">
+                            <button id="popupDelete" style="
+                                flex:1; padding:5px; font-family:'Space Mono',monospace; font-size:8px;
+                                background:transparent; border:1px solid rgba(255,50,50,0.3); color:rgba(255,80,80,0.7);
+                                cursor:pointer; letter-spacing:1px; transition:all 0.2s;
+                            " onmouseover="this.style.background='rgba(255,50,50,0.1)'" onmouseout="this.style.background='transparent'">
+                                ✕ SUPPRIMER
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== MODAL CRÉATION POINT ===== -->
+                    <div id="pointCreateModal" style="
+                        display:none; position:absolute; z-index:300;
+                        inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+                        align-items:center; justify-content:center;
+                    ">
+                        <div style="
+                            background:#050508; border:1px solid #4b5320; padding:28px 30px;
+                            min-width:300px; max-width:360px; width:90%;
+                            box-shadow:0 0 60px rgba(75,83,32,0.35);
+                            font-family:'Space Mono',monospace;
+                            animation: popupIn 0.25s ease;
+                        ">
+                            <div style="font-family:'Archivo Black',sans-serif; font-size:13px; letter-spacing:3px; color:white; text-transform:uppercase; margin-bottom:4px;">NOUVEAU POINT</div>
+                            <div style="font-size:8px; color:#444; letter-spacing:2px; margin-bottom:20px;" id="modalCoordDisplay"></div>
+
+                            <div style="margin-bottom:14px;">
+                                <div style="font-size:8px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">NOM DU POINT</div>
+                                <input id="pointLabelInput" type="text" placeholder="Ex: Planque principale..." style="
+                                    width:100%; box-sizing:border-box; padding:9px 12px;
+                                    background:#0a0a0f; border:1px solid rgba(75,83,32,0.4); color:white;
+                                    font-family:'Space Mono',monospace; font-size:11px; outline:none;
+                                    transition:border-color 0.2s;
+                                " onfocus="this.style.borderColor='#4b5320'" onblur="this.style.borderColor='rgba(75,83,32,0.4)'">
+                            </div>
+
+                            <div style="margin-bottom:20px;">
+                                <div style="font-size:8px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">CATÉGORIE</div>
+                                <div id="modalCatGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:6px;"></div>
+                            </div>
+
+                            <div style="display:flex; gap:8px;">
+                                <button onclick="cancelPointCreate()" style="
+                                    flex:1; padding:9px; font-family:'Space Mono',monospace; font-size:9px;
+                                    background:transparent; border:1px solid rgba(255,255,255,0.1); color:#555;
+                                    cursor:pointer; letter-spacing:1px; transition:all 0.2s;
+                                ">ANNULER</button>
+                                <button onclick="confirmPointCreate()" style="
+                                    flex:2; padding:9px; font-family:'Space Mono',monospace; font-size:9px;
+                                    background:rgba(75,83,32,0.25); border:1px solid #4b5320; color:white;
+                                    cursor:pointer; letter-spacing:1px; transition:all 0.2s;
+                                " onmouseover="this.style.background='rgba(75,83,32,0.4)'" onmouseout="this.style.background='rgba(75,83,32,0.25)'">
+                                    ✓ CONFIRMER
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- PAGE : HISTOIRE -->
+        <div id="histoire" class="page p-10 overflow-y-auto h-full bg-[#050505]">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+                        DOSSIER <span class="text-[#4b5320]">HISTORIQUE</span>
+                    </h1>
+                    <p class="text-sm font-mono text-[#4b5320] mt-2 animate-pulse">CLASSIFIÉ : legion NETWORK ACCESS ONLY</p>
+                </div>
+
+                <div id="story-content" class="space-y-8 font-mono text-gray-300 leading-relaxed">
+                        <div class="border-l-2 border-[#4b5320] pl-6 py-4 bg-[#4b5320]/5">
+                            <h2 class="text-[#4b5320] font-bold mb-4 uppercase tracking-widest text-xl">I. LA LÉGION</h2>
+                            <p class="story-text" data-delay="0">
+                                Avant que les rues ne connaissent le nom de <span class="text-white font-bold">La Légion</span>, avant que son symbole ne soit murmuré dans les conversations et avant que le nom d'<span class="text-white font-bold">Iero Romà</span> ne devienne synonyme de pouvoir, il n'y avait qu'un groupe de gamins.
+                            </p>
+                            <p class="story-text mt-4" data-delay="800">
+                                Dix enfants. Dix amis. Et un quartier dans lequel ils avaient grandi ensemble. Mais parmi eux, un seul était né avec une cuillère en argent dans la bouche. <span class="text-white font-bold">Iero Romà.</span>
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-white/40 pl-6 py-4 bg-white/5 mt-10">
+                            <h2 class="text-white font-bold mb-4 uppercase tracking-widest text-xl">II. Le Fils des Romà</h2>
+                            <p class="story-text" data-delay="300">
+                                Iero était né dans une famille extrêmement riche. Les Romà possédaient plusieurs entreprises, de grandes propriétés et une fortune accumulée sur plusieurs générations. Iero avait grandi dans une immense demeure située à l'écart de la ville. Il avait une chambre plus grande que l'appartement de certaines familles. Il avait des voitures avec chauffeur. Des vêtements coûteux. Des voyages. Des écoles privées. Il ne manquait absolument de rien.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1100">
+                                Pourtant, Iero détestait une chose : <span class="text-white italic">la solitude.</span> Ses parents étaient rarement présents. Son père travaillait constamment et sa mère passait son temps entre les réceptions et les voyages. Alors, malgré sa richesse, Iero passait une grande partie de son enfance dehors.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1900">
+                                C'est là qu'il rencontra les neuf autres. Ils n'avaient pas son argent. Ils n'avaient pas ses privilèges. Mais ils avaient quelque chose qu'Iero n'avait jamais vraiment connu chez lui : <span class="text-white font-bold">une véritable famille.</span>
+                            </p>
+                        </div>
+
+                        <div class="border-l-2 border-[#4b5320] pl-6 py-4 bg-[#4b5320]/5 mt-10">
+                            <h2 class="text-[#4b5320] font-bold mb-4 uppercase tracking-widest text-xl">III. Les Neuf Autres</h2>
+                            <p class="story-text" data-delay="300"><span class="text-white font-bold">Orso Verano</span> était le garçon le plus protecteur du groupe. Iero et Orso devinrent rapidement inséparables.</p>
+                            <p class="story-text mt-4" data-delay="700"><span class="text-white font-bold">Kade Brooks</span> était intelligent et observateur. Quand les autres fonçaient tête baissée, Kade réfléchissait.</p>
+                            <p class="story-text mt-4" data-delay="1100"><span class="text-white font-bold">Harrison Morreti</span> était le plus calme. Il parlait peu, mais lorsqu'il le faisait, tout le monde écoutait.</p>
+                            <p class="story-text mt-4" data-delay="1500"><span class="text-white font-bold">Mario Pavo</span> était toujours en train de plaisanter, de provoquer les autres et de transformer les situations les plus sérieuses en éclats de rire.</p>
+                            <p class="story-text mt-4" data-delay="1900"><span class="text-white font-bold">Dwayne Carter</span> était mystérieux et préférait observer plutôt que parler.</p>
+                            <p class="story-text mt-4" data-delay="2300"><span class="text-white font-bold">Arthur Callahan</span> était le plus ambitieux et refusait de croire qu'il était condamné à vivre une petite vie.</p>
+                            <p class="story-text mt-4" data-delay="2700"><span class="text-white font-bold">Sergio Ramirez</span> était loyal jusqu'à l'extrême. Lorsqu'il considérait quelqu'un comme son frère, il restait à ses côtés quoi qu'il arrive.</p>
+                            <p class="story-text mt-4" data-delay="3100"><span class="text-white font-bold">Nash Harri</span> était l'aventurier du groupe, toujours à chercher des endroits interdits et à entraîner les autres dans ses idées.</p>
+                            <p class="story-text mt-4" data-delay="3500">Enfin, il y avait <span class="text-white font-bold">Sean Holloway</span>. Sean était discret. Très discret. Mais Iero savait qu'il pouvait toujours compter sur lui.</p>
+                        </div>
+
+                        <div class="border-l-2 border-white/40 pl-6 py-4 bg-white/5 mt-10">
+                            <h2 class="text-white font-bold mb-4 uppercase tracking-widest text-xl">IV. Les Frères</h2>
+                            <p class="story-text" data-delay="300">
+                                Ils avaient grandi ensemble. Ils avaient joué au football dans les rues. Ils avaient fait des bêtises. Ils avaient séché des cours. Ils s'étaient battus ensemble. Ils avaient découvert leurs premiers secrets ensemble. Et surtout, ils avaient appris à se défendre les uns les autres.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1100">
+                                Pour les neuf garçons, Iero était différent. Ils savaient qu'il était riche, mais Iero ne leur faisait jamais sentir qu'ils étaient inférieurs. Au contraire. Il les invitait chez lui. Il leur prêtait ses jeux. Il partageait sa nourriture. Il les faisait entrer dans son monde.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1900">Pendant longtemps, personne ne pensa que leur amitié deviendrait quelque chose de beaucoup plus grand.</p>
+                        </div>
+
+                        <div class="border-l-2 border-red-600 pl-6 py-4 bg-red-900/5 mt-10">
+                            <h2 class="text-red-600 font-bold mb-4 uppercase tracking-widest text-xl">V. Le Premier Secret</h2>
+                            <p class="story-text" data-delay="300">
+                                À 16 ans, Iero commença à comprendre la différence entre <span class="text-white font-bold">l'argent et le pouvoir.</span> Son père pouvait acheter presque tout. Mais il ne pouvait pas acheter la loyauté. Il ne pouvait pas acheter l'amitié. Et surtout, il ne pouvait pas acheter ce que possédaient les dix garçons : la confiance qu'ils avaient construite depuis leur enfance.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1100">Iero commença alors à réunir ses amis plus régulièrement. Ils se retrouvaient dans une vieille maison abandonnée située à la limite du quartier. Un soir, Iero leur posa une question :</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="1500">« Vous vous voyez où dans 10 ans ? »</p>
+                            <p class="story-text mt-4" data-delay="1900">Les réponses furent différentes. Orso voulait protéger sa famille. Kade voulait réussir dans la vie. Arthur voulait devenir riche. Mario voulait voyager. Les autres avaient chacun leurs rêves. Iero les écouta.</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="2300">« Moi, je ne veux pas passer ma vie à recevoir ce que mon père a construit. Je veux construire quelque chose à moi. »</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="2700">Arthur sourit. « Et tu veux construire quoi ? »</p>
+                            <p class="story-text mt-4 text-white font-bold" data-delay="3100">Iero regarda ses amis. « Quelque chose que personne ne pourra nous enlever. »</p>
+                        </div>
+
+                        <div class="border-l-2 border-[#4b5320] pl-6 py-4 bg-[#4b5320]/5 mt-10">
+                            <h2 class="text-[#4b5320] font-bold mb-4 uppercase tracking-widest text-xl">VI. La Naissance de La Légion</h2>
+                            <p class="story-text" data-delay="300">
+                                À 19 ans, Iero prit une décision. Il allait créer une organisation. Pas une simple bande. Pas un club. Une organisation qui fonctionnerait selon ses propres règles. Et il ne recruterait personne d'autre. Les premiers membres seraient ceux qui avaient été avec lui depuis le début.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1100">Il les réunit tous dans l'ancienne maison. <span class="text-white font-bold">Dwayne. Kade. Harrison. Mario. Orso. Arthur. Sergio. Nash. Sean.</span> Iero les regarda un par un.</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="1700">« On se connaît depuis qu'on est gamins. »</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="2100">« Vous êtes les seules personnes en qui j'ai confiance. »</p>
+                            <p class="story-text mt-4" data-delay="2500">Il posa une feuille sur la table. Dessus se trouvait un symbole. Un emblème qu'il avait dessiné lui-même. <span class="text-white font-bold">Une légion antique stylisée.</span></p>
+                            <p class="story-text mt-4 text-white italic" data-delay="2900">« À partir d'aujourd'hui, on arrête de subir notre vie. »</p>
+                            <p class="story-text mt-4 text-white italic" data-delay="3300">Orso fronça les sourcils. « Et tu proposes quoi ? »</p>
+                            <p class="story-text mt-4" data-delay="3800">Iero répondit simplement :</p>
+                            <p class="story-text mt-4 text-white font-bold" data-delay="4100">« On construit notre propre empire. »</p>
+                            <p class="story-text mt-4" data-delay="4500">Le silence s'installa. Puis Arthur sourit. « Alors faisons-le. » Les autres suivirent.</p>
+                            <p class="story-text mt-4 text-white font-bold" data-delay="5000">Ce soir-là, La Légion était née.</p>
+                        </div>
+
+                        <div class="border-l-2 border-white/40 pl-6 py-4 bg-white/5 mt-10">
+                            <h2 class="text-white font-bold mb-4 uppercase tracking-widest text-xl">VII. Dix Hommes, Une Seule Famille</h2>
+                            <p class="story-text" data-delay="300">
+                                Iero devint naturellement le chef. Pas parce qu'il était le plus fort. Pas parce qu'il était le plus intelligent. Mais parce qu'il connaissait chacun d'eux depuis des années. Il savait ce qui les motivait. Il connaissait leurs peurs. Leurs rêves. Leurs faiblesses. Et il savait comment les unir.
+                            </p>
+                            <p class="story-text mt-4" data-delay="1100">Chaque membre trouva progressivement sa place.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                            <div class="border border-white/10 p-4 hover:border-[#4b5320] transition-colors">
+                                <h3 class="text-[#4b5320] text-xs mb-3 underline">LES PILIERS</h3>
+                                <ul class="text-sm space-y-2">
+                                    <li><b class="text-white">Iero Romà</b> — Fondateur & Chef.</li>
+                                    <li><b class="text-white">Orso Verano</b> — Protecteur du groupe.</li>
+                                    <li><b class="text-white">Kade Brooks</b> — Cerveau analytique.</li>
+                                    <li><b class="text-white">Harrison Morreti</b> — Conseiller d'Iero.</li>
+                                    <li><b class="text-white">Mario Pavo</b> — Visage sociable du groupe.</li>
+                                    <li><b class="text-white">Dwayne Carter</b> — L'homme mystérieux.</li>
+                                    <li><b class="text-white">Arthur Callahan</b> — L'ambitieux.</li>
+                                    <li><b class="text-white">Sergio Ramirez</b> — Le plus loyal.</li>
+                                    <li><b class="text-white">Nash Harri</b> — L'imprévisible.</li>
+                                    <li><b class="text-white">Sean Holloway</b> — Le silencieux.</li>
+                                </ul>
+                            </div>
+                            <div class="border border-white/10 p-4 flex flex-col justify-center items-center text-center">
+                                <div class="text-4xl mb-2">🟩</div>
+                                <h3 class="text-white font-black">LA LÉGION</h3>
+                                <p class="text-[10px] text-gray-500 italic mt-2">« Quelque chose que personne ne pourra nous enlever. »</p>
+                            </div>
+                        </div>
+                    
+            </div>
+        </div>
+        </div>
+        <!-- FIN PAGE HISTOIRE -->
+
+        <!-- ===================================================== -->
+        <!-- PAGE : ORGA INFO — REDESIGN PREMIUM                   -->
+        <!-- ===================================================== -->
+        <div id="ORGA-info" class="page overflow-y-auto h-full" style="background:#040408;">
+
+    <!-- ===== CSS ORGA PAGE ===== -->
+    <style>
+        /* ── Fond grille déco ── */
+        #ORGA-info {
+            background-image:
+                linear-gradient(rgba(75,83,32,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(75,83,32,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* ── Header cinématique ── */
+        .ORGA-page-header {
+            position: relative;
+            padding: 48px 48px 36px;
+            border-bottom: 1px solid rgba(75,83,32,0.2);
+            overflow: hidden;
+        }
+        .ORGA-page-header::before {
+            content: 'lgn';
+            position: absolute;
+            right: -20px; top: -30px;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 200px;
+            color: rgba(75,83,32,0.04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+        .ORGA-header-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(75,83,32,0.5);
+            padding: 4px 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+            color: #4b5320; margin-bottom: 16px;
+        }
+        .ORGA-header-tag::before {
+            content: ''; width: 6px; height: 6px;
+            background: #4b5320; border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
+        .ORGA-page-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 64px; line-height: 0.9;
+            letter-spacing: -3px; text-transform: uppercase;
+            color: white; margin: 0;
+        }
+        .ORGA-page-title span { color: #4b5320; }
+        .ORGA-stats-row {
+            display: flex; gap: 32px; margin-top: 24px; flex-wrap: wrap;
+        }
+        .ORGA-stat {
+            display: flex; flex-direction: column;
+        }
+        .ORGA-stat-num {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 28px; color: white; line-height: 1;
+        }
+        .ORGA-stat-num span { color: #4b5320; }
+        .ORGA-stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px; letter-spacing: 2px;
+            text-transform: uppercase; color: #444; margin-top: 4px;
+        }
+
+        /* ── Barre recherche ── */
+        .ORGA-search-bar {
+            display: flex; gap: 12px; align-items: center;
+            padding: 24px 48px 0;
+        }
+        .ORGA-search-wrap {
+            position: relative; flex: 1;
+        }
+        .ORGA-search-wrap::before {
+            content: '⌕';
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: #4b5320; font-size: 18px; pointer-events: none;
+        }
+        #searchInput {
+            width: 100%; background: rgba(75,83,32,0.05);
+            border: 1px solid rgba(75,83,32,0.25);
+            padding: 12px 16px 12px 42px;
+            font-family: 'Space Mono', monospace; font-size: 12px;
+            color: white; outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            box-sizing: border-box;
+        }
+        #searchInput::placeholder { color: #333; }
+        #searchInput:focus {
+            border-color: #4b5320;
+            background: rgba(75,83,32,0.08);
+        }
+        #rankFilter {
+            background: rgba(75,83,32,0.05);
+            border: 1px solid rgba(75,83,32,0.25);
+            padding: 12px 16px; font-family: 'Space Mono', monospace;
+            font-size: 11px; color: white; outline: none; cursor: pointer;
+        }
+        #rankFilter:focus { border-color: #4b5320; }
+        .ORGA-count-bar {
+            padding: 10px 48px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 2px;
+            color: #333; text-transform: uppercase;
+        }
+        .ORGA-count-bar span { color: #4b5320; }
+
+        /* ── Grille ── */
+        #ORGAGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2px;
+            padding: 24px 48px 48px;
+        }
+
+        /* ── Carte membre ── */
+        .ORGA-card {
+            position: relative;
+            height: 380px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #060609;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .ORGA-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            border: 2px solid #4b5320;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 8; pointer-events: none;
+        }
+        .ORGA-card:hover { transform: translateY(-6px); border-color: transparent; }
+        .ORGA-card:hover::after { opacity: 1; }
+
+        /* Image */
+        .ORGA-img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease, filter 0.4s ease;
+            filter: saturate(0.8) brightness(0.75);
+        }
+        .ORGA-card:hover .ORGA-img {
+            transform: scale(1.06);
+            filter: saturate(1.1) brightness(0.85);
+        }
+
+        /* Dégradé bas */
+        .ORGA-card-grad {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 65%;
+            background: linear-gradient(to top,
+                rgba(4,4,8,1) 0%,
+                rgba(4,4,8,0.9) 40%,
+                rgba(4,4,8,0.5) 70%,
+                transparent 100%);
+            z-index: 2;
+        }
+
+        /* Contenu texte bas */
+        .ORGA-card-body {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 20px 20px 22px;
+            z-index: 5;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        .ORGA-card:hover .ORGA-card-body { transform: translateY(-6px); }
+
+        .ORGA-card-rank {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+            padding: 3px 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(75,83,32,0.5);
+            color: #4b5320;
+            background: rgba(75,83,32,0.1);
+        }
+        .ORGA-card-rank.rank-og    { border-color: rgba(75,83,32,0.8); color: #4d7fff; background: rgba(75,83,32,0.15); }
+        .ORGA-card-rank.rank-dog   { border-color: rgba(0,200,255,0.6); color: #00c8ff; background: rgba(0,200,255,0.08); }
+        .ORGA-card-rank.rank-bh    { border-color: rgba(150,100,255,0.6); color: #9664ff; background: rgba(150,100,255,0.08); }
+        .ORGA-card-rank.rank-ro    { border-color: rgba(0,255,180,0.4); color: #00ffb4; background: rgba(0,255,180,0.06); }
+        .ORGA-card-rank.rank-gm    { border-color: rgba(255,255,255,0.15); color: #aaa; background: rgba(255,255,255,0.04); }
+
+        .ORGA-card-name {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 22px; text-transform: uppercase;
+            letter-spacing: -0.5px; color: white;
+            line-height: 1; margin: 0;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+        }
+
+        /* Numéro dossier */
+        .ORGA-card-num {
+            position: absolute; top: 14px; right: 14px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; color: rgba(75,83,32,0.3);
+            letter-spacing: 1px; z-index: 6;
+            transition: color 0.3s;
+        }
+        .ORGA-card:hover .ORGA-card-num { color: rgba(75,83,32,0.7); }
+
+        /* Ligne déco top */
+        .ORGA-card-top-line {
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 2px; background: #4b5320;
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.4s ease; z-index: 9;
+        }
+        .ORGA-card:hover .ORGA-card-top-line { transform: scaleX(1); }
+
+        /* Infos supplémentaires (apparaissent au hover) */
+        .ORGA-card-extra {
+            max-height: 0; overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            margin-top: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px; letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+        .ORGA-card:hover .ORGA-card-extra {
+            max-height: 30px; opacity: 1;
+        }
+
+        /* Icône oeil (ouvrir dossier) */
+        .ORGA-card-action {
+            position: absolute; bottom: 22px; right: 20px;
+            width: 32px; height: 32px;
+            border: 1px solid rgba(75,83,32,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: #4b5320;
+            opacity: 0; transform: translateX(6px);
+            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            z-index: 7;
+        }
+        .ORGA-card:hover .ORGA-card-action {
+            opacity: 1; transform: translateX(0);
+        }
+        .ORGA-card-action:hover { background: rgba(75,83,32,0.2); }
+
+        /* ── No results ── */
+        .ORGA-no-results {
+            grid-column: 1/-1; text-align: center;
+            padding: 80px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px; color: #333;
+            letter-spacing: 2px; text-transform: uppercase;
+            display: none;
+        }
+    </style>
+
+    <!-- ── HEADER ── -->
+    <div class="ORGA-page-header">
+        <div class="ORGA-header-tag">LEGION · DOSSIERS CLASSIFIÉS</div>
+        <h1 class="ORGA-page-title">ORGA<br><span>DOSSIERS</span></h1>
+        <div class="ORGA-stats-row">
+            <div class="ORGA-stat">
+                <div class="ORGA-stat-num"><span id="gStat1">11</span></div>
+                <div class="ORGA-stat-label">Membres actifs</div>
+            </div>
+            <div class="ORGA-stat">
+                <div class="ORGA-stat-num"><span>5</span></div>
+                <div class="ORGA-stat-label">Rangs</div>
+            </div>
+            <div class="ORGA-stat">
+                <div class="ORGA-stat-num"><span>100</span>%</div>
+                <div class="ORGA-stat-label">Fidélité</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RECHERCHE ── -->
+    <div class="ORGA-search-bar">
+        <div class="ORGA-search-wrap">
+            <input id="searchInput" type="text" placeholder="Rechercher un membre...">
+        </div>
+        <select id="rankFilter" style="background:#040408; color:white;">
+            <option value="all">Tous les rangs</option>
+            <option value="Boss">Boss</option>
+            <option value="Bras droit">Bras droit</option>
+            <option value="Lieutenant">Lieutenant</option>
+            <option value="Sergent">Sergent</option>
+            <option value="Caporal Chef">Caporal Chef</option>
+			<option value="Caporal">Caporal</option>
+			<option value="Mercenaire expérimenté">Mercenaire expérimenté</option>
+			<option value="Mercenaire">Mercenaire</option>
+			<option value="Membres">Membres</option>
+        </select>
+    </div>
+    <div class="ORGA-count-bar">
+        Membres affichés : <span id="memberCount">11</span>
+    </div>
+
+    <!-- ── GRILLE ── -->
+    <div id="ORGAGrid">
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="mason-dossier.png" data-rank="OG" data-name="Lero Roma">
+            <div class="ORGA-card-top-line"></div>
+            <img src="mason-preview.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #001</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-og">◆ Boss</div>
+                <p class="ORGA-card-name">Lero<br>Roma</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="contentsono.png" data-rank="Double OG" data-name="Orso Verano">
+            <div class="ORGA-card-top-line"></div>
+            <img src="ace.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #002</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-dog">◆ Bras droit</div>
+                <p class="ORGA-card-name">Orso<br>Verano</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="youbibg.png" data-rank="Big Homie" data-name="Karl Ashler">
+            <div class="ORGA-card-top-line"></div>
+            <img src="youbi.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #003</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-bh">◆ Lieutenant</div>
+                <p class="ORGA-card-name">Sergio<br>Ramirez</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="Santibg.png" data-rank="Réal One" data-name="Deon Drayton">
+            <div class="ORGA-card-top-line"></div>
+            <img src="Santi.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #004</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-ro">◆ Lieutenant</div>
+                <p class="ORGA-card-name">Kade<br>Brooks</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="azulbg.png" data-rank="Réal One" data-name="Tyler Williams">
+            <div class="ORGA-card-top-line"></div>
+            <img src="AZUL.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #005</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-ro">◆ Sergent</div>
+                <p class="ORGA-card-name">Tyler<br>Williams</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="shalebg.png" data-rank="ORGA Member" data-name="Danté Knox">
+            <div class="ORGA-card-top-line"></div>
+            <img src="Shales.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #006</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Caporal</div>
+                <p class="ORGA-card-name">Danté<br>Knox</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="Peazzybg.png" data-rank="ORGA Member" data-name="Quincy Tillman">
+            <div class="ORGA-card-top-line"></div>
+            <img src="Peazzy.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #007</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Mercenaire Experimente</div>
+                <p class="ORGA-card-name">Quincy<br>Tillman</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="nashbg.png" data-rank="ORGA Member" data-name="Nash Kouyaman">
+            <div class="ORGA-card-top-line"></div>
+            <img src="NOOWEY.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #008</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Mercenaire</div>
+                <p class="ORGA-card-name">Nash<br>Kouyaman</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="seanbg.png" data-rank="ORGA Member" data-name="Sean Holloway">
+            <div class="ORGA-card-top-line"></div>
+            <img src="sean.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #009</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Member</div>
+                <p class="ORGA-card-name">Sean<br>Holloway</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="natebg.png" data-rank="ORGA Member" data-name="Nate Carter">
+            <div class="ORGA-card-top-line"></div>
+            <img src="nate.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #010</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Member</div>
+                <p class="ORGA-card-name">Nate<br>Carter</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-card" onclick="openModal(this)" data-img="xtasebg.png" data-rank="ORGA Member" data-name="Dwayne Carter">
+            <div class="ORGA-card-top-line"></div>
+            <img src="xtase.png" class="ORGA-img">
+            <div class="ORGA-card-grad"></div>
+            <div class="ORGA-card-num">DOSSIER #011</div>
+            <div class="ORGA-card-body">
+                <div class="ORGA-card-rank rank-gm">◆ Member</div>
+                <p class="ORGA-card-name">Dwayne<br>Carter</p>
+                <div class="ORGA-card-extra">● Cliquer pour ouvrir le dossier</div>
+            </div>
+            <div class="ORGA-card-action">▶</div>
+        </div>
+
+        <div class="ORGA-no-results" id="ORGANoResults">
+            ⚠ Aucun membre trouvé
+        </div>
+
+    </div>
+        <!-- FIN GRID -->
+
+        </div>
+        <!-- FIN PAGE ORGA INFO -->
+
+        <!-- ===================================================== -->
+        <!-- PAGE : INFO — HIÉRARCHIE lgn                          -->
+        <!-- ===================================================== -->
+        <div id="info" class="page p-8 overflow-y-auto h-full bg-[#030305] relative">
+
+            <!-- Fond déco -->
+            <div class="hex-grid-bg"></div>
+
+            <!-- Ligne de scan -->
+            <div class="info-scanline"></div>
+
+            <!-- ===== HEADER ===== -->
+            <div class="info-header text-center mb-12 pb-8 border-b border-white/5">
+                <div class="classified-stamp mb-4">Accès Restreint</div>
+                <h1 class="text-6xl font-black uppercase tracking-tighter text-white mt-4 glitch-title" data-text="HIÉRARCHIE">
+                    HIÉRARCHIE
+                </h1>
+                <p class="text-[#4b5320] font-mono text-xs tracking-[0.4em] mt-3 uppercase">
+                    LEGION · Los Santos · 2026
+                </p>
+
+                <!-- Stats rapides -->
+                <div class="flex justify-center gap-12 mt-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#4b5320]" id="cnt-members">11</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Membres actifs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#4b5320]">5</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Rangs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-[#4b5320]">100%</div>
+                        <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Fidélité</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== HIÉRARCHIE VERTICALE ===== -->
+            <div class="max-w-3xl mx-auto relative">
+
+                <!-- Ligne centrale déco -->
+                <div class="hierarchy-line hidden md:block"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 1 : Boss         -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-og">
+                    <div class="rank-badge">
+                        <span>👑</span> Boss — 
+                    </div>
+
+                    <div class="member-card og-card w-full max-w-md p-5 flex items-center gap-5" data-index="0">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#001</div>
+                        <div class="member-avatar relative">
+    <img src="mason-preview.png" class="w-full h-full object-cover rounded-full">
+    <div class="status-dot"></div>
+</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Lero Roma</h3>
+                                <span class="rank-tag og">Boss</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">CHEF SUPRÊME · FONDATEUR</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 100%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : MAXIMUM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 2 : Bras droit   -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-dog">
+                    <div class="rank-badge">
+                        <span>⚡</span> Bras droit
+                    </div>
+
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="1">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#002</div>
+                        <div class="member-avatar blue relative">
+                            <img src="ace.png" class="w-full h-full object-cover rounded-full">
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Orso Verano</h3>
+                                <span class="rank-tag dog">Bras droit</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">BRAS DROIT · LE CERVEAU</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 88%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : ÉLEVÉE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 3 : BIG HOMIE    -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-bh">
+                    <div class="rank-badge">
+                        <span>🟢</span> Big Homie
+                    </div>
+
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="2">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#003</div>
+                        <div class="member-avatar dark relative">
+                            KA
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-1">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Karl Ashler</h3>
+                                <span class="rank-tag bh">Big Homie</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">LIEUTENANT · LA FORCE</p>
+                            <div class="power-bar-track mt-2">
+                                <div class="power-bar-fill" style="--target-w: 72%;"></div>
+                            </div>
+                            <p class="text-[8px] text-gray-600 mt-1 font-mono">INFLUENCE : FORTE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 4 : STREET CAP   -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-sc">
+                    <div class="rank-badge">
+                        <span>🎯</span> Real One
+                    </div>
+
+                    <!-- 2 captains côte à côte -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+
+                        <div class="member-card p-5 flex items-center gap-4" data-index="3">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#004</div>
+                            <div class="member-avatar dark relative">
+                                SS
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Tyler Williams</h3>
+                                    <span class="rank-tag sc">R.One</span>
+                                </div>
+                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN NORD</p>
+                                <div class="power-bar-track mt-2">
+                                    <div class="power-bar-fill" style="--target-w: 58%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-5 flex items-center gap-4" data-index="4">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#005</div>
+                            <div class="member-avatar dark relative">
+                                DD
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-base uppercase tracking-tight text-white">Deon Drayton</h3>
+                                    <span class="rank-tag sc">R.One</span>
+                                </div>
+                                <p class="text-[9px] text-gray-500 font-mono">TERRAIN EST</p>
+                                <div class="power-bar-track mt-2">
+                                    <div class="power-bar-fill" style="--target-w: 56%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Connecteur -->
+                <div class="tier-connector mb-2"></div>
+
+                <!-- ===================== -->
+                <!-- RANG 5 : ORGA MEMBER  -->
+                <!-- ===================== -->
+                <div class="rank-tier" id="tier-gm">
+                    <div class="rank-badge">
+                        <span>🔗</span> ORGA Member
+                    </div>
+
+                    <div class="members-grid w-full max-w-2xl">
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="5">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#006</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                DC
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Dwayne Carter</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 40%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="6">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#007</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                SH
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Sean Holloway</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 38%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="7">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#008</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                QT
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Quincy Tillman</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 42%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="8">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#009</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                NK
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Nash Kouyaman</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 35%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="member-card p-4 flex items-center gap-4" data-index="9">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#010</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                DK
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Danté Knox</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 37%;"></div>
+                                </div>
+                            </div>
+                        </div>
+						<div class="member-card p-4 flex items-center gap-4" data-index="8">
+                            <div class="scan-effect"></div>
+                            <div class="member-number">#011</div>
+                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
+                                NC
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Nate Carter</h3>
+                                    <span class="rank-tag gm">Member</span>
+                                </div>
+                                <div class="power-bar-track mt-1">
+                                    <div class="power-bar-fill" style="--target-w: 35%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== FOOTER CITATION ===== -->
+                <div class="deco-line"></div>
+                <div class="text-center pb-10">
+                    <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
+                        "Un seul pour diriger. Tous pour la Nation."
+                    </p>
+                    <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">
+                        LEGION — DEPUIS LOS SANTOS
+                    </p>
+                </div>
+
+            </div>
+        </div>
+        <!-- FIN PAGE INFO -->
+
+        <!-- ===================================================== -->
+        <!-- PAGE : ARSENAL — ARMES & VÉHICULES                    -->
+        <!-- ===================================================== -->
+<!-- PAGE : ARSENAL -->
+<div id="arsenal" class="page p-10 overflow-y-auto h-full bg-black">
+
+    <h1 class="text-4xl font-black text-[#4b5320] mb-6">
+        ARSENAL lgn
+    </h1>
+
+    <!-- FILTRES -->
+    <div class="flex gap-3 mb-6">
+        <button class="arsenal-filter-btn active border px-3 py-1 text-xs" data-filter="all">TOUT</button>
+        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="weapon">ARMES</button>
+        <button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="vehicle">VÉHICULES</button>
+		<button class="arsenal-filter-btn border px-3 py-1 text-xs" data-filter="DROGUES">DROGUES</button>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- ===== ARMES ===== -->
+
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="tec9.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">TEC-9</h3>
+            <span class="arsenal-tag">PISTOLET-AUTO</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="uzi.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Uzi</h3>
+            <span class="arsenal-tag">Mitraillette</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="weapon">
+            <img src="pistol.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Beretta</h3>
+            <span class="arsenal-tag arsenal-tag-red">PISTOLET</span>
+        </div>
+		
+		<div class="arsenal-item border p-4" data-type="weapon">
+            <img src="glock.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Glock</h3>
+            <span class="arsenal-tag arsenal-tag-red">PISTOLET</span>
+        </div>
+		
+		        <!-- ===== DROGUES ===== -->
+
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="weed.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">WEED</h3>
+            <span class="arsenal-tag arsenal-tag-gold">BlueWeed</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="cocaine.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">COCAINE</h3>
+            <span class="arsenal-tag">BlueWhite</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="DROGUES">
+            <img src="meth.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">METH</h3>
+            <span class="arsenal-tag">BlueIce</span>
+        </div>
+
+        <!-- ===== VEHICULES ===== -->
+
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="buffalo.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">BUFALLO H</h3>
+            <span class="arsenal-tag arsenal-tag-gold">RIDE</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="Glendal.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Glendal</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
+
+        <div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="4x4.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Landstalker xl</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
+		
+		<div class="arsenal-item border p-4" data-type="vehicle">
+            <img src="voiture.png" onclick="openArsenalModal(this)">
+            <h3 class="font-bold">Faction custom</h3>
+            <span class="arsenal-tag">RIDE</span>
+        </div>
+
+    </div>
+
+            <!-- NOTE BAS DE PAGE -->
+            <div class="text-center mt-12 pb-8 border-t border-white/5 pt-8">
+                <p class="text-[10px] font-mono text-gray-600 tracking-widest uppercase">
+                 <!--   ⚠ Pour ajouter / modifier des armes ou véhicules, éditez directement le fichier home.html -->
+                </p>
+                <p class="text-[#4b5320] font-black tracking-widest text-sm mt-3">LEGION — LOS SANTOS</p>
+            </div>
+
+        </div>
+        <!-- FIN PAGE ARSENAL -->
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+/* ===== NAVIGATION ENTRE PAGES ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const menuItems = document.querySelectorAll('.menu-item');
+    const pages     = document.querySelectorAll('.page');
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const pageId = item.getAttribute('data-page');
+
+            menuItems.forEach(i => i.classList.remove('active', 'bg-[#4b5320]/20'));
+            item.classList.add('active', 'bg-[#4b5320]/20');
+
+            pages.forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+
+            // Déclenche les animations spéciales par page
+            if (pageId === 'info') animateInfoPage();
+            if (pageId === 'histoire') setTimeout(animateHistory, 300);
+            if (pageId === 'arsenal') initArsenal();
+            if (pageId === 'ORGA-info') initORGASearch();
+        });
+    });
+
+    // Clic sur les cartes du hub → navigation
+    document.querySelectorAll('.lgn-hub-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.getAttribute('data-target');
+            const menuItem = document.querySelector(`.menu-item[data-page="${target}"]`);
+            if (menuItem) menuItem.click();
+        });
+    });
+});
+
+/* ===== ARSENAL — FILTRES & COMPTEURS ===== */
+function initArsenal() {
+    const items = document.querySelectorAll('.arsenal-item');
+    const btns  = document.querySelectorAll('.arsenal-filter-btn');
+
+    // Compteurs
+    const weapons  = [...items].filter(i => i.dataset.type === 'weapon').length;
+    const vehicles = [...items].filter(i => i.dataset.type === 'vehicle').length;
+    const cntW = document.getElementById('cnt-weapons');
+    const cntV = document.getElementById('cnt-vehicles');
+    if (cntW) animateCount(cntW, weapons);
+    if (cntV) animateCount(cntV, vehicles);
+
+    // Animation entrée en cascade
+    items.forEach((item, i) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(16px)';
+        setTimeout(() => {
+            item.style.transition = 'opacity 0.35s ease, transform 0.35s ease, border-color 0.3s, background 0.3s, box-shadow 0.3s';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, i * 70);
+    });
+
+    // Filtres
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
+            items.forEach(item => {
+                if (filter === 'all' || item.dataset.type === filter) {
+                    item.classList.remove('hidden-item');
+                } else {
+                    item.classList.add('hidden-item');
+                }
+            });
+        });
+    });
+}
+
+function animateCount(el, target) {
+    let cur = 0;
+    const step = Math.ceil(target / 20);
+    const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = cur;
+        if (cur >= target) clearInterval(t);
+    }, 40);
+}
+
+/* ===== ORGA INFO — RECHERCHE & FILTRE ===== */
+function initORGASearch() {
+    const searchInput = document.getElementById('searchInput');
+    const rankFilter  = document.getElementById('rankFilter');
+    const memberCount = document.getElementById('memberCount');
+    const ORGAGrid    = document.getElementById('ORGAGrid');
+    const noResults   = document.getElementById('ORGANoResults');
+
+    if (!searchInput || !rankFilter || !ORGAGrid) return;
+
+    // Évite de ré-attacher les listeners à chaque fois
+    if (searchInput.dataset.bound === '1') return;
+    searchInput.dataset.bound = '1';
+
+    function filterCards() {
+        const query = searchInput.value.trim().toLowerCase();
+        const rank  = rankFilter.value;
+        const cards = ORGAGrid.querySelectorAll('.ORGA-card[data-name]');
+        let visible = 0;
+
+        cards.forEach(card => {
+            const name     = (card.dataset.name || '').toLowerCase();
+            const cardRank = (card.dataset.rank  || '');
+            const matchName = query === '' || name.includes(query);
+            const matchRank = rank  === 'all' || cardRank === rank;
+
+            if (matchName && matchRank) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (memberCount) memberCount.textContent = visible;
+        if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    searchInput.addEventListener('input',  filterCards);
+    rankFilter.addEventListener('change', filterCards);
+    filterCards();
+}
+
+
+/* ===== ANIMATIONS PAGE INFO ===== */
+function animateInfoPage() {
+    // Anime les cartes membres en cascade
+    const cards = document.querySelectorAll('#info .member-card');
+    cards.forEach((card, i) => {
+        card.classList.remove('visible');
+        card.style.transitionDelay = '0s';
+    });
+
+    // Re-déclenche en cascade
+    setTimeout(() => {
+        cards.forEach((card, i) => {
+            setTimeout(() => {
+                card.style.transitionDelay = `0s`;
+                card.classList.add('visible');
+            }, i * 80);
+        });
+    }, 100);
+
+    // Anime les barres de puissance
+    setTimeout(() => {
+        document.querySelectorAll('#info .power-bar-fill').forEach((bar, i) => {
+            setTimeout(() => {
+                const target = bar.style.getPropertyValue('--target-w') || '50%';
+                bar.style.width = target;
+            }, i * 120);
+        });
+    }, 400);
+}
+
+/* ===== CARTE GTA 5 INTERACTIVE — SYSTÈME lgn ===== */
+(function () {
+
+    // ── Catégories ──────────────────────────────────────────────────────────
+    const CATEGORIES = [
+        { id: 'territoire', label: 'TERRITOIRE',  color: '#4b5320', icon: '🟢' },
+        { id: 'planque',    label: 'PLANQUE',      color: '#00c853', icon: '🟢' },
+        { id: 'danger',     label: 'DANGER',       color: '#ff3232', icon: '🔴' },
+        { id: 'drop',       label: 'DROP / DEAL',  color: '#ff9800', icon: '🟠' },
+        { id: 'event',      label: 'ÉVÉNEMENT',    color: '#c8a800', icon: '🟡' },
+        { id: 'autre',      label: 'AUTRE',        color: '#888888', icon: '⚫' },
+    ];
+
+    // ── État ─────────────────────────────────────────────────────────────────
+    let points = [];            // { id, x, y, label, cat }
+    let mapMode = 'nav';        // 'nav' | 'add'
+    let pendingCoords = null;   // { x, y } avant confirmation
+    let selectedCat = 'territoire';
+    let activePopupId = null;
+
+    // ── Éléments DOM ────────────────────────────────────────────────────────
+    const root    = document.getElementById('lgnMapRoot');
+    const canvas  = document.getElementById('lgn-map-canvas');
+    const img     = document.getElementById('lgnMapImg');
+    const loading = document.getElementById('lgnMapLoading');
+    const loadBar = document.getElementById('lgnLoadBar');
+    const coords  = document.getElementById('lgnCoords');
+    const svg     = document.getElementById('lgn-points-svg');
+    const crosshair = document.getElementById('mapCrosshair');
+    const modeStatus = document.getElementById('mapModeStatus');
+    const mapHint    = document.getElementById('mapHint');
+    const popup      = document.getElementById('pointPopup');
+    const createModal = document.getElementById('pointCreateModal');
+
+    if (!root) return;
+
+    // ── Transform ────────────────────────────────────────────────────────────
+    let scale = 0.22, posX = -80, posY = -60;
+    let isDragging = false, startX, startY, didDrag = false;
+
+    function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+    function applyTransform(animated) {
+        canvas.style.transition = animated
+            ? 'transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94)'
+            : 'none';
+        canvas.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+    }
+    applyTransform(false);
+
+    function updateCoords(cx, cy) {
+        const rect = root.getBoundingClientRect();
+        const mx = Math.round((cx - rect.left - posX) / scale);
+        const my = Math.round((cy - rect.top  - posY) / scale);
+        coords.textContent = `X ${mx} · Y ${my}`;
+    }
+
+    // ── Drag ─────────────────────────────────────────────────────────────────
+    let mouseDownX = 0, mouseDownY = 0;
+
+    root.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('map-zoom-btn')) return;
+        if (e.target.closest('#pointPopup')) return;
+        if (e.target.closest('#pointCreateModal')) return;
+        isDragging = true;
+        didDrag = false;
+        mouseDownX = e.clientX;
+        mouseDownY = e.clientY;
+        startX = e.clientX - posX;
+        startY = e.clientY - posY;
+        root.classList.add('dragging');
+        canvas.style.transition = 'none';
+    });
+    window.addEventListener('mouseup', () => {
+        // Ne pas reset didDrag ici — le click event lit didDrag APRÈS le mouseup
+        isDragging = false;
+        root.classList.remove('dragging');
+    });
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        if (Math.abs(e.clientX - mouseDownX) > 5 || Math.abs(e.clientY - mouseDownY) > 5) {
+            didDrag = true;
+        }
+        posX = e.clientX - startX;
+        posY = e.clientY - startY;
+        applyTransform(false);
+    });
+
+    root.addEventListener('mousemove', e => {
+        updateCoords(e.clientX, e.clientY);
+        if (mapMode === 'add' && crosshair) {
+            const rect = root.getBoundingClientRect();
+            crosshair.style.display = 'block';
+            crosshair.style.left = (e.clientX - rect.left) + 'px';
+            crosshair.style.top  = (e.clientY - rect.top)  + 'px';
+        } else if (crosshair) {
+            crosshair.style.display = 'none';
+        }
+    });
+    root.addEventListener('mouseleave', () => { if (crosshair) crosshair.style.display = 'none'; });
+
+    // ── Zoom ─────────────────────────────────────────────────────────────────
+    root.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect   = root.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.12 : 0.89;
+        const ns     = clamp(scale * factor, 0.08, 5);
+        posX  = mouseX - (mouseX - posX) * (ns / scale);
+        posY  = mouseY - (mouseY - posY) * (ns / scale);
+        scale = ns;
+        applyTransform(false);
+    }, { passive: false });
+
+    function zoomAt(factor) {
+        const rect = root.getBoundingClientRect();
+        const cx = rect.width / 2, cy = rect.height / 2;
+        const ns = clamp(scale * factor, 0.08, 5);
+        posX  = cx - (cx - posX) * (ns / scale);
+        posY  = cy - (cy - posY) * (ns / scale);
+        scale = ns;
+        applyTransform(true);
+    }
+    document.getElementById('lgnZoomIn').addEventListener('click',    e => { e.stopPropagation(); zoomAt(1.3); });
+    document.getElementById('lgnZoomOut').addEventListener('click',   e => { e.stopPropagation(); zoomAt(0.77); });
+    document.getElementById('lgnZoomReset').addEventListener('click', e => {
+        e.stopPropagation();
+        scale = 0.22; posX = -80; posY = -60;
+        applyTransform(true);
+    });
+
+    // ── Click sur la carte ────────────────────────────────────────────────────
+    root.addEventListener('click', e => {
+        if (didDrag) { didDrag = false; return; }
+        if (e.target.closest('#pointPopup')) return;
+        if (e.target.closest('#pointCreateModal')) return;
+        if (e.target.classList.contains('map-zoom-btn')) return;
+        if (e.target.closest('.map-zoom-controls')) return;
+        // Si on clique sur un point SVG, ne pas créer un nouveau point
+        if (e.target.closest('.lgn-map-point')) return;
+
+        closePopup();
+
+        if (mapMode !== 'add') return;
+
+        const rect = root.getBoundingClientRect();
+        const mx = Math.round((e.clientX - rect.left - posX) / scale);
+        const my = Math.round((e.clientY - rect.top  - posY) / scale);
+
+        pendingCoords = { x: mx, y: my };
+        openCreateModal(mx, my);
+    });
+
+    // ── Mode ─────────────────────────────────────────────────────────────────
+    window.setMapMode = function(mode) {
+        mapMode = mode;
+        const btnNav = document.getElementById('modeNav');
+        const btnAdd = document.getElementById('modeAdd');
+        if (mode === 'nav') {
+            root.style.cursor = 'grab';
+            btnNav.style.background = 'rgba(75,83,32,0.25)';
+            btnNav.style.borderColor = '#4b5320';
+            btnNav.style.color = 'white';
+            btnAdd.style.background = 'transparent';
+            btnAdd.style.borderColor = 'rgba(255,255,255,0.1)';
+            btnAdd.style.color = '#555';
+            modeStatus.textContent = '● SYSTÈME CARTOGRAPHIQUE lgn ONLINE';
+            mapHint.innerHTML = 'SCROLL → ZOOM &nbsp;·&nbsp; DRAG → DÉPLACER';
+            if (crosshair) crosshair.style.display = 'none';
+        } else {
+            root.style.cursor = 'crosshair';
+            btnAdd.style.background = 'rgba(75,83,32,0.25)';
+            btnAdd.style.borderColor = '#4b5320';
+            btnAdd.style.color = 'white';
+            btnNav.style.background = 'transparent';
+            btnNav.style.borderColor = 'rgba(255,255,255,0.1)';
+            btnNav.style.color = '#555';
+            modeStatus.style.color = '#4b5320';
+            modeStatus.textContent = '⊕ MODE PLACEMENT ACTIF — CLIC POUR POSER UN POINT';
+            mapHint.innerHTML = 'CLIC → PLACER &nbsp;·&nbsp; SCROLL → ZOOM';
+        }
+    };
+
+    // ── Sidebar catégories ────────────────────────────────────────────────────
+    function buildSidebar() {
+        const catList = document.getElementById('catList');
+        const modalCatGrid = document.getElementById('modalCatGrid');
+        if (!catList) return;
+        catList.innerHTML = '';
+        if (modalCatGrid) modalCatGrid.innerHTML = '';
+
+        CATEGORIES.forEach(cat => {
+            const count = points.filter(p => p.cat === cat.id).length;
+
+            // Sidebar item
+            const item = document.createElement('div');
+            item.style.cssText = `
+                display:flex; align-items:center; gap:8px; padding:7px 10px;
+                cursor:pointer; border:1px solid rgba(255,255,255,0.04);
+                background:transparent; transition:all 0.2s;
+                font-family:'Space Mono',monospace;
+            `;
+            item.innerHTML = `
+                <span style="font-size:10px;">${cat.icon}</span>
+                <span style="flex:1; font-size:9px; color:#aaa; letter-spacing:1px; text-transform:uppercase;">${cat.label}</span>
+                <span style="font-size:9px; color:${cat.color}; font-weight:bold;" id="catCount-${cat.id}">${count}</span>
+            `;
+            item.onmouseover = () => { item.style.background = 'rgba(75,83,32,0.08)'; item.style.borderColor = 'rgba(75,83,32,0.2)'; };
+            item.onmouseout  = () => { item.style.background = 'transparent'; item.style.borderColor = 'rgba(255,255,255,0.04)'; };
+            item.onclick = () => toggleCatFilter(cat.id);
+            catList.appendChild(item);
+
+            // Modal grid item
+            if (modalCatGrid) {
+                const btn = document.createElement('button');
+                btn.id = `modalCat-${cat.id}`;
+                btn.onclick = () => selectModalCat(cat.id);
+                btn.style.cssText = `
+                    padding:8px 6px; font-family:'Space Mono',monospace; font-size:8px;
+                    border:1px solid rgba(255,255,255,0.08); background:transparent; color:#777;
+                    cursor:pointer; letter-spacing:1px; text-align:left; transition:all 0.15s;
+                    display:flex; align-items:center; gap:5px;
+                `;
+                btn.innerHTML = `<span>${cat.icon}</span><span>${cat.label}</span>`;
+                if (cat.id === selectedCat) {
+                    btn.style.borderColor = cat.color;
+                    btn.style.color = cat.color;
+                    btn.style.background = cat.color + '18';
+                }
+                modalCatGrid.appendChild(btn);
+            }
+        });
+
+        updateStats();
+    }
+
+    window.selectModalCat = function(catId) {
+        selectedCat = catId;
+        CATEGORIES.forEach(cat => {
+            const btn = document.getElementById('modalCat-' + cat.id);
+            if (!btn) return;
+            if (cat.id === catId) {
+                btn.style.borderColor = cat.color;
+                btn.style.color = cat.color;
+                btn.style.background = cat.color + '18';
+            } else {
+                btn.style.borderColor = 'rgba(255,255,255,0.08)';
+                btn.style.color = '#777';
+                btn.style.background = 'transparent';
+            }
+        });
+    };
+
+    let catFilter = null;
+    function toggleCatFilter(catId) {
+        catFilter = (catFilter === catId) ? null : catId;
+        renderPoints();
+    }
+
+    function updateStats() {
+        const statsEl = document.getElementById('mapStats');
+        if (!statsEl) return;
+        statsEl.innerHTML = `
+            <div style="margin-bottom:4px;">${points.length} point${points.length > 1 ? 's' : ''} total</div>
+            ${CATEGORIES.filter(c => points.some(p => p.cat === c.id)).map(c => {
+                const n = points.filter(p => p.cat === c.id).length;
+                return `<div style="color:${c.color}; font-size:9px;">${c.icon} ${n} ${c.label}</div>`;
+            }).join('')}
+        `;
+    }
+
+    // ── Rendu SVG ─────────────────────────────────────────────────────────────
+    function renderPoints() {
+        svg.innerHTML = '';
+
+        const visible = catFilter ? points.filter(p => p.cat === catFilter) : points;
+
+        visible.forEach(pt => {
+            const cat = CATEGORIES.find(c => c.id === pt.cat) || CATEGORIES[5];
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('class', 'lgn-map-point');
+            g.style.cursor = 'pointer';
+
+            // Halo
+            const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            halo.setAttribute('cx', pt.x);
+            halo.setAttribute('cy', pt.y);
+            halo.setAttribute('r', 14);
+            halo.setAttribute('fill', cat.color + '22');
+            halo.setAttribute('stroke', cat.color + '44');
+            halo.setAttribute('stroke-width', '1');
+            halo.style.animation = 'lgnPointPulse 2.5s ease-in-out infinite';
+            g.appendChild(halo);
+
+            // Corps
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', pt.x);
+            circle.setAttribute('cy', pt.y);
+            circle.setAttribute('r', 7);
+            circle.setAttribute('fill', cat.color);
+            circle.setAttribute('stroke', 'white');
+            circle.setAttribute('stroke-width', '2');
+            g.appendChild(circle);
+
+            // Label
+            if (pt.label) {
+                const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                const labelX = pt.x + 12, labelY = pt.y - 14;
+                const approxW = pt.label.length * 6.5 + 10;
+                bg.setAttribute('x', labelX - 4);
+                bg.setAttribute('y', labelY - 9);
+                bg.setAttribute('width', approxW);
+                bg.setAttribute('height', 14);
+                bg.setAttribute('fill', '#020205');
+                bg.setAttribute('rx', '2');
+                bg.setAttribute('stroke', cat.color + '88');
+                bg.setAttribute('stroke-width', '0.8');
+                g.appendChild(bg);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', labelX);
+                text.setAttribute('y', labelY);
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-family', 'Space Mono, monospace');
+                text.setAttribute('font-size', '9');
+                text.textContent = pt.label;
+                g.appendChild(text);
+            }
+
+            g.addEventListener('click', e => {
+                e.stopPropagation();
+                showPopup(pt, e.clientX, e.clientY);
+            });
+            g.addEventListener('mouseenter', () => {
+                circle.setAttribute('r', '9');
+                halo.setAttribute('r', '18');
+            });
+            g.addEventListener('mouseleave', () => {
+                circle.setAttribute('r', '7');
+                halo.setAttribute('r', '14');
+            });
+
+            svg.appendChild(g);
+        });
+
+        // Update counts in sidebar
+        CATEGORIES.forEach(cat => {
+            const el = document.getElementById('catCount-' + cat.id);
+            if (el) el.textContent = points.filter(p => p.cat === cat.id).length;
+        });
+        updateStats();
+        savePoints();
+    }
+
+    // ── Popup ─────────────────────────────────────────────────────────────────
+    function showPopup(pt, clientX, clientY) {
+        activePopupId = pt.id;
+        const cat = CATEGORIES.find(c => c.id === pt.cat) || CATEGORIES[5];
+
+        document.getElementById('popupCatBadge').innerHTML = `<span style="color:${cat.color}; letter-spacing:2px;">${cat.icon} ${cat.label}</span>`;
+        document.getElementById('popupLabel').textContent   = pt.label || '(Sans nom)';
+        document.getElementById('popupCoords').textContent  = `X ${pt.x} · Y ${pt.y}`;
+        document.getElementById('popupDelete').onclick = () => deletePoint(pt.id);
+
+        // popup est positionné en absolute dans le div flex:1 (zone carte)
+        const zone = popup.parentElement;
+        const zoneRect = zone.getBoundingClientRect();
+        let px = clientX - zoneRect.left + 14;
+        let py = clientY - zoneRect.top  - 20;
+        if (px + 215 > zoneRect.width)  px = clientX - zoneRect.left - 228;
+        if (py + 130 > zoneRect.height) py = clientY - zoneRect.top  - 140;
+        if (px < 0) px = 8;
+        if (py < 0) py = 8;
+
+        popup.style.left    = px + 'px';
+        popup.style.top     = py + 'px';
+        popup.style.display = 'block';
+    }
+
+    window.closePopup = function() {
+        popup.style.display = 'none';
+        activePopupId = null;
+    };
+
+    function deletePoint(id) {
+        points = points.filter(p => p.id !== id);
+        closePopup();
+        renderPoints();
+    }
+
+    // ── Modal création ─────────────────────────────────────────────────────────
+    function openCreateModal(mx, my) {
+        document.getElementById('modalCoordDisplay').textContent = `X ${mx} · Y ${my}`;
+        const input = document.getElementById('pointLabelInput');
+        input.value = '';
+        createModal.style.display = 'flex';
+        createModal.style.alignItems = 'center';
+        createModal.style.justifyContent = 'center';
+        setTimeout(() => input.focus(), 100);
+        input.onkeydown = e => { if (e.key === 'Enter') window.confirmPointCreate(); if (e.key === 'Escape') window.cancelPointCreate(); };
+    }
+
+    window.cancelPointCreate = function() {
+        createModal.style.display = 'none';
+        pendingCoords = null;
+    };
+
+    window.confirmPointCreate = function() {
+        if (!pendingCoords) return;
+        const label = document.getElementById('pointLabelInput').value.trim();
+        const newPt = {
+            id: Date.now() + '-' + Math.random().toString(36).slice(2,6),
+            x: pendingCoords.x,
+            y: pendingCoords.y,
+            label: label || '',
+            cat: selectedCat
+        };
+        points.push(newPt);
+        createModal.style.display = 'none';
+        pendingCoords = null;
+        renderPoints();
+    };
+
+    window.clearAllPoints = function() {
+        if (!confirm('Supprimer tous les points de la carte ?')) return;
+        points = [];
+        closePopup();
+        renderPoints();
+    };
+
+    // ── Persistance localStorage ─────────────────────────────────────────────
+    function savePoints() {
+        try { localStorage.setItem('lgn_map_points', JSON.stringify(points)); } catch(e) {}
+    }
+    function loadPoints() {
+        try {
+            const raw = localStorage.getItem('lgn_map_points');
+            if (raw) points = JSON.parse(raw);
+        } catch(e) { points = []; }
+    }
+
+    // ── CSS animation SVG ─────────────────────────────────────────────────────
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes lgnPointPulse {
+            0%,100% { opacity:0.6; r:14; }
+            50% { opacity:1; r:18; }
+        }
+        #pointCreateModal { display:none; }
+        #pointCreateModal.open { display:flex; }
+    `;
+    document.head.appendChild(style);
+
+    // ── Loading ────────────────────────────────────────────────────────────────
+    function hideLoading() {
+        if (!loading) return;
+        loading.style.opacity = '0';
+        setTimeout(() => { loading.style.display = 'none'; }, 600);
+    }
+    setTimeout(() => { if (loadBar) loadBar.style.width = '40%'; }, 100);
+    setTimeout(() => { if (loadBar) loadBar.style.width = '75%'; }, 600);
+    img.addEventListener('load', () => {
+        if (loadBar) loadBar.style.width = '100%';
+        setTimeout(hideLoading, 600);
+    });
+    img.addEventListener('error', () => {
+        const txt = loading.querySelector('.map-loading-text');
+        const bar = loading.querySelector('.map-loading-bar-track');
+        if (txt) {
+            txt.innerHTML = '⚠ <strong>gta_map.jpg</strong> introuvable — place le fichier dans ton dossier projet';
+            txt.style.color = '#ff4444';
+            txt.style.textAlign = 'center';
+            txt.style.lineHeight = '2';
+        }
+        if (bar) bar.style.display = 'none';
+        setTimeout(hideLoading, 3000);
+    });
+    setTimeout(() => { if (loading && loading.style.display !== 'none') hideLoading(); }, 5000);
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadPoints();
+    buildSidebar();
+    renderPoints();
+    setMapMode('nav');
+
+})();
+</script>
+<div id="arsenalModal" class="member-modal hidden">
+    <div class="member-modal-bg" onclick="closeArsenalModal()"></div>
+
+    <div class="member-modal-content">
+        <img id="arsenalModalImg" src="">
+    </div>
+</div>
+<div id="memberModal" class="member-modal hidden">
+
+    <div class="member-modal-bg" onclick="closeModal()"></div>
+
+    <div class="lgn-modal-content">
+
+        <button class="close-btn" onclick="closeModal()">✕</button>
+
+        <!-- IMAGE DOSSIER -->
+        <img id="modalImg" class="lgn-full-image">
+
+    </div>
+</div>
+</body>
+</html>
