@@ -734,43 +734,15 @@
         flash.style.transition = 'opacity 0.4s';
         flash.style.opacity = '1';
         setTimeout(() => {
-            window.location.href = 'home.html';
+            window.location.href = 'info.html';
         }, 400);
     }
 
     /* ===== LANCEMENT ===== */
     setTimeout(runLines, 600);
 	
-	/* ===== LANCEMENT SÉCURISÉ ===== */
 
-// On attend que le DOM soit chargé
-document.addEventListener("DOMContentLoaded", () => {
-    const bootOverlay = document.getElementById('boot-overlay');
-
-    if (bootOverlay) {
-        // On écoute le clic sur l'overlay
-        bootOverlay.addEventListener('click', () => {
-            
-            // 1. On cache l'overlay avec un effet de fondu
-            bootOverlay.style.transition = 'opacity 0.8s ease';
-            bootOverlay.style.opacity = '0';
-            
-            // 2. On attend la fin de la transition pour lancer le terminal
-            setTimeout(() => {
-                bootOverlay.style.display = 'none';
-                
-                // 3. C'EST ICI QUE LA MAGIE OPÈRE : 
-                // On lance ta fonction startTerminal()
-                // Comme on vient de cliquer, playTyping() fonctionnera enfin !
-                startTerminal(); 
-                
-            }, 800);
-        });
-    } else {
-        // Si l'overlay n'existe pas, on lance normalement (pour éviter de bloquer le site)
-        startTerminal();
-    }
-});
+    // Le terminal d'authentification est déjà lancé par runLines().
     </script>
 </body>
 </html>
