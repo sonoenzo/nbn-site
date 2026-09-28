@@ -335,14 +335,6 @@ function openModal(el) {
     document.body.style.overflow = "hidden";
 }
 
-function closeModal() {
-    const modal = document.getElementById("memberModal");
-
-    if (!modal) return;
-    modal.classList.add("hidden");
-    document.body.style.overflow = "auto";
-}
-
 /* MACHINE A ECRIRE */
 function typeWriter(element, text, speed) {
     let i = 0;
@@ -354,6 +346,7 @@ function typeWriter(element, text, speed) {
 }
 function closeModal() {
     const modal = document.getElementById("memberModal");
+    if (!modal) return;
 
     // animation sortie
     modal.style.opacity = "0";
@@ -361,5 +354,27 @@ function closeModal() {
     setTimeout(() => {
         modal.classList.add("hidden");
         modal.style.opacity = "1";
+        document.body.style.overflow = "auto";
     }, 200);
 }
+
+/* ===== MODALE ARSENAL ===== */
+function openArsenalModal(el) {
+    const modal = document.getElementById("arsenalModal");
+    const img = document.getElementById("arsenalModalImg");
+    if (!modal || !img || !el) return;
+    img.src = el.src;
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+}
+
+function closeArsenalModal() {
+    const modal = document.getElementById("arsenalModal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { closeArsenalModal(); closeModal(); }
+});

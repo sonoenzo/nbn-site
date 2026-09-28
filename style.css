@@ -630,7 +630,7 @@ aside.sidebar {
 #ORGA-info .ORGA-card { opacity:1 !important; visibility:visible !important; }
 #ORGA-info .ORGA-img { z-index:1 !important; display:block !important; opacity:1 !important; visibility:visible !important; }
 #ORGA-info .ORGA-card-grad { z-index:2 !important; }
-#ORGA-info .ORGA-card-body, #ORGA-info .ORGA-card-num, #ORGA-info .ORGA-card-top-line { position:relative; z-index:5; }
+#ORGA-info .ORGA-card-body, #ORGA-info .ORGA-card-num, #ORGA-info .ORGA-card-top-line { z-index:5; }
 #info .member-card { opacity:1 !important; visibility:visible !important; transform:none !important; }
 #info .member-avatar img { display:block !important; width:100% !important; height:100% !important; object-fit:cover !important; border-radius:50% !important; }
 #arsenal .arsenal-item { opacity:1 !important; visibility:visible !important; }
