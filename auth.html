@@ -432,7 +432,7 @@
 
 <body>
 <!-- Écran d'initialisation pour débloquer l'audio -->
-<div id="boot-overlay" style="position: fixed; inset: 0; z-index: 10000; background: #080a06; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+<div id="boot-overlay" onclick="this.style.display='none'" style="position: fixed; inset: 0; z-index: 10000; background: #080a06; display: flex; align-items: center; justify-content: center; cursor: pointer;">
     <div style="text-align: center;">
         <div style="font-family: 'Space Mono', monospace; color: #687052; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px; animation: blink 1s infinite;">
             [ SYSTÈME HORS LIGNE ]
@@ -573,7 +573,7 @@
 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(104, 112, 82, ${p.opacity}))`;
+                ctx.fillStyle = `rgba(104, 112, 82, ${p.opacity})`;
                 ctx.fill();
             });
 
@@ -734,7 +734,7 @@
         flash.style.transition = 'opacity 0.4s';
         flash.style.opacity = '1';
         setTimeout(() => {
-            window.location.href = 'info.html';
+            window.location.href = 'home.html';
         }, 400);
     }
 
@@ -742,7 +742,7 @@
     setTimeout(runLines, 600);
 	
 
-    // Le terminal d'authentification est déjà lancé par runLines().
+    // Le terminal est lancé une seule fois par runLines().
     </script>
 </body>
 </html>

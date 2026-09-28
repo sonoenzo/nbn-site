@@ -50,36 +50,18 @@ function stopTyping() {
 
 /* ===== LOGIQUE DU TERMINAL ===== */
 document.addEventListener("DOMContentLoaded", () => {
-    if (document.getElementById("terminal")) {
-        startTerminal();
-    }
-
-    // Gestion du menu sur home.html
-    const menuItems = document.querySelectorAll(".menu-item");
-    menuItems.forEach(item => {
-        item.addEventListener("click", () => {
-            const pageId = item.getAttribute("data-page");
-            
-            // UI Update
-            menuItems.forEach(i => i.classList.remove("active", "bg-[#0a3cff]/20"));
-            item.classList.add("active", "bg-[#0a3cff]/20");
-
-            // Page Switch
-            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-            const target = document.getElementById(pageId);
-            if(target) target.classList.add("active");
-        });
-    });
+    // Le terminal externe ne démarre que sur une page qui utilise réellement startTerminal.
+    // auth.html possède son propre terminal intégré, donc aucun double lancement ici.
 });
 
 function startTerminal() {
     const lines = [
-        "NBN_NETWORK_OS v4.0...",
+        "LEGION_NETWORK_OS v4.0...",
         "> Initialisation des protocoles",
         "> Scan biométrique en cours...",
         "> Analyse des données : 100%",
         "> ACCÈS AUTORISÉ AU HUB",
-        "> Bienvenue dans la Nation."
+        "> Bienvenue dans LA LEGION."
     ];
 
     const terminal = document.getElementById("terminal");
@@ -184,6 +166,7 @@ window.addEventListener('load', () => {
 });
 
 function toggleMusic() {
+    if (!homeMusic || !musicIcon) return;
     if (homeMusic.paused) {
         homeMusic.play().catch(e => console.log("Lecture bloquée par le navigateur"));
         musicIcon.textContent = "🔊";
@@ -345,8 +328,8 @@ function openModal(el) {
     const modal = document.getElementById("memberModal");
     const img = document.getElementById("modalImg");
 
+    if (!modal || !img || !el) return;
     modal.classList.remove("hidden");
-
     img.src = el.dataset.img;
 
     document.body.style.overflow = "hidden";
@@ -355,8 +338,8 @@ function openModal(el) {
 function closeModal() {
     const modal = document.getElementById("memberModal");
 
+    if (!modal) return;
     modal.classList.add("hidden");
-
     document.body.style.overflow = "auto";
 }
 
