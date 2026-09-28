@@ -21,7 +21,7 @@
             font-family: 'Space Mono', monospace;
             position: relative;
             overflow: hidden;
-            height: calc(100vh - 40px);s
+            height: calc(100vh - 40px);
             cursor: grab;
             user-select: none;
         }
@@ -1927,8 +1927,8 @@ function initArsenal() {
     const btns  = document.querySelectorAll('.arsenal-filter-btn');
 
     // Compteurs
-    const weapons  = [...items].filter(i => i.dataset.type === 'arme').length;
-    const vehicles = [...items].filter(i => i.dataset.type === 'vehicule').length;
+    const weapons  = [...items].filter(i => i.dataset.type === 'weapon').length;
+    const vehicles = [...items].filter(i => i.dataset.type === 'vehicle').length;
     const cntW = document.getElementById('cnt-weapons');
     const cntV = document.getElementById('cnt-vehicles');
     if (cntW) animateCount(cntW, weapons);
