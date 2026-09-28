@@ -373,6 +373,7 @@
         .rank-tag.dog { background: rgba(107,122,50,0.1); color: #6b7a32; border: 1px solid rgba(107,122,50,0.25); }
         .rank-tag.bh { background: rgba(150,100,255,0.1); color: #9664ff; border: 1px solid rgba(150,100,255,0.25); }
         .rank-tag.sc { background: rgba(255,165,0,0.1); color: #ffa500; border: 1px solid rgba(255,165,0,0.25); }
+        .rank-tag.cc { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.35); }
         .rank-tag.gm { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
 
         /* Connecteur entre les niveaux */
@@ -1324,7 +1325,7 @@
     <!-- ── GRILLE ── -->
     <div id="ORGAGrid">
 
-        <div class="ORGA-card" onclick="openModal(this)" data-img="mason-dossier.png" data-rank="OG" data-name="Iero Roma">
+        <div class="ORGA-card" onclick="openModal(this)" data-img="mason-dossier.png" data-rank="OG" data-name="Lero Roma">
             <div class="ORGA-card-top-line"></div>
             <img src="mason-preview.png" class="ORGA-img">
             <div class="ORGA-card-grad"></div>
@@ -1402,7 +1403,7 @@
             <div class="ORGA-card-action">▶</div>
         </div>
 
-        <div class="ORGA-card" onclick="openModal(this)" data-img="neverixxbg.png" data-rank="ORGA Member" data-name="Santi Cordoba">
+        <div class="ORGA-card" onclick="openModal(this)" data-img="neverixbg.png" data-rank="ORGA Member" data-name="Santi Cordoba">
             <div class="ORGA-card-top-line"></div>
             <img src="neverix.png" class="ORGA-img">
             <div class="ORGA-card-grad"></div>
@@ -1497,7 +1498,7 @@
                         <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Membres actifs</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-3xl font-black text-[#4b5320]">5</div>
+                        <div class="text-3xl font-black text-[#4b5320]">6</div>
                         <div class="text-[9px] text-gray-500 tracking-widest uppercase mt-1">Rangs</div>
                     </div>
                     <div class="text-center">
@@ -1522,7 +1523,7 @@
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Iero Roma</h3>
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Lero Roma</h3>
                                 <span class="rank-tag og">Boss</span>
                             </div>
                             <p class="text-[10px] text-gray-500 font-mono tracking-wider">CHEF SUPRÊME · FONDATEUR</p>
@@ -1581,7 +1582,7 @@
                         <div class="scan-effect"></div>
                         <div class="member-number">#004</div>
                         <div class="member-avatar dark relative">
-                            <img src="Santi.png" alt="" class="w-full h-full object-cover rounded-full">
+                            KB
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
@@ -1606,7 +1607,7 @@
                         <div class="scan-effect"></div>
                         <div class="member-number">#005</div>
                         <div class="member-avatar dark relative">
-                            <img src="dream.png" alt="" class="w-full h-full object-cover rounded-full">
+                            SH
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
@@ -1623,7 +1624,7 @@
                         <div class="scan-effect"></div>
                         <div class="member-number">#006</div>
                         <div class="member-avatar dark relative">
-                            <img src="snow.png" alt="" class="w-full h-full object-cover rounded-full">
+                            HM
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
@@ -1640,7 +1641,7 @@
                         <div class="scan-effect"></div>
                         <div class="member-number">#007</div>
                         <div class="member-avatar dark relative">
-                            <img src="neverix.png" alt="" class="w-full h-full object-cover rounded-full">
+                            <img src="Santi.png" alt="" class="w-full h-full object-cover rounded-full">
                             <div class="status-dot"></div>
                         </div>
                         <div class="flex-1">
@@ -1658,6 +1659,27 @@
 
                 <div class="tier-connector mb-2"></div>
 
+                <div class="rank-tier" id="tier-cc">
+                    <div class="rank-badge"><span>🎖️</span> Caporal-Chef</div>
+                    <div class="member-card w-full max-w-md p-5 flex items-center gap-5" data-index="10">
+                        <div class="scan-effect"></div>
+                        <div class="member-number">#011</div>
+                        <div class="member-avatar dark relative">
+                            <img src="bog.png" alt="" class="w-full h-full object-cover rounded-full">
+                            <div class="status-dot"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <h3 class="font-black text-lg uppercase tracking-tight text-white">Aleixei Volkov</h3>
+                                <span class="rank-tag cc">Caporal-Chef</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider">CAPORAL-CHEF · ENCADREMENT</p>
+                            <div class="power-bar-track mt-2"><div class="power-bar-fill" style="--target-w: 45%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tier-connector mb-2"></div>
+
                 <div class="rank-tier" id="tier-gm">
                     <div class="rank-badge"><span>🔗</span> ORGA Members</div>
                     <div class="members-grid w-full max-w-2xl">
@@ -1665,7 +1687,7 @@
                             <div class="scan-effect"></div>
                             <div class="member-number">#008</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                <img src="xtase.png" alt="" class="w-full h-full object-cover rounded-full">
+                                DC
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
@@ -1680,7 +1702,7 @@
                             <div class="scan-effect"></div>
                             <div class="member-number">#009</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                <img src="NOOWEY.png" alt="" class="w-full h-full object-cover rounded-full">
+                                NH
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
@@ -1695,7 +1717,7 @@
                             <div class="scan-effect"></div>
                             <div class="member-number">#010</div>
                             <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                <img src="nate.png" alt="" class="w-full h-full object-cover rounded-full">
+                                MP
                                 <div class="status-dot"></div>
                             </div>
                             <div class="flex-1">
@@ -1704,21 +1726,6 @@
                                     <span class="rank-tag gm">Mercenaire expérimenté</span>
                                 </div>
                                 <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 42%;"></div></div>
-                            </div>
-                        </div>
-                        <div class="member-card p-4 flex items-center gap-4" data-index="10">
-                            <div class="scan-effect"></div>
-                            <div class="member-number">#011</div>
-                            <div class="member-avatar dark relative" style="width:42px;height:42px;font-size:14px;">
-                                <img src="bog.png" alt="" class="w-full h-full object-cover rounded-full">
-                                <div class="status-dot"></div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <h3 class="font-black text-sm uppercase tracking-tight text-white">Aleixei Volkov</h3>
-                                    <span class="rank-tag gm">Caporal-Chef</span>
-                                </div>
-                                <div class="power-bar-track mt-1"><div class="power-bar-fill" style="--target-w: 37%;"></div></div>
                             </div>
                         </div>
                     </div>
@@ -1792,22 +1799,22 @@
             <!-- VÉHICULES -->
             <div class="arsenal-item border p-4" data-type="vehicle">
                 <img src="buffalo.png" alt="Buffalo H" onclick="openArsenalModal(this)">
-                <h3 class="font-bold">VSTR</h3>
+                <h3 class="font-bold">Buffalo H</h3>
                 <span class="arsenal-tag arsenal-tag-gold">Ride</span>
             </div>
             <div class="arsenal-item border p-4" data-type="vehicle">
                 <img src="Glendal.png" alt="Glendale" onclick="openArsenalModal(this)">
-                <h3 class="font-bold">Astron</h3>
+                <h3 class="font-bold">Glendale</h3>
                 <span class="arsenal-tag ">Ride</span>
             </div>
             <div class="arsenal-item border p-4" data-type="vehicle">
                 <img src="4x4.png" alt="Landstalker XL" onclick="openArsenalModal(this)">
-                <h3 class="font-bold">Terminus</h3>
+                <h3 class="font-bold">Landstalker XL</h3>
                 <span class="arsenal-tag ">Ride</span>
             </div>
             <div class="arsenal-item border p-4" data-type="vehicle">
                 <img src="voiture.png" alt="Faction custom" onclick="openArsenalModal(this)">
-                <h3 class="font-bold">Komoda</h3>
+                <h3 class="font-bold">Faction custom</h3>
                 <span class="arsenal-tag ">Ride</span>
             </div>
             </div>
