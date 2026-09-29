@@ -1,202 +1,744 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LA LEGION | Accueil</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Identité visuelle militaire — LA LEGION */
-        :root {
-            --legion-khaki: #687052;
-            --legion-olive: #3f472f;
-            --legion-dark: #0b0d09;
-            --legion-metal: #9a9d8b;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LA LEGION | Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Stardos+Stencil:wght@400;700&display=swap" rel="stylesheet">
 
-        body {
-            background:
-                radial-gradient(circle at center, rgba(104, 112, 82, 0.16), transparent 45%),
-                linear-gradient(rgba(11, 13, 9, 0.94), rgba(11, 13, 9, 0.98)),
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(255,255,255,0.018) 0px,
-                    rgba(255,255,255,0.018) 1px,
-                    transparent 1px,
-                    transparent 4px
-                );
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        body::before {
-            content: "";
-            position: absolute;
-            inset: 18px;
-            border: 1px solid rgba(104, 112, 82, 0.35);
-            pointer-events: none;
-            z-index: 5;
-        }
+:root{
+    --bg:#0b0d09;
+    --khaki:#687052;
+    --khaki-hi:#8d9870;
+    --olive:#3f472f;
+    --metal:#9a9d8b;
+    --paper:#e6ebd2;
+    --amber:#d9a441;
+    --ok:#a6d16a;
+    --stencil:'Stardos Stencil','Black Ops One',Impact,sans-serif;
+    --label:'Oswald','Arial Narrow',sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;
+    --em:clamp(150px,30vh,270px);
+}
+html{background:var(--bg)}
+body{background:var(--bg);color:#d9dfc6;font-family:var(--mono);overflow-x:hidden}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+button{font:inherit;color:inherit}
 
-        .main-logo {
-            filter: drop-shadow(0 0 18px rgba(104, 112, 82, 0.45));
-            animation: pulseLogo 3s infinite ease-in-out;
-        }
+/* ============ FOND ============ */
+#radar{position:fixed;inset:0;z-index:0}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.82) 100%)}
+.grain{
+    position:fixed;inset:-60px;z-index:3;pointer-events:none;opacity:.07;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .75  0 0 0 0 .8  0 0 0 0 .6  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    animation:grain .9s steps(4) infinite;
+}
+@keyframes grain{
+    0%{transform:translate(0,0)}25%{transform:translate(-22px,14px)}
+    50%{transform:translate(16px,-20px)}75%{transform:translate(-12px,-8px)}100%{transform:translate(0,0)}
+}
+body::after{content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.09) 2px 4px)}
+.roll{position:fixed;left:0;right:0;top:-140px;height:140px;z-index:998;pointer-events:none;
+    background:linear-gradient(transparent,rgba(185,196,154,.04),transparent);animation:roll 7s linear infinite}
+@keyframes roll{to{top:100%}}
+#flash{position:fixed;inset:0;z-index:9998;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .18s}
 
-        @keyframes pulseLogo {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.025); opacity: 0.94; }
-        }
+/* ============ HUD ============ */
+.hud{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity 1.2s .2s}
+.live .hud,.static .hud{opacity:1}
+.frame{position:absolute;inset:18px;border:1px solid rgba(104,112,82,.3)}
+.frame i{position:absolute;width:26px;height:26px;border:0 solid var(--khaki-hi)}
+.frame i:nth-child(1){top:-1px;left:-1px;border-top-width:2px;border-left-width:2px}
+.frame i:nth-child(2){top:-1px;right:-1px;border-top-width:2px;border-right-width:2px}
+.frame i:nth-child(3){bottom:-1px;left:-1px;border-bottom-width:2px;border-left-width:2px}
+.frame i:nth-child(4){bottom:-1px;right:-1px;border-bottom-width:2px;border-right-width:2px}
+.hud-row{position:absolute;left:38px;right:38px;display:flex;justify-content:space-between;align-items:center;
+    font:500 11px/1 var(--label);letter-spacing:.3em;text-transform:uppercase;color:rgba(154,157,139,.75)}
+.hud-row.top{top:32px}
+.hud-row.bot{bottom:34px}
+.dot{display:inline-block;width:7px;height:7px;background:var(--amber);margin-right:10px;animation:blink 1.1s steps(2) infinite}
+.link-ok .dot{background:var(--ok);animation:none}
+@keyframes blink{50%{opacity:.15}}
+.ctl{pointer-events:auto;display:flex;gap:22px}
+.ctl button{background:none;border:0;cursor:pointer;font:500 11px/1 var(--label);letter-spacing:.3em;text-transform:uppercase;
+    color:var(--metal);padding:6px 2px;transition:color .2s}
+.ctl button:hover{color:var(--paper)}
+#skip{display:none}
+.live:not(.ready) #skip{display:block}
+.static .ctl #snd{display:none}
 
-        .main-title-highlight {
-            color: var(--legion-khaki);
-            text-shadow: 0 0 12px rgba(104, 112, 82, 0.35);
-        }
+/* ============ SCÈNE ============ */
+.stage{position:relative;z-index:10;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:70px 20px 140px}
+.shake{animation:shake .45s steps(2) 1}
+@keyframes shake{
+    0%{transform:translate(0,0)}20%{transform:translate(-8px,4px)}40%{transform:translate(6px,-5px)}
+    60%{transform:translate(-5px,-2px)}80%{transform:translate(4px,4px)}100%{transform:translate(0,0)}
+}
 
-        .legion-title {
-            font-family: 'Oswald', sans-serif;
-            letter-spacing: 0.08em;
-            text-shadow: 0 3px 0 #11140e, 0 0 18px rgba(104, 112, 82, 0.25);
-        }
+/* ---- emblème ---- */
+.emblem-wrap{position:relative;width:var(--em);height:var(--em);flex-shrink:0}
+.emblem-wrap::before{
+    content:'';position:absolute;inset:-35%;border-radius:50%;opacity:0;pointer-events:none;
+    background:radial-gradient(circle,rgba(217,164,65,.28),rgba(166,209,106,.12) 38%,transparent 68%);
+}
+.slammed .emblem-wrap::before{animation:glow 2.4s ease-out forwards}
+@keyframes glow{0%{opacity:1;transform:scale(.7)}100%{opacity:0;transform:scale(1.25)}}
+.ring{position:absolute;inset:-14%;width:128%;height:128%;overflow:visible;opacity:0;transition:opacity 1.6s}
+.emblem-on .ring,.static .ring{opacity:.85}
+.ring *{fill:none;stroke:var(--khaki-hi);transform-box:fill-box;transform-origin:center}
+.ring .a{stroke-width:5;stroke-dasharray:1.5 6.7;opacity:.4;animation:spinR 60s linear infinite}
+.ring .b{stroke-width:1;stroke-dasharray:36 10 4 10;opacity:.55;animation:spin 28s linear infinite}
+.ring .c{stroke-width:1.5;opacity:.7}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinR{to{transform:rotate(-360deg)}}
 
-        .military-subtitle {
-            color: #858a76;
-            letter-spacing: 0.42em;
-        }
+.emblem{
+    position:relative;width:100%;height:100%;opacity:0;
+    background:url('logo-emblem.png') center/contain no-repeat;
+    filter:drop-shadow(0 8px 22px rgba(0,0,0,.85)) saturate(.9);
+    transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+    transition:transform .25s ease-out,filter 1.2s;
+}
+.emblem-on .emblem{animation:flickerOn 1.1s steps(1) forwards}
+.static .emblem{opacity:1}
+@keyframes flickerOn{
+    0%{opacity:0}8%{opacity:.5}14%{opacity:.05}24%{opacity:.7}30%{opacity:.2}
+    46%{opacity:.85}52%{opacity:.4}70%{opacity:.9}100%{opacity:1}
+}
+.slammed .emblem,.static .emblem{filter:drop-shadow(0 0 22px rgba(166,209,106,.35)) drop-shadow(0 8px 22px rgba(0,0,0,.85)) saturate(1.12) brightness(1.08)}
+.sweep{
+    position:absolute;inset:0;pointer-events:none;
+    -webkit-mask:url('logo-emblem.png') center/contain no-repeat;mask:url('logo-emblem.png') center/contain no-repeat;
+    background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.7) 50%,transparent 62%) 160% 0/260% 100% no-repeat;
+}
+.slammed .sweep{animation:sweep 1.1s .1s ease-out forwards}
+@keyframes sweep{to{background-position:-60% 0}}
 
-        .access-button {
-            background: linear-gradient(180deg, #687052, #3f472f);
-            color: #f0f1e8;
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            padding: 15px 40px;
-            border: 1px solid #8b9272;
-            border-radius: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.55), inset 0 1px rgba(255,255,255,0.12);
-            font-size: 1.05rem;
-            animation: bounceAccess 2.5s infinite ease;
-        }
+/* ---- titre ---- */
+.title{
+    position:relative;display:inline-block;margin-top:clamp(12px,3vh,26px);
+    font:700 clamp(42px,min(10vw,15vh),108px)/1 var(--label);font-style:italic;
+    text-transform:uppercase;letter-spacing:.06em;color:#fff;white-space:nowrap;
+    text-shadow:0 3px 0 #11140e,0 0 26px rgba(104,112,82,.4);
+}
+.title .ghost{visibility:hidden}
+.title .over{position:absolute;inset:0;text-align:center;color:var(--khaki-hi);opacity:.7;transition:color .2s,opacity .2s}
+.slammed .title .over,.static .title .over{color:#fff;opacity:1}
+.title.hit{animation:titleSlam .4s cubic-bezier(.2,.9,.2,1) both}
+@keyframes titleSlam{
+    0%{transform:scale(1.55);opacity:0;filter:blur(9px)}
+    55%{transform:scale(.97);opacity:1;filter:blur(0)}
+    100%{transform:scale(1)}
+}
+.title.hit .over{animation:chroma .8s steps(2) 1}
+@keyframes chroma{
+    0%,100%{text-shadow:0 3px 0 #11140e,0 0 26px rgba(104,112,82,.4)}
+    20%{text-shadow:-5px 0 rgba(217,164,65,.9),5px 0 rgba(166,209,106,.9)}
+    45%{text-shadow:4px 0 rgba(217,164,65,.8),-4px 0 rgba(166,209,106,.8)}
+    70%{text-shadow:-2px 0 rgba(217,164,65,.6),2px 0 rgba(166,209,106,.6)}
+}
+.rule{height:2px;width:min(560px,80vw);margin:clamp(8px,2vh,16px) auto clamp(8px,2vh,16px);
+    background:linear-gradient(90deg,transparent,var(--amber) 18%,var(--khaki-hi) 50%,var(--amber) 82%,transparent);
+    transform:scaleX(0);opacity:.85}
+.slammed .rule,.static .rule{transition:transform .9s .1s cubic-bezier(.2,.8,.2,1);transform:none}
+.sub{font:400 clamp(9px,1.4vw,13px)/1.5 var(--mono);letter-spacing:.42em;color:#858a76;min-height:20px;text-transform:uppercase}
+.sub.typing::after{content:'';display:inline-block;width:7px;height:12px;margin-left:4px;background:var(--khaki-hi);vertical-align:-2px;animation:blink .8s steps(2) infinite}
 
-        .access-button:hover {
-            transform: translateY(-3px);
-            background: linear-gradient(180deg, #788060, #4b5539);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.7), 0 0 18px rgba(104, 112, 82, 0.25);
-        }
+/* ---- bouton ---- */
+.action{margin-top:clamp(22px,5vh,48px);min-height:86px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.access{
+    visibility:hidden;opacity:0;transform:translateY(12px);
+    position:relative;overflow:hidden;display:inline-block;text-decoration:none;cursor:pointer;
+    padding:16px 46px;color:#f0f1e8;
+    font:700 16px/1 var(--label);letter-spacing:.34em;text-transform:uppercase;
+    background:linear-gradient(180deg,#687052,#3f472f);
+    box-shadow:inset 0 0 0 1px #8b9272,inset 0 1px rgba(255,255,255,.14);
+    clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px);
+    transition:opacity .6s,transform .6s,filter .25s;
+}
+.ready .access,.static .access{visibility:visible;opacity:1;transform:none;animation:btnGlow 2.4s ease-in-out infinite}
+.access::before{content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transition:left .55s ease}
+.access:hover{filter:brightness(1.2)}
+.access:hover::before{left:120%}
+@keyframes btnGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.14)}}
+.hint{font:400 10px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:#666b5b;opacity:0;transition:opacity .8s .4s}
+.ready .hint,.static .hint{opacity:1;animation:hintBlink 2.2s 1.2s infinite step-end}
+@keyframes hintBlink{0%,100%{opacity:1}50%{opacity:.35}}
 
-        .access-hint {
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-top: 10px;
-            color: #666b5b;
-            animation: blinkHint 1.8s infinite step-end;
-        }
+/* ---- sous-titres de la voix ---- */
+.caption{
+    position:fixed;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:11;
+    display:flex;justify-content:center;align-items:center;gap:16px;padding:0 24px;min-height:24px;
+    font:400 clamp(13px,1.6vw,17px)/1.4 var(--mono);letter-spacing:.1em;color:var(--paper);text-align:center;
+    pointer-events:none;transition:opacity 1s;
+}
+.caption.off{opacity:0}
+.eq{display:none;align-items:center;gap:3px;height:16px}
+.speaking .eq{display:flex}
+.eq i{width:3px;height:4px;background:var(--amber);animation:eq .55s ease-in-out infinite alternate}
+.eq i:nth-child(2){animation-delay:-.2s}.eq i:nth-child(3){animation-delay:-.4s}
+.eq i:nth-child(4){animation-delay:-.1s}.eq i:nth-child(5){animation-delay:-.3s}
+@keyframes eq{to{height:16px}}
+#capText::after{content:'';display:inline-block;width:8px;height:14px;margin-left:5px;background:var(--amber);vertical-align:-2px;animation:blink .7s steps(2) infinite}
 
-        @keyframes bounceAccess {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-7px); }
-            60% { transform: translateY(-3px); }
-        }
+/* ---- onde de choc ---- */
+.shock{position:fixed;z-index:9990;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;
+    border:2px solid var(--paper);pointer-events:none;animation:shock 1s ease-out forwards}
+@keyframes shock{from{transform:scale(1);opacity:.85}to{transform:scale(60);opacity:0}}
 
-        @keyframes blinkHint {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; }
-        }
-    </style>
+/* ---- volets de sortie ---- */
+.shutter{position:fixed;left:0;right:0;height:50%;z-index:9999;background:var(--bg);transition:transform .6s cubic-bezier(.7,0,.3,1)}
+.shutter.t{top:0;transform:translateY(-101%);border-bottom:3px solid var(--amber)}
+.shutter.b{bottom:0;transform:translateY(101%);border-top:3px solid var(--amber)}
+.closing .shutter{transform:none}
+.shutter-msg{position:fixed;left:0;right:0;top:50%;z-index:10000;transform:translateY(-50%);text-align:center;
+    font:600 13px/1 var(--label);letter-spacing:.5em;text-transform:uppercase;color:var(--paper);
+    opacity:0;transition:opacity .3s .5s;pointer-events:none}
+.closing .shutter-msg{opacity:1}
+
+/* ============ PORTE D'ENTRÉE (débloque le son) ============ */
+#gate{
+    position:fixed;inset:0;z-index:10000;border:0;cursor:pointer;
+    background:radial-gradient(circle at center,#12150e,var(--bg) 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+}
+.gate-em{position:relative;width:96px;height:96px}
+.gate-em::before,.gate-em::after{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid var(--khaki);animation:ping 2.6s ease-out infinite}
+.gate-em::after{animation-delay:1.3s}
+@keyframes ping{from{transform:scale(1);opacity:.7}to{transform:scale(3.2);opacity:0}}
+.gate-em span{position:absolute;inset:0;background:url('logo-emblem.png') center/contain no-repeat;opacity:.5;filter:grayscale(.6)}
+.gate-status{font:500 13px/1 var(--label);letter-spacing:.5em;text-transform:uppercase;color:var(--amber);min-height:14px}
+.gate-status::after{content:'';display:inline-block;width:8px;height:14px;margin-left:4px;background:var(--amber);vertical-align:-2px;animation:blink .8s steps(2) infinite}
+.gate-cta{position:relative;padding:18px 48px;font:700 22px/1 var(--stencil);letter-spacing:.14em;text-transform:uppercase;color:var(--paper);
+    border:1px solid var(--khaki);transition:background .25s,color .25s;animation:ctaPulse 2.4s ease-in-out infinite}
+.gate-cta::before,.gate-cta::after{content:'';position:absolute;width:14px;height:14px;border:0 solid var(--amber)}
+.gate-cta::before{top:-5px;left:-5px;border-top-width:2px;border-left-width:2px}
+.gate-cta::after{bottom:-5px;right:-5px;border-bottom-width:2px;border-right-width:2px}
+#gate:hover .gate-cta{background:var(--khaki);color:#fff}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 0 0 rgba(104,112,82,0)}50%{box-shadow:0 0 0 6px rgba(104,112,82,.16)}}
+.gate-hint{font:400 10px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:#5c6448}
+#gate.off{pointer-events:none;animation:crt .7s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes crt{
+    0%{transform:scale(1,1);filter:brightness(1);opacity:1}
+    55%{transform:scale(1,.006);filter:brightness(3.5);opacity:1}
+    100%{transform:scale(0,.006);filter:brightness(3.5);opacity:0}
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:640px){
+    .hud-row{left:30px;right:30px;font-size:10px;letter-spacing:.2em}
+    #coords{display:none}
+    .stage{padding:64px 16px 150px}
+    .title{letter-spacing:.03em}
+    .sub{letter-spacing:.2em}
+    .access{padding:15px 32px;font-size:14px;letter-spacing:.26em}
+    .caption{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-height:640px){
+    .stage{padding-top:56px;padding-bottom:110px}
+    .action{min-height:70px}
+}
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;animation-delay:0s!important}
+    .grain,.roll{display:none}
+}
+</style>
 </head>
-<body class="bg-black flex items-center justify-center h-screen overflow-hidden relative">
-    
-    <!-- Effet de fond animé (Optionnel, si tu veux remplacer ton background.png) -->
-    <div class="absolute inset-0 z-0 opacity-30">
-        <canvas id="bg-canvas-index"></canvas>
-    </div>
 
-    <div class="text-center z-10 px-4 relative">
-        <img src="logo.png" class="main-logo mx-auto w-64 md:w-80 mb-6 drop-shadow-[0_0_20px_rgba(104,112,82,0.35)]">
-        
-        <h1 class="legion-title text-5xl md:text-8xl font-black italic text-white uppercase mb-2">LA LEGION</h1>
-        
-        <p class="military-subtitle text-[10px] md:text-sm mb-12 font-mono">LOS SANTOS — UNITÉ ACTIVE — SYSTÈME SÉCURISÉ — 2026</p>
+<body>
 
-        <div class="space-y-4">
-<a href="auth.html" class="access-button" role="button" aria-label="Accéder au système" style="text-decoration: none;">
-    ACCÉDER AU SYSTÈME
-</a>
-            <div class="access-hint">Initialisation des protocoles...</div>
+<!-- Porte d'entrée : le navigateur exige un clic avant de jouer du son -->
+<button id="gate" type="button" aria-label="Recevoir la transmission">
+    <span class="gate-em" aria-hidden="true"><span></span></span>
+    <span class="gate-status" id="gateStatus"></span>
+    <span class="gate-cta">Recevoir</span>
+    <span class="gate-hint">Son recommandé</span>
+</button>
+
+<canvas id="radar" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="roll" aria-hidden="true"></div>
+<div id="flash"></div>
+
+<!-- Cadre HUD -->
+<div class="hud">
+    <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="hud-row top">
+        <span aria-hidden="true">Classifié / Niveau 4</span>
+        <div class="ctl">
+            <button type="button" id="snd" aria-pressed="false">Son : activé</button>
+            <button type="button" id="skip">Passer</button>
         </div>
     </div>
+    <div class="hud-row bot" aria-hidden="true">
+        <span id="coords">LAT 34.0522° N&nbsp;&nbsp;LON 118.2437° W</span>
+        <span id="link"><i class="dot"></i><b id="linkTxt" style="font-weight:500">Liaison en attente</b></span>
+    </div>
+</div>
 
-    <script src="script.js"></script>
-    <script>
-        // Script pour le fond animé de la page d'accueil (copié et adapté du script.js original)
-        (function() {
-            const canvas = document.getElementById('bg-canvas-index');
-            if (!canvas) return; // Ne rien faire si le canvas n'existe pas
-            const ctx = canvas.getContext('2d');
-            let W, H, particles = [];
+<main class="stage" id="stage">
+    <div class="emblem-wrap" id="emblemWrap">
+        <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="a" cx="100" cy="100" r="96"/>
+            <circle class="b" cx="100" cy="100" r="88"/>
+            <path class="c" d="M100 -8V8M100 192V208M-8 100H8M192 100H208"/>
+        </svg>
+        <div class="emblem" id="emblem" role="img" aria-label="Emblème de la Légion"><span class="sweep"></span></div>
+    </div>
 
-            function resizeCanvas() {
-                W = canvas.width = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-            }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+    <h1 class="title" id="title" aria-label="LA LEGION">
+        <span class="ghost" aria-hidden="true">LA LEGION</span>
+        <span class="over" id="titleOver" aria-hidden="true"></span>
+    </h1>
+    <div class="rule" aria-hidden="true"></div>
+    <p class="sub" id="sub"></p>
 
-            const particleCount = 60;
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vx: (Math.random() - 0.5) * 0.2, // Vitesse plus lente
-                    vy: (Math.random() - 0.5) * 0.2,
-                    size: Math.random() * 1.2 + 0.4, // Taille plus petite
-                    opacity: Math.random() * 0.3 + 0.05,
-                });
-            }
+    <div class="action">
+        <a class="access" id="access" href="auth.html" aria-label="Accéder au système">Accéder au système</a>
+        <div class="hint">Votre connexion est enregistrée</div>
+    </div>
+</main>
 
-            function drawParticles() {
-                ctx.clearRect(0, 0, W, H);
+<!-- Sous-titres synchronisés avec la voix -->
+<div class="caption off" id="caption" aria-live="polite">
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span id="capText"></span>
+</div>
 
-                // Lignes entre particules proches (plus subtiles)
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 100) { // Distance de connexion plus courte
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(104, 112, 82, ${0.05 * (1 - dist/100)})`; // Opacité plus faible
-                            ctx.lineWidth = 0.4;
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                }
+<div class="shutter t"></div><div class="shutter b"></div>
+<div class="shutter-msg">Connexion en cours</div>
 
-                // Dessine les points eux-mêmes
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    if (p.x < 0) p.x = W;
-                    if (p.x > W) p.x = 0;
-                    if (p.y < 0) p.y = H;
-                    if (p.y > H) p.y = 0;
+<script>
+/* ============================================================
+   RÉGLAGES — modifie ici si besoin
+   ============================================================ */
+const CFG = {
+    voiceFile:   'voix.mp3',  // ta voix off (optionnelle). Si le fichier n'existe pas, l'intro se joue sans voix.
+    voiceDelay:  0.55,        // secondes avant que la voix démarre
+    voiceRate:   0.95,        // <1 = voix un peu plus grave et lente (0.9 = très sombre, 1 = normale)
+    reverb:      0.75,        // quantité de réverbération sur la voix (0 à 1)
+    echo:        0.32,        // quantité d'écho sur la voix (0 à 1)
+    slamAt:      1.9,         // seconde où le titre s'abat (à caler sur le "La Légion." de la voix)
+    fallbackLen: 9.5          // durée de l'intro sans voix (secondes)
+};
 
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(104, 112, 82, ${p.opacity})`;
-                    ctx.fill();
-                });
+/* Sous-titres : le poids règle la durée relative de chaque phrase */
+const SUBS = [
+    { t: 'La Légion.',                                             w: 12 },
+    { t: 'Bonjour... et bienvenue.',                               w: 24 },
+    { t: 'Ce système est sécurisé. Chaque connexion est enregistrée.', w: 52 },
+    { t: 'Identifiez-vous.',                                       w: 20 }
+];
 
-                requestAnimationFrame(drawParticles);
-            }
-            drawParticles();
-        })();
-    </script>
+/* ============================================================
+   OUTILS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const body = document.body;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const GLYPHS = '▓▒░█/\\<>#%$@0123456789ABCDEF';
+const timers = [];
+let skipped = false;
+const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+function decode(el, finalText, { dur = 900, delay = 0, onDone } = {}) {
+    if (reduceMotion) { el.textContent = finalText; onDone && onDone(); return; }
+    const start = performance.now() + delay;
+    (function frame(now) {
+        if (skipped) { el.textContent = finalText; return; }
+        const t = (now - start) / dur;
+        if (t < 0) { el.textContent = ''; return requestAnimationFrame(frame); }
+        let out = '';
+        for (let i = 0; i < finalText.length; i++) {
+            const c = finalText[i];
+            if (c === ' ') out += ' ';
+            else if (t >= 1 || t > 0.1 + 0.9 * (i / finalText.length)) out += c;
+            else out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        }
+        el.textContent = out;
+        if (t < 1) requestAnimationFrame(frame);
+        else { el.textContent = finalText; onDone && onDone(); }
+    })(performance.now());
+}
+function typeInto(el, text, { speed = 30, delay = 0, onDone } = {}) {
+    if (reduceMotion) { el.textContent = text; onDone && onDone(); return; }
+    let i = 0; el.textContent = '';
+    at(delay, function step() {
+        el.textContent = text.slice(0, ++i);
+        if (i < text.length) at(speed, step); else onDone && onDone();
+    });
+}
+function setLink(text, ok) { $('linkTxt').textContent = text; $('link').classList.toggle('link-ok', !!ok); }
+
+/* ============================================================
+   RADAR (centré sur l'emblème)
+   ============================================================ */
+const radar = { speed: 0.45, base: 0.45, alpha: 0 };
+(function () {
+    const c = $('radar'), ctx = c.getContext('2d'), wrap = $('emblemWrap');
+    let W, H;
+    function resize() {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        W = innerWidth; H = innerHeight;
+        c.width = W * dpr; c.height = H * dpr;
+        c.style.width = W + 'px'; c.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize(); addEventListener('resize', resize);
+
+    const blips = Array.from({ length: 14 }, () => ({ a: Math.random() * 6.283, r: .16 + Math.random() * .8, lit: reduceMotion ? .6 : 0 }));
+    let ang = Math.random() * 6.283, last = performance.now();
+
+    function frame(now) {
+        const dt = Math.min((now - last) / 1000, .05); last = now;
+        if (!reduceMotion) ang = (ang + radar.speed * dt) % 6.283;
+        radar.speed += (radar.base - radar.speed) * Math.min(1, dt * .9);
+
+        const r = wrap.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+        const A = radar.alpha;
+        ctx.clearRect(0, 0, W, H);
+        if (A <= 0.001) return requestAnimationFrame(frame);
+
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 6; i++) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(104,112,82,${(i % 2 ? .13 : .07) * A})`;
+            ctx.arc(cx, cy, R * i / 5.6, 0, 6.283);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = `rgba(104,112,82,${.1 * A})`;
+        ctx.beginPath();
+        ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+        ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+        const tr = R * 3 / 5.6;
+        for (let d = 0; d < 360; d += 10) {
+            const a = d * Math.PI / 180, l = d % 30 === 0 ? 11 : 5;
+            ctx.moveTo(cx + Math.cos(a) * tr, cy + Math.sin(a) * tr);
+            ctx.lineTo(cx + Math.cos(a) * (tr + l), cy + Math.sin(a) * (tr + l));
+        }
+        ctx.stroke();
+
+        if (ctx.createConicGradient) {
+            const trail = 1.2, e = trail / 6.283;
+            const g = ctx.createConicGradient(ang - trail, cx, cy);
+            g.addColorStop(0, 'rgba(141,152,112,0)');
+            g.addColorStop(e, `rgba(141,152,112,${.26 * A})`);
+            g.addColorStop(Math.min(e + .0008, 1), 'rgba(141,152,112,0)');
+            g.addColorStop(1, 'rgba(141,152,112,0)');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        }
+        ctx.strokeStyle = `rgba(166,180,130,${.6 * A})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(ang) * R, cy + Math.sin(ang) * R); ctx.stroke();
+
+        blips.forEach(b => {
+            const d = (ang - b.a + 6.283) % 6.283;
+            if (d < .05 + radar.speed * dt) b.lit = 1; else b.lit = Math.max(0, b.lit - dt * .33);
+            if (b.lit <= 0) return;
+            const x = cx + Math.cos(b.a) * R * b.r * .85, y = cy + Math.sin(b.a) * R * b.r * .85;
+            ctx.fillStyle = `rgba(166,180,130,${b.lit * .85 * A})`;
+            ctx.fillRect(x - 2, y - 2, 4, 4);
+            const s = 14 + (1 - b.lit) * 16;
+            ctx.strokeStyle = `rgba(166,180,130,${b.lit * .4 * A})`;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - s / 2, y - s / 2, s, s);
+        });
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+})();
+
+/* Légère inclinaison de l'emblème avec la souris */
+addEventListener('pointermove', e => {
+    if (reduceMotion || e.pointerType === 'touch') return;
+    const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
+    const em = $('emblem');
+    em.style.setProperty('--ry', (nx * 12).toFixed(2) + 'deg');
+    em.style.setProperty('--rx', (-ny * 12).toFixed(2) + 'deg');
+});
+
+setInterval(() => {
+    const la = (34.0522 + (Math.random() - .5) * .0008).toFixed(4);
+    const lo = (118.2437 + (Math.random() - .5) * .0008).toFixed(4);
+    $('coords').innerHTML = `LAT ${la}° N&nbsp;&nbsp;LON ${lo}° W`;
+}, 900);
+
+/* ============================================================
+   AUDIO : voix (réverbération + écho) et sound design généré
+   ============================================================ */
+let ac, master, droneGain, muted = false;
+const voiceEl = new Audio();
+voiceEl.preload = 'auto';
+let voiceExists = null;
+const voiceProbe = new Promise(res => {
+    voiceEl.addEventListener('loadedmetadata', () => { voiceExists = true; res(true); }, { once: true });
+    voiceEl.addEventListener('error', () => { voiceExists = false; res(false); }, { once: true });
+    setTimeout(() => res(voiceEl.readyState >= 1), 4000);
+});
+voiceEl.src = CFG.voiceFile;
+
+function makeIR(sec, decay) {
+    const len = Math.floor(ac.sampleRate * sec);
+    const buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+}
+function noiseBuffer(sec) {
+    const buf = ac.createBuffer(1, ac.sampleRate * sec, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+}
+function initAudio() {
+    try {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        if (ac.state === 'suspended') ac.resume();
+        master = ac.createGain();
+        const comp = ac.createDynamicsCompressor();
+        master.connect(comp); comp.connect(ac.destination);
+    } catch (e) { ac = null; }
+}
+
+/* Chaîne de la voix : sec + écho + grande réverbération. (Ne fonctionne qu'en http(s), pas en double-clic file://) */
+function routeVoice() {
+    voiceEl.preservesPitch = false; voiceEl.webkitPreservesPitch = false; voiceEl.mozPreservesPitch = false;
+    voiceEl.playbackRate = CFG.voiceRate;
+    if (!ac || location.protocol === 'file:') { voiceEl.volume = .95; return; }
+    try {
+        const src = ac.createMediaElementSource(voiceEl);
+        const dry = ac.createGain(); dry.gain.value = .85;
+        const bus = ac.createGain();
+        const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 220;
+        const conv = ac.createConvolver(); conv.buffer = makeIR(3.6, 2.3);
+        const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3800;
+        const wet = ac.createGain(); wet.gain.value = CFG.reverb;
+        const del = ac.createDelay(1); del.delayTime.value = .29;
+        const fb = ac.createGain(); fb.gain.value = .42;
+        const echoOut = ac.createGain(); echoOut.gain.value = CFG.echo;
+        src.connect(dry); dry.connect(master);
+        src.connect(hp); hp.connect(bus);
+        bus.connect(conv);
+        bus.connect(del); del.connect(fb); fb.connect(del);
+        del.connect(echoOut); echoOut.connect(master); echoOut.connect(conv);
+        conv.connect(lp); lp.connect(wet); wet.connect(master);
+    } catch (e) { voiceEl.volume = .95; }
+}
+
+function startDrone() {
+    if (!ac) return;
+    droneGain = ac.createGain(); droneGain.gain.value = 0; droneGain.connect(master);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 170; lp.Q.value = 5; lp.connect(droneGain);
+    [[43.65, 'sawtooth', 0], [43.65, 'sawtooth', 8], [87.3, 'sine', 0], [65.4, 'triangle', -6]].forEach(([f, t, d]) => {
+        const o = ac.createOscillator(); o.type = t; o.frequency.value = f; o.detune.value = d; o.connect(lp); o.start();
+    });
+    const lfo = ac.createOscillator(), lg = ac.createGain();
+    lfo.frequency.value = .08; lg.gain.value = 70; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
+    droneGain.gain.linearRampToValueAtTime(.15, ac.currentTime + 3);
+}
+function riser(dur) {
+    if (!ac) return;
+    const t = ac.currentTime;
+    const src = ac.createBufferSource(); src.buffer = noiseBuffer(3); src.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 5;
+    bp.frequency.setValueAtTime(220, t); bp.frequency.exponentialRampToValueAtTime(5200, t + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.32, t + dur * .96); g.gain.linearRampToValueAtTime(0, t + dur + .04);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t); src.stop(t + dur + .1);
+}
+function boom() {
+    if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(115, t); o.frequency.exponentialRampToValueAtTime(30, t + 1);
+    g.gain.setValueAtTime(1, t); g.gain.exponentialRampToValueAtTime(.001, t + 1.6);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + 1.7);
+    const n = ac.createBufferSource(); n.buffer = noiseBuffer(1);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(80, t + .7);
+    const ng = ac.createGain(); ng.gain.setValueAtTime(.7, t); ng.gain.exponentialRampToValueAtTime(.001, t + .8);
+    n.connect(lp); lp.connect(ng); ng.connect(master); n.start(t);
+    if (droneGain) droneGain.gain.linearRampToValueAtTime(.09, t + 2.5);
+}
+function ping() {
+    if (!ac) return;
+    const t = ac.currentTime;
+    [[1320, .07], [1980, .035]].forEach(([f, v]) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .9);
+        o.connect(g); g.connect(master); o.start(t); o.stop(t + 1);
+    });
+}
+function setMuted(m) {
+    muted = m;
+    if (master) master.gain.setTargetAtTime(m ? 0 : 1, ac.currentTime, .05);
+    voiceEl.muted = m;
+    $('snd').textContent = m ? 'Son : coupé' : 'Son : activé';
+    $('snd').setAttribute('aria-pressed', String(m));
+}
+$('snd').addEventListener('click', () => setMuted(!muted));
+
+/* ============================================================
+   EFFETS
+   ============================================================ */
+function slamFx() {
+    boom();
+    body.classList.add('slammed');
+    $('title').classList.add('hit');
+    if (!reduceMotion) {
+        const st = $('stage'); st.classList.add('shake');
+        at(480, () => st.classList.remove('shake'));
+    }
+    const fl = $('flash'); fl.style.opacity = '.22'; at(170, () => fl.style.opacity = '0');
+    radar.speed = 2.6;
+    setLink('Liaison établie', true);
+
+    const r = $('emblemWrap').getBoundingClientRect();
+    [0, 220].forEach(d => at(d, () => {
+        const s = document.createElement('div');
+        s.className = 'shock';
+        s.style.left = (r.left + r.width / 2) + 'px'; s.style.top = (r.top + r.height / 2) + 'px';
+        body.appendChild(s); at(1100, () => s.remove());
+    }));
+}
+
+/* ============================================================
+   SOUS-TITRES suivant la progression de la voix
+   ============================================================ */
+const cap = $('caption'), capText = $('capText');
+const totalW = SUBS.reduce((a, s) => a + s.w, 0);
+let acc = 0;
+SUBS.forEach(s => { s.a = acc / totalW; acc += s.w; s.b = acc / totalW; });
+let lastShown = '';
+function renderSubs(p) {
+    let cur = SUBS[0];
+    for (const s of SUBS) if (p >= s.a) cur = s;
+    const k = Math.max(0, Math.min(1, (p - cur.a) / ((cur.b - cur.a) * .62)));
+    const txt = cur.t.slice(0, Math.ceil(k * cur.t.length));
+    if (txt !== lastShown) { lastShown = txt; capText.textContent = txt; }
+}
+
+/* ============================================================
+   SÉQUENCE
+   ============================================================ */
+let started = false, finished = false, hasVoice = false;
+
+async function start() {
+    if (started) return; started = true;
+    initAudio();
+    const gate = $('gate');
+    gate.classList.add('off'); at(750, () => gate.remove());
+
+    hasVoice = await Promise.race([voiceProbe, new Promise(r => setTimeout(() => r(false), 1200))]);
+    if (hasVoice) routeVoice();
+
+    body.classList.add('live');
+    radar.alpha = 0;
+    const t0 = performance.now();
+    (function fade(now) { radar.alpha = Math.min(1, (now - t0) / 2200); if (radar.alpha < 1 && !finished) requestAnimationFrame(fade); else radar.alpha = 1; })(t0);
+
+    startDrone();
+    const slam = CFG.slamAt * 1000;
+    riser(Math.max(.8, CFG.slamAt - .55));
+    at(300, () => body.classList.add('emblem-on'));
+    decode($('titleOver'), 'LA LEGION', { dur: Math.max(600, slam - 600), delay: 600 });
+    at(slam, slamFx);
+    at(slam + 450, () => {
+        $('sub').classList.add('typing');
+        typeInto($('sub'), 'Los Santos — Unité active — Système sécurisé — 2026', { speed: 26, onDone: () => $('sub').classList.remove('typing') });
+    });
+    setLink('Liaison en cours', false);
+
+    /* voix + sous-titres */
+    const vStart = performance.now() + CFG.voiceDelay * 1000;
+    cap.classList.remove('off');
+    at(CFG.voiceDelay * 1000, () => {
+        if (hasVoice) voiceEl.play().catch(() => { hasVoice = false; });
+        cap.classList.add('speaking');
+    });
+    (function loop(now) {
+        if (finished) return;
+        let p;
+        if (hasVoice && voiceEl.duration) p = voiceEl.ended ? 1 : voiceEl.currentTime / voiceEl.duration;
+        else p = (now - vStart) / (CFG.fallbackLen * 1000);
+        if (now < vStart) p = 0;
+        renderSubs(Math.min(p, .9999));
+        if (p >= 1) return finish();
+        requestAnimationFrame(loop);
+    })(performance.now());
+}
+
+function finish() {
+    if (finished) return; finished = true;
+    cap.classList.remove('speaking');
+    at(500, () => { body.classList.add('ready'); ping(); setLink('Accès disponible', true); $('access').focus({ preventScroll: true }); });
+    at(3600, () => cap.classList.add('off'));
+}
+
+function skip() {
+    if (finished) return;
+    finished = true; skipped = true;
+    timers.forEach(clearTimeout);
+    voiceEl.pause();
+    radar.alpha = 1;
+    body.classList.add('emblem-on', 'slammed', 'ready');
+    $('titleOver').textContent = 'LA LEGION';
+    $('sub').classList.remove('typing');
+    $('sub').textContent = 'Los Santos — Unité active — Système sécurisé — 2026';
+    cap.classList.remove('speaking'); cap.classList.add('off');
+    if (droneGain) droneGain.gain.linearRampToValueAtTime(.08, ac.currentTime + .6);
+    setLink('Accès disponible', true);
+    $('access').focus({ preventScroll: true });
+}
+$('skip').addEventListener('click', skip);
+addEventListener('keydown', e => { if (e.key === 'Escape' && started) skip(); });
+
+/* ============================================================
+   SORTIE
+   ============================================================ */
+$('access').addEventListener('click', e => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+    e.preventDefault();
+    body.classList.add('closing');
+    if (ac && droneGain) droneGain.gain.setTargetAtTime(0, ac.currentTime, .15);
+    voiceEl.pause();
+    const href = e.currentTarget.href;
+    setTimeout(() => { location.href = href; }, 950);
+});
+addEventListener('pageshow', e => { if (e.persisted) body.classList.remove('closing'); });
+
+/* ============================================================
+   DÉMARRAGE
+   ============================================================ */
+const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+if (nav && nav.type === 'back_forward') {
+    /* retour depuis la page suivante : pas de nouvelle intro */
+    body.classList.add('static', 'ready', 'emblem-on', 'slammed');
+    $('gate').remove();
+    radar.alpha = 1;
+    $('titleOver').textContent = 'LA LEGION';
+    $('sub').textContent = 'Los Santos — Unité active — Système sécurisé — 2026';
+    started = finished = true;
+    setLink('Accès disponible', true);
+} else {
+    typeInto($('gateStatus'), 'Transmission entrante', { speed: 70, delay: 300 });
+    $('gate').addEventListener('click', start);
+}
+</script>
 </body>
 </html>
