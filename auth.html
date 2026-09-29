@@ -1,748 +1,966 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Authentification | LEGION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authentification | LEGION</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Stardos+Stencil:wght@400;700&display=swap" rel="stylesheet">
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        :root {
-            --blue: #687052;
-            --blue-glow: rgba(104, 112, 82, 0.6);
-            --blue-dim: rgba(104, 112, 82, 0.15);
-            --green: #00ff88;
-            --red: #ff2244;
-        }
+:root{
+    --bg:#0b0d09;
+    --khaki:#687052;
+    --khaki-hi:#8d9870;
+    --olive:#3f472f;
+    --metal:#9a9d8b;
+    --paper:#e6ebd2;
+    --amber:#d9a441;
+    --ok:#a6d16a;
+    --stencil:'Stardos Stencil','Black Ops One',Impact,sans-serif;
+    --label:'Oswald','Arial Narrow',sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;
+}
 
-        body {
-            background: #080a06;
-            color: white;
-            font-family: 'Space Mono', monospace;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+html{background:var(--bg)}
+body{
+    background:var(--bg);
+    color:#d9dfc6;
+    font-family:var(--mono);
+    overflow-x:hidden;
+}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
 
-        /* ===== FOND ANIMÉ ===== */
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-        }
+/* ============ COUCHES DE FOND ============ */
+#radar{position:fixed;inset:0;z-index:0}
 
-        /* Lignes de scan horizontales sur tout l'écran */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.08) 2px,
-                rgba(0, 0, 0, 0.08) 4px
-            );
-            pointer-events: none;
-            z-index: 999;
-        }
+.watermark{
+    position:fixed;left:50%;top:50%;
+    width:min(78vmin,640px);aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    background:url('logo-emblem.png') center/contain no-repeat;
+    opacity:.055;filter:grayscale(.4);
+    z-index:1;pointer-events:none;
+}
+.vignette{
+    position:fixed;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.78) 100%);
+}
+.grain{
+    position:fixed;inset:-60px;z-index:3;pointer-events:none;opacity:.07;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .75  0 0 0 0 .8  0 0 0 0 .6  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    animation:grain .9s steps(4) infinite;
+}
+@keyframes grain{
+    0%{transform:translate(0,0)}25%{transform:translate(-22px,14px)}
+    50%{transform:translate(16px,-20px)}75%{transform:translate(-12px,-8px)}100%{transform:translate(0,0)}
+}
+/* lignes de scan + bande qui défile */
+body::after{
+    content:'';position:fixed;inset:0;z-index:999;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.09) 2px 4px);
+}
+.roll{
+    position:fixed;left:0;right:0;top:-140px;height:140px;z-index:998;pointer-events:none;
+    background:linear-gradient(transparent,rgba(185,196,154,.04),transparent);
+    animation:roll 7s linear infinite;
+}
+@keyframes roll{to{top:100%}}
 
-        /* ===== CONTENEUR PRINCIPAL ===== */
-        .auth-wrap {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0;
-            width: 480px;
-        }
+/* ============ CADRE HUD ============ */
+.hud{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity 1s .2s}
+.live .hud{opacity:1}
+.frame{position:absolute;inset:18px;border:1px solid rgba(104,112,82,.3)}
+.frame i{position:absolute;width:26px;height:26px;border:0 solid var(--khaki-hi)}
+.frame i:nth-child(1){top:-1px;left:-1px;border-top-width:2px;border-left-width:2px}
+.frame i:nth-child(2){top:-1px;right:-1px;border-top-width:2px;border-right-width:2px}
+.frame i:nth-child(3){bottom:-1px;left:-1px;border-bottom-width:2px;border-left-width:2px}
+.frame i:nth-child(4){bottom:-1px;right:-1px;border-bottom-width:2px;border-right-width:2px}
+.hud-top,.hud-bot{
+    position:absolute;left:38px;right:38px;display:flex;justify-content:space-between;
+    font:500 11px/1 var(--label);letter-spacing:.3em;text-transform:uppercase;color:rgba(154,157,139,.75);
+}
+.hud-top{top:34px}
+.hud-bot{bottom:34px}
+.dot{display:inline-block;width:7px;height:7px;background:var(--amber);margin-right:10px;animation:blink 1.1s steps(2) infinite}
+.link-ok .dot{background:var(--ok);animation:none}
+@keyframes blink{50%{opacity:.15}}
 
-        /* ===== HEADER LEGION ===== */
-        .auth-header {
-            text-align: center;
-            margin-bottom: 32px;
-            animation: fadeDown 0.8s ease-out forwards;
-        }
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .auth-logo-text {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 11px;
-            letter-spacing: 8px;
-            color: #444;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .auth-title {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 36px;
-            letter-spacing: -1px;
-            color: white;
-            text-transform: uppercase;
-            line-height: 1;
-        }
-        .auth-title span { color: var(--blue); }
-        .auth-subtitle {
-            font-size: 9px;
-            letter-spacing: 4px;
-            color: #333;
-            margin-top: 8px;
-            text-transform: uppercase;
-        }
+/* ============ SCÈNE ============ */
+.stage{
+    position:relative;z-index:10;min-height:100svh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:66px 24px 58px;
+}
+.shake{animation:shake .42s steps(2) 1}
+@keyframes shake{
+    0%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}
+    60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,3px)}100%{transform:translate(0,0)}
+}
 
-        /* ===== BOÎTE CENTRALE ===== */
-        .auth-box {
-            width: 100%;
-            background: rgba(8, 10, 6, 0.95);
-            border: 1px solid rgba(104, 112, 82, 0.3);
-            position: relative;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 32px;
-            animation: fadeUp 0.8s 0.2s ease-out both;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+/* ---- en-tête ---- */
+.head{
+    display:flex;align-items:center;gap:20px;
+    width:min(720px,100%);margin-bottom:18px;
+    opacity:0;transition:opacity .7s .3s;
+}
+.live .head{opacity:1}
+.emblem{
+    width:88px;height:88px;flex-shrink:0;
+    background:url('logo-emblem.png') center/contain no-repeat;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.7)) saturate(.85);
+    transition:filter .9s;
+}
+.emblem.lit{filter:drop-shadow(0 0 16px rgba(166,209,106,.6)) saturate(1.15) brightness(1.1)}
+.eyebrow{font:500 11px/1 var(--label);letter-spacing:.44em;text-transform:uppercase;color:var(--metal)}
+.title{
+    font:700 60px/1 var(--stencil);letter-spacing:.05em;color:var(--paper);
+    margin:9px 0 10px;text-shadow:0 3px 0 #11140e,0 0 26px rgba(104,112,82,.45);
+    white-space:nowrap;
+}
+.title.glitch{animation:glitch .5s steps(2) 2}
+@keyframes glitch{
+    0%,100%{text-shadow:0 3px 0 #11140e,0 0 26px rgba(104,112,82,.45);transform:none}
+    25%{text-shadow:-3px 0 var(--amber),3px 0 var(--ok);transform:translateX(2px)}
+    50%{text-shadow:3px 0 var(--amber),-3px 0 var(--ok);transform:translateX(-3px) skewX(-4deg)}
+    75%{text-shadow:-2px 0 var(--ok),2px 0 var(--amber);transform:translateX(1px)}
+}
+.sub{font:400 11px/1.3 var(--mono);letter-spacing:.16em;color:var(--khaki-hi);min-height:15px}
+.sub::after{content:'';display:inline-block;width:7px;height:12px;background:var(--khaki-hi);margin-left:3px;vertical-align:-2px;animation:blink .8s steps(2) infinite}
+.sub.done::after{display:none}
 
-        /* Coins lumineux */
-        .auth-box::before, .auth-box::after,
-        .corner-bl, .corner-br {
-            content: '';
-            position: absolute;
-            width: 20px; height: 20px;
-        }
-        .auth-box::before { top: -1px; left: -1px; border-top: 2px solid var(--blue); border-left: 2px solid var(--blue); }
-        .auth-box::after  { top: -1px; right: -1px; border-top: 2px solid var(--blue); border-right: 2px solid var(--blue); }
-        .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--blue); border-left: 2px solid var(--blue); }
-        .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+/* ---- panneau ---- */
+.panel{
+    --sig:var(--khaki-hi);
+    position:relative;width:min(720px,100%);
+    background:rgba(11,13,9,.9);
+    border:1px solid rgba(104,112,82,.45);
+    backdrop-filter:blur(3px);
+    box-shadow:0 24px 70px rgba(0,0,0,.65);
+    opacity:0;clip-path:inset(50% 0 50% 0);
+}
+.panel.scanning{--sig:#c9d6a0}
+.panel.granted{--sig:var(--ok)}
+.live .panel{animation:panelOpen .85s .55s cubic-bezier(.7,0,.2,1) forwards}
+@keyframes panelOpen{
+    from{opacity:1;clip-path:inset(50% 0 50% 0)}
+    to{opacity:1;clip-path:inset(-260px -260px -260px -260px)}
+}
+.bk{position:absolute;width:18px;height:18px;border:0 solid var(--khaki-hi);pointer-events:none}
+.bk.tl{top:-6px;left:-6px;border-top-width:2px;border-left-width:2px}
+.bk.tr{top:-6px;right:-6px;border-top-width:2px;border-right-width:2px}
+.bk.bl{bottom:-6px;left:-6px;border-bottom-width:2px;border-left-width:2px}
+.bk.br{bottom:-6px;right:-6px;border-bottom-width:2px;border-right-width:2px}
+.panel.granted .bk{border-color:var(--ok);transition:border-color .5s}
 
-        /* Ligne de scan animée sur la boîte */
-        .box-scan {
-            position: absolute;
-            left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--blue), transparent);
-            opacity: 0.5;
-            animation: boxScan 3s linear infinite;
-            pointer-events: none;
-        }
-        @keyframes boxScan {
-            0%   { top: 0; opacity: 0; }
-            5%   { opacity: 0.5; }
-            95%  { opacity: 0.5; }
-            100% { top: 100%; opacity: 0; }
-        }
+.hazard{
+    height:7px;opacity:.8;
+    background:repeating-linear-gradient(-45deg,var(--amber) 0 9px,#0b0d09 9px 18px);
+    animation:hz 1.4s linear infinite;
+}
+@keyframes hz{to{background-position:25.46px 0}}
+.strip{
+    display:flex;justify-content:space-between;padding:7px 16px;
+    font:500 11px/1 var(--label);letter-spacing:.3em;text-transform:uppercase;color:var(--metal);
+    background:rgba(63,71,47,.32);border-bottom:1px solid rgba(104,112,82,.3);
+}
+.box-scan{
+    position:absolute;left:0;right:0;top:0;height:1px;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--sig),transparent);
+    opacity:.5;animation:boxScan 4.5s linear infinite;
+}
+@keyframes boxScan{0%{top:0;opacity:0}8%{opacity:.5}92%{opacity:.5}100%{top:100%;opacity:0}}
 
-        /* ===== SCANNER BIOMÉTRIQUE ===== */
-        .scanner-wrap {
-            position: relative;
-            width: 160px;
-            height: 200px;
-        }
+/* ---- scanner + fiche ---- */
+.top-row{display:grid;grid-template-columns:200px 1fr;gap:26px;padding:22px 24px 8px;align-items:center}
 
-        /* Cadre du scanner avec coins animés */
-        .scanner-frame {
-            position: absolute;
-            inset: 0;
-            border: 1px solid rgba(104, 112, 82, 0.3);
-        }
-        .scanner-frame .sf-tl,
-        .scanner-frame .sf-tr,
-        .scanner-frame .sf-bl,
-        .scanner-frame .sf-br {
-            position: absolute;
-            width: 16px; height: 16px;
-        }
-        .sf-tl { top: -1px; left: -1px;  border-top: 2px solid var(--blue); border-left: 2px solid var(--blue); }
-        .sf-tr { top: -1px; right: -1px; border-top: 2px solid var(--blue); border-right: 2px solid var(--blue); }
-        .sf-bl { bottom: -1px; left: -1px;  border-bottom: 2px solid var(--blue); border-left: 2px solid var(--blue); }
-        .sf-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--blue); border-right: 2px solid var(--blue); }
+.scanner{position:relative;width:180px;height:180px;margin:0 auto 28px}
+.rings{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.rings *{fill:none;stroke:var(--sig);transform-box:fill-box;transform-origin:center;transition:stroke .5s}
+.r-ticks{stroke-width:5;stroke-dasharray:1.5 6.7;opacity:.45;animation:spinR 46s linear infinite}
+.r-dash{stroke-width:1;stroke-dasharray:30 8 4 8;opacity:.6;animation:spin 20s linear infinite}
+.r-arc{stroke-width:2.5;stroke-dasharray:70 395;opacity:0;animation:spin 2.2s linear infinite}
+.r-cross{stroke-width:1.5;opacity:.7}
+.panel.scanning .r-dash{animation-duration:6s;opacity:.9}
+.panel.scanning .r-arc{opacity:1}
+.panel.scanning .r-ticks{animation-duration:14s}
+.panel.granted .r-arc{opacity:0}
+.panel.granted .r-ticks,.panel.granted .r-dash{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinR{to{transform:rotate(-360deg)}}
 
-        /* Image empreinte */
-        .fingerprint-img {
-            position: absolute;
-            inset: 0;
-            margin: auto;
-            width: 75%;
-            opacity: 0.12;
-            transition: opacity 1s ease, filter 1s ease;
-            filter: sepia(0.25) saturate(0.7) brightness(1.8);
-        }
-        .scanner-wrap.scanning .fingerprint-img {
-            opacity: 0.35;
-            animation: fpPulse 2.5s ease-in-out infinite;
-        }
-        .scanner-wrap.granted .fingerprint-img {
-            opacity: 0.7;
-            filter: hue-rotate(120deg) brightness(2);
-        }
-        .scanner-wrap.denied .fingerprint-img {
-            opacity: 0.5;
-            filter: hue-rotate(340deg) brightness(2);
-        }
-        @keyframes fpPulse {
-            0%, 100% { opacity: 0.2; }
-            50%       { opacity: 0.45; }
-        }
+.scanner-glow{
+    position:absolute;inset:14px;border-radius:50%;opacity:0;transition:opacity .6s;
+    background:radial-gradient(circle,color-mix(in srgb,var(--sig) 22%,transparent) 0%,transparent 70%);
+}
+.panel.scanning .scanner-glow,.panel.granted .scanner-glow{opacity:1}
 
-        /* Ligne de scan du scanner */
-        .scan-beam {
-            position: absolute;
-            left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--blue), transparent);
-            box-shadow: 0 0 12px var(--blue), 0 0 30px var(--blue-glow);
-            top: 0;
-            animation: scanBeam 2.5s ease-in-out infinite;
-            opacity: 0;
-        }
-        .scanner-wrap.scanning .scan-beam { opacity: 1; }
-        .scanner-wrap.granted .scan-beam {
-            background: linear-gradient(90deg, transparent, var(--green), transparent);
-            box-shadow: 0 0 12px var(--green), 0 0 30px rgba(0,255,136,0.4);
-            animation: none;
-            top: 50%;
-        }
-        @keyframes scanBeam {
-            0%   { top: 0%; }
-            50%  { top: 100%; }
-            100% { top: 0%; }
-        }
+.fp-window{position:absolute;left:44px;top:34px;width:92px;height:112px;overflow:hidden}
+.fp{
+    position:absolute;left:6px;top:6px;width:calc(100% - 12px);height:calc(100% - 12px);
+    object-fit:contain;opacity:.18;filter:url(#tint-idle);
+    transition:opacity .8s;
+}
+.panel.scanning .fp{opacity:.5;filter:url(#tint-scan);animation:fpPulse 2.2s ease-in-out infinite}
+.panel.granted .fp{opacity:.95;filter:url(#tint-ok);animation:none}
+@keyframes fpPulse{0%,100%{opacity:.28}50%{opacity:.6}}
 
-        /* Fond du scanner */
-        .scanner-bg {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at center, var(--blue-dim) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        .scanner-wrap.scanning .scanner-bg { opacity: 1; }
-        .scanner-wrap.granted .scanner-bg {
-            background: radial-gradient(ellipse at center, rgba(0,255,136,0.1) 0%, transparent 70%);
-            opacity: 1;
-        }
+.beam{
+    position:absolute;left:0;right:0;top:0;height:2px;opacity:0;
+    background:var(--sig);box-shadow:0 0 12px var(--sig),0 0 28px color-mix(in srgb,var(--sig) 60%,transparent);
+    animation:beam 2.2s ease-in-out infinite alternate;
+}
+.beam::after{content:'';position:absolute;left:0;right:0;bottom:2px;height:30px;
+    background:linear-gradient(transparent,color-mix(in srgb,var(--sig) 25%,transparent))}
+.panel.scanning .beam{opacity:1}
+.panel.granted .beam{opacity:.9;animation:none;top:50%}
+@keyframes beam{from{top:0}to{top:calc(100% - 2px)}}
 
-        /* Texte status scanner */
-        .scanner-status {
-            position: absolute;
-            bottom: -28px;
-            left: 0; right: 0;
-            text-align: center;
-            font-size: 8px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #333;
-            transition: color 0.4s;
-        }
-        .scanner-wrap.scanning .scanner-status { color: var(--blue); }
-        .scanner-wrap.granted  .scanner-status { color: var(--green); }
-        .scanner-wrap.denied   .scanner-status { color: var(--red); }
+.pt{position:absolute;width:6px;height:6px;border:1px solid var(--sig);opacity:0;transform:scale(2.4);transition:opacity .2s,transform .3s}
+.pt.on{opacity:1;transform:none}
+.panel.granted .pt{background:var(--sig)}
 
-        /* Particules de validation */
-        .particle {
-            position: absolute;
-            width: 3px; height: 3px;
-            border-radius: 50%;
-            background: var(--blue);
-            pointer-events: none;
-            animation: particleFly 0.8s ease-out forwards;
-        }
-        @keyframes particleFly {
-            0%   { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
+.fp-frame{position:absolute;left:44px;top:34px;width:92px;height:112px;border:1px solid rgba(104,112,82,.35);pointer-events:none}
+.fp-frame i{position:absolute;width:10px;height:10px;border:0 solid var(--sig);transition:border-color .5s}
+.fp-frame i:nth-child(1){top:-1px;left:-1px;border-top-width:2px;border-left-width:2px}
+.fp-frame i:nth-child(2){top:-1px;right:-1px;border-top-width:2px;border-right-width:2px}
+.fp-frame i:nth-child(3){bottom:-1px;left:-1px;border-bottom-width:2px;border-left-width:2px}
+.fp-frame i:nth-child(4){bottom:-1px;right:-1px;border-bottom-width:2px;border-right-width:2px}
 
-        /* ===== TERMINAL ===== */
-        .terminal-box {
-            width: 100%;
-            height: 160px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(10, 60, 255, 0.2);
-            padding: 14px 16px;
-            overflow-y: auto;
-            font-size: 11px;
-            line-height: 1.7;
-            scrollbar-width: thin;
-            scrollbar-color: var(--blue) transparent;
-            position: relative;
-        }
-        .terminal-box::before {
-            content: 'LEGION_OS v4.0 // TERMINAL';
-            display: block;
-            font-size: 8px;
-            letter-spacing: 2px;
-            color: #1a1a3a;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #0a0a20;
-            padding-bottom: 6px;
-        }
-        .t-line { display: flex; gap: 8px; align-items: flex-start; }
-        .t-prefix { color: #1a3a6a; flex-shrink: 0; }
-        .t-text { color: #4a7aaa; }
-        .t-text.bright { color: #7ab0ff; }
-        .t-text.success { color: var(--green); font-weight: bold; }
-        .t-text.warning { color: #ffaa00; }
-        .t-cursor {
-            display: inline-block;
-            width: 7px; height: 12px;
-            background: var(--blue);
-            vertical-align: middle;
-            animation: blink 0.8s step-end infinite;
-            margin-left: 2px;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.scanner-status{
+    position:absolute;left:-10px;right:-10px;bottom:-28px;text-align:center;
+    font:500 11px/1 var(--label);letter-spacing:.34em;text-transform:uppercase;color:#6d735c;transition:color .4s;
+}
+.panel.scanning .scanner-status{color:var(--sig)}
+.panel.granted .scanner-status{color:var(--ok)}
 
-        /* ===== BARRE DE PROGRESSION ===== */
-        .progress-wrap {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        .progress-wrap.visible { opacity: 1; }
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 8px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #333;
-        }
-        .progress-label span:last-child { color: var(--blue); }
-        .progress-track {
-            width: 100%;
-            height: 2px;
-            background: #0a0a20;
-            position: relative;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--blue);
-            width: 0%;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 8px var(--blue);
-        }
-        .progress-segments {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            gap: 2px;
-            pointer-events: none;
-        }
-        .progress-segments span {
-            flex: 1;
-            border-right: 1px solid #020208;
-        }
+/* fiche d'identité avec lignes caviardées */
+.readout{display:flex;flex-direction:column;justify-content:center}
+.row{
+    display:grid;grid-template-columns:142px 1fr;align-items:center;
+    padding:8px 0;border-bottom:1px dashed rgba(104,112,82,.3);
+}
+.row:last-child{border-bottom:0}
+.row dt{font:500 11px/1 var(--label);letter-spacing:.28em;text-transform:uppercase;color:var(--metal)}
+.row dd{margin:0}
+.cell{position:relative;display:inline-block}
+.val{font:700 13px/1.2 var(--mono);letter-spacing:.06em;color:transparent}
+.cell.open .val{color:var(--paper)}
+.bar{
+    position:absolute;inset:-3px -5px;background:#050604;border:1px solid #1c2015;
+    transform-origin:100% 50%;transition:transform .5s cubic-bezier(.7,0,.3,1);overflow:hidden;
+}
+.bar::after{
+    content:'';position:absolute;inset:0;transform:translateX(-100%);
+    background:linear-gradient(100deg,transparent 30%,rgba(185,196,154,.2) 50%,transparent 70%);
+}
+.panel.scanning .bar::after{animation:shim 1.4s linear infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+.cell.open .bar{transform:scaleX(0)}
+.statut{font:700 13px/1.2 var(--mono);letter-spacing:.06em;color:var(--metal)}
+.statut::before{content:'';display:inline-block;width:8px;height:8px;background:currentColor;margin-right:9px}
+.panel.scanning .statut{color:var(--amber)}
+.panel.scanning .statut::before{animation:blink .7s steps(2) infinite}
+.panel.granted .statut{color:var(--ok)}
 
-        /* ===== BOUTON ACCÈS ===== */
-        .access-btn {
-            display: none;
-            padding: 14px 40px;
-            background: transparent;
-            border: 1px solid var(--blue);
-            color: var(--blue);
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: color 0.3s;
-            animation: pulse-border 2s ease-in-out infinite;
-        }
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(104,112,82,0); }
-            50%       { box-shadow: 0 0 0 4px rgba(104,112,82,0.15); }
-        }
-        .access-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--blue);
-            transform: translateX(-101%);
-            transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-        }
-        .access-btn:hover { color: white; }
-        .access-btn:hover::before { transform: translateX(0); }
-        .access-btn span { position: relative; z-index: 1; }
+/* ---- terminal ---- */
+.terminal-box{
+    margin:14px 24px 0;height:132px;overflow-y:auto;padding:0 14px 10px;
+    background:rgba(0,0,0,.55);border:1px solid rgba(104,112,82,.3);
+    font-size:11.5px;line-height:1.7;scrollbar-width:thin;scrollbar-color:var(--khaki) transparent;
+}
+.term-head{
+    position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;
+    padding:9px 0 6px;margin-bottom:6px;background:#080a06;border-bottom:1px solid rgba(104,112,82,.2);
+    font:500 10px/1 var(--label);letter-spacing:.3em;text-transform:uppercase;color:#69704f;
+}
+.t-line{display:flex;gap:10px;align-items:flex-start}
+.t-prefix{color:#5c6448;flex-shrink:0}
+.t-text{color:#a9b48c}
+.t-text.bright{color:#e2e8cb}
+.t-text.success{color:var(--ok);font-weight:700}
+.t-text.warning{color:var(--amber)}
+.t-cursor{display:inline-block;width:7px;height:12px;background:var(--khaki-hi);vertical-align:-2px;margin-left:3px;animation:blink .8s steps(2) infinite}
 
-        /* Message bienvenue */
-        .welcome-msg {
-            display: none;
-            font-size: 9px;
-            letter-spacing: 4px;
-            color: var(--green);
-            text-transform: uppercase;
-            text-align: center;
-            animation: welcomePulse 1.5s ease-in-out infinite;
-        }
-        @keyframes welcomePulse {
-            0%, 100% { opacity: 1; }
-            50%       { opacity: 0.5; }
-        }
+/* ---- progression segmentée ---- */
+.progress-wrap{margin:16px 24px 0;opacity:0;transition:opacity .5s}
+.progress-wrap.visible{opacity:1}
+.progress-label{
+    display:flex;justify-content:space-between;margin-bottom:8px;
+    font:500 11px/1 var(--label);letter-spacing:.28em;text-transform:uppercase;color:#6d735c;
+}
+.progress-label span:last-child{color:var(--sig);font-family:var(--mono);letter-spacing:.1em}
+.progress-track{height:8px;background:repeating-linear-gradient(90deg,rgba(104,112,82,.18) 0 10px,transparent 10px 13px)}
+.progress-fill{
+    height:100%;width:0;
+    background:repeating-linear-gradient(90deg,var(--sig) 0 10px,transparent 10px 13px);
+    filter:drop-shadow(0 0 5px var(--sig));
+}
 
-        /* ===== GLITCH sur le titre au moment du succès ===== */
-        .glitch-active {
-            animation: glitch 0.4s steps(2) 3;
-        }
-        @keyframes glitch {
-            0%   { transform: translate(0); filter: none; }
-            25%  { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
-            50%  { transform: translate(3px, -1px); filter: hue-rotate(180deg); }
-            75%  { transform: translate(-2px, 2px); filter: hue-rotate(270deg); }
-            100% { transform: translate(0); filter: none; }
-        }
+/* ---- action ---- */
+.action{min-height:76px;margin:14px 24px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px}
+.access-btn{
+    visibility:hidden;opacity:0;transform:translateY(10px);
+    position:relative;overflow:hidden;cursor:pointer;border:0;
+    padding:15px 44px;color:#f0f1e8;
+    font:700 15px/1 var(--label);letter-spacing:.34em;text-transform:uppercase;
+    background:linear-gradient(180deg,#687052,#3f472f);
+    box-shadow:inset 0 0 0 1px #8b9272,inset 0 1px rgba(255,255,255,.14);
+    clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px);
+    transition:opacity .5s,transform .5s,filter .25s;
+}
+.access-btn.show{visibility:visible;opacity:1;transform:none;animation:btnGlow 2.2s ease-in-out infinite}
+.access-btn::before{
+    content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);
+    transition:left .55s ease;
+}
+.access-btn:hover{filter:brightness(1.18)}
+.access-btn:hover::before{left:120%}
+@keyframes btnGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.14)}}
+.welcome{font:500 11px/1 var(--label);letter-spacing:.34em;text-transform:uppercase;color:var(--ok);min-height:12px;text-align:center}
 
-        /* ===== FLASH D'ACCÈS ACCORDÉ ===== */
-        #flash-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--blue);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 9998;
-            transition: opacity 0.15s;
-        }
+/* ---- tampon ---- */
+.stamp{
+    position:absolute;right:18px;bottom:134px;z-index:6;color:var(--ok);
+    pointer-events:none;opacity:0;transform:rotate(-8deg) scale(2.6);mix-blend-mode:screen;
+}
+.stamp-in{
+    padding:8px 18px 7px;text-align:center;border:5px double currentColor;background:rgba(11,13,9,.45);
+    -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -1.7 1.6'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+            mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -1.7 1.6'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.stamp b{display:block;font:700 34px/1 var(--stencil);letter-spacing:.07em;white-space:nowrap}
+.stamp small{display:block;margin-top:6px;font:600 10px/1 var(--label);letter-spacing:.3em;white-space:nowrap}
+.stamp.slam{animation:slam .4s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes slam{
+    0%{opacity:0;transform:rotate(-15deg) scale(2.6)}
+    62%{opacity:1;transform:rotate(-8deg) scale(.95)}
+    100%{opacity:.95;transform:rotate(-8deg) scale(1)}
+}
 
-        /* ===== FADE OUT FINAL ===== */
-        .fade-out {
-            animation: fadeOutPage 0.8s forwards;
-        }
-        @keyframes fadeOutPage {
-            to { opacity: 0; }
-        }
-    </style>
+/* ---- effets de succès ---- */
+#flash{position:fixed;inset:0;z-index:9998;background:var(--khaki-hi);opacity:0;pointer-events:none;transition:opacity .15s}
+.shock{
+    position:fixed;z-index:9990;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;
+    border:2px solid var(--ok);pointer-events:none;animation:shock .8s ease-out forwards;
+}
+@keyframes shock{from{transform:scale(1);opacity:.9}to{transform:scale(36);opacity:0}}
+.spark{
+    position:fixed;z-index:9991;width:9px;height:2px;background:var(--amber);pointer-events:none;
+    animation:spark .8s ease-out forwards;
+}
+@keyframes spark{
+    from{transform:translate(0,0) rotate(var(--rot)) scaleX(1);opacity:1}
+    to{transform:translate(var(--tx),var(--ty)) rotate(var(--rot)) scaleX(.1);opacity:0}
+}
+
+/* ---- volets de sortie ---- */
+.shutter{
+    position:fixed;left:0;right:0;height:50%;z-index:9999;background:var(--bg);
+    transition:transform .6s cubic-bezier(.7,0,.3,1);
+}
+.shutter.t{top:0;transform:translateY(-101%);border-bottom:3px solid var(--amber)}
+.shutter.b{bottom:0;transform:translateY(101%);border-top:3px solid var(--amber)}
+.closing .shutter{transform:none}
+.shutter-msg{
+    position:fixed;left:0;right:0;top:50%;z-index:10000;transform:translateY(-50%);text-align:center;
+    font:600 13px/1 var(--label);letter-spacing:.5em;text-transform:uppercase;color:var(--paper);
+    opacity:0;transition:opacity .3s .5s;pointer-events:none;
+}
+.closing .shutter-msg{opacity:1}
+
+/* ============ ÉCRAN DE DÉMARRAGE ============ */
+#boot{
+    position:fixed;inset:0;z-index:10000;border:0;cursor:pointer;
+    background:radial-gradient(circle at center,#12150e,var(--bg) 70%);
+    color:inherit;font:inherit;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+}
+.boot-emblem{width:110px;height:110px;background:url('logo-emblem.png') center/contain no-repeat;opacity:.5;filter:grayscale(.6)}
+.boot-status{font:500 13px/1 var(--label);letter-spacing:.5em;text-transform:uppercase;color:var(--khaki-hi);min-height:14px}
+.boot-status::after{content:'';display:inline-block;width:8px;height:14px;margin-left:4px;background:var(--khaki-hi);vertical-align:-2px;animation:blink .8s steps(2) infinite}
+.boot-cta{
+    position:relative;padding:18px 44px;
+    font:700 22px/1 var(--stencil);letter-spacing:.14em;text-transform:uppercase;color:var(--paper);
+    border:1px solid var(--khaki);transition:background .25s,color .25s;
+    animation:ctaPulse 2.4s ease-in-out infinite;
+}
+.boot-cta::before,.boot-cta::after{content:'';position:absolute;width:14px;height:14px;border:0 solid var(--amber)}
+.boot-cta::before{top:-5px;left:-5px;border-top-width:2px;border-left-width:2px}
+.boot-cta::after{bottom:-5px;right:-5px;border-bottom-width:2px;border-right-width:2px}
+#boot:hover .boot-cta{background:var(--khaki);color:#fff}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 0 0 rgba(104,112,82,0)}50%{box-shadow:0 0 0 6px rgba(104,112,82,.16)}}
+.boot-hint{font:400 10px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:#5c6448}
+#boot.off{pointer-events:none;animation:crt .7s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes crt{
+    0%{transform:scale(1,1);filter:brightness(1);opacity:1}
+    55%{transform:scale(1,.006);filter:brightness(3.5);opacity:1}
+    100%{transform:scale(0,.006);filter:brightness(3.5);opacity:0}
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:640px){
+    .stage{padding:60px 16px 54px}
+    .hud-top,.hud-bot{left:30px;right:30px;font-size:10px;letter-spacing:.2em}
+    #coords{display:none}
+    .head{gap:14px}
+    .emblem{width:60px;height:60px}
+    .title{font-size:38px}
+    .top-row{grid-template-columns:1fr;justify-items:center;gap:20px;padding:20px 16px 4px}
+    .readout{width:100%}
+    .row{grid-template-columns:128px 1fr}
+    .terminal-box,.progress-wrap,.action{margin-left:16px;margin-right:16px}
+    .stamp{right:10px;bottom:140px}
+    .stamp b{font-size:22px}
+    .strip span:last-child{display:none}
+}
+@media (max-height:780px) and (min-width:641px){
+    .stage{padding-top:58px;padding-bottom:50px}
+    .emblem{width:68px;height:68px}
+    .title{font-size:50px;margin:6px 0 8px}
+    .head{margin-bottom:12px}
+    .terminal-box{height:112px}
+    .action{min-height:66px;margin-bottom:16px}
+}
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;animation-delay:0s!important}
+    .grain,.roll{display:none}
+}
+</style>
 </head>
 
 <body>
-<!-- Écran d'initialisation pour débloquer l'audio -->
-<div id="boot-overlay" onclick="this.style.display='none'" style="position: fixed; inset: 0; z-index: 10000; background: #080a06; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-    <div style="text-align: center;">
-        <div style="font-family: 'Space Mono', monospace; color: #687052; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px; animation: blink 1s infinite;">
-            [ SYSTÈME HORS LIGNE ]
-        </div>
-        <div style="font-family: 'Archivo Black', sans-serif; color: white; font-size: 24px; border: 1px solid #687052; padding: 20px 40px; transition: all 0.3s;">
-            CLIQUEZ POUR INITIALISER
-        </div>
+
+<!-- Écran d'initialisation (débloque l'audio) -->
+<button id="boot" type="button" aria-label="Initialiser le système">
+    <span class="boot-emblem" aria-hidden="true"></span>
+    <span class="boot-status" id="bootStatus"></span>
+    <span class="boot-cta">Initialiser le système</span>
+    <span class="boot-hint">Cliquez ou appuyez sur Entrée</span>
+</button>
+
+<!-- Filtres de teinte pour l'empreinte -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <filter id="tint-idle" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .553  0 0 0 0 .596  0 0 0 0 .439  0 0 0 1 0"/></filter>
+    <filter id="tint-scan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .788  0 0 0 0 .839  0 0 0 0 .627  0 0 0 1 0"/></filter>
+    <filter id="tint-ok"   color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .651  0 0 0 0 .820  0 0 0 0 .416  0 0 0 1 0"/></filter>
+</defs></svg>
+
+<!-- Sons -->
+<audio id="typingSound"  src="typing.mp3"  preload="auto"></audio>
+<audio id="successSound" src="success.mp3" preload="auto"></audio>
+
+<!-- Fond -->
+<canvas id="radar" aria-hidden="true"></canvas>
+<div class="watermark" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="roll" aria-hidden="true"></div>
+<div id="flash"></div>
+
+<!-- Cadre HUD -->
+<div class="hud" aria-hidden="true">
+    <div class="frame"><i></i><i></i><i></i><i></i></div>
+    <div class="hud-top">
+        <span>Classifié / Niveau 4</span>
+        <span id="clock">UTC --:--:--</span>
+    </div>
+    <div class="hud-bot">
+        <span id="coords">LAT 41.9028° N&nbsp;&nbsp;LON 12.4964° E</span>
+        <span id="link"><i class="dot"></i><b id="linkTxt" style="font-weight:500">Liaison hors ligne</b></span>
     </div>
 </div>
 
-<style>
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-</style>
-    <!-- Sons -->
-    <audio id="typingSound"  src="typing.mp3"  preload="auto"></audio>
-    <audio id="successSound" src="success.mp3" preload="auto"></audio>
+<!-- Contenu -->
+<main class="stage" id="stage">
 
-    <!-- Flash overlay -->
-    <div id="flash-overlay"></div>
-
-    <!-- Fond canvas (particules) -->
-    <canvas id="bg-canvas"></canvas>
-
-    <!-- Contenu principal -->
-    <div class="auth-wrap">
-
-        <!-- Header -->
-        <div class="auth-header">
-            <div class="auth-logo-text">Système Sécurisé</div>
-            <div class="auth-title">LA <span>LEGION</span> </div>
-            <div class="auth-subtitle">Protocole d'authentification — 2026</div>
+    <header class="head">
+        <div class="emblem" id="emblem" role="img" aria-label="Emblème de la Légion"></div>
+        <div>
+            <div class="eyebrow" id="eyebrow">Système sécurisé</div>
+            <h1 class="title" id="title">LA LEGION</h1>
+            <div class="sub" id="sub"></div>
         </div>
+    </header>
 
-        <!-- Boîte centrale -->
-        <div class="auth-box" id="authBox">
-            <div class="box-scan"></div>
-            <div class="corner-bl"></div>
-            <div class="corner-br"></div>
+    <section class="panel" id="panel" aria-label="Authentification biométrique">
+        <i class="bk tl"></i><i class="bk tr"></i><i class="bk bl"></i><i class="bk br"></i>
+        <div class="hazard"></div>
+        <div class="strip"><span>Identification du personnel</span><span>Formulaire LG-04</span></div>
+        <div class="box-scan"></div>
 
+        <div class="top-row">
             <!-- Scanner biométrique -->
-            <div class="scanner-wrap" id="scanner">
-                <div class="scanner-bg"></div>
-                <div class="scanner-frame">
-                    <div class="sf-tl"></div><div class="sf-tr"></div>
-                    <div class="sf-bl"></div><div class="sf-br"></div>
+            <div class="scanner" id="scanner">
+                <div class="scanner-glow"></div>
+                <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+                    <circle class="r-ticks" cx="100" cy="100" r="94"/>
+                    <circle class="r-dash"  cx="100" cy="100" r="84"/>
+                    <circle class="r-arc"   cx="100" cy="100" r="74"/>
+                    <path class="r-cross" d="M100 -4V12M100 188V204M-4 100H12M188 100H204"/>
+                </svg>
+                <div class="fp-window">
+                    <img class="fp" src="fingerprint.png" alt="">
+                    <i class="pt" style="left:22%;top:18%"></i>
+                    <i class="pt" style="left:62%;top:14%"></i>
+                    <i class="pt" style="left:40%;top:30%"></i>
+                    <i class="pt" style="left:74%;top:38%"></i>
+                    <i class="pt" style="left:16%;top:50%"></i>
+                    <i class="pt" style="left:52%;top:55%"></i>
+                    <i class="pt" style="left:30%;top:72%"></i>
+                    <i class="pt" style="left:68%;top:74%"></i>
+                    <i class="pt" style="left:46%;top:88%"></i>
+                    <div class="beam"></div>
                 </div>
-                <img src="fingerprint.png" class="fingerprint-img" alt="">
-                <div class="scan-beam"></div>
-                <div class="scanner-status" id="scannerStatus">EN ATTENTE</div>
+                <div class="fp-frame"><i></i><i></i><i></i><i></i></div>
+                <div class="scanner-status" id="scannerStatus">En attente</div>
             </div>
 
-            <!-- Terminal -->
-            <div class="terminal-box">
-                <div id="terminal"></div>
-                <span class="t-cursor" id="cursor"></span>
-            </div>
-
-            <!-- Barre de progression -->
-            <div class="progress-wrap" id="progressWrap">
-                <div class="progress-label">
-                    <span id="progressLabel">Analyse biométrique</span>
-                    <span id="progressPct">0%</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="progressFill"></div>
-                    <div class="progress-segments">
-                        <span></span><span></span><span></span><span></span>
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bouton + message -->
-            <div style="text-align:center; min-height:60px; display:flex; flex-direction:column; align-items:center; gap:12px;">
-                <button class="access-btn" id="accessBtn" onclick="enterNation()">
-                    <span>▶ Entrer dans LA LEGION</span>
-                </button>
-                <div class="welcome-msg" id="welcomeMsg">● ACCÈS VALIDÉ — BIENVENUE DANS LA LEGION ●</div>
-            </div>
-
+            <!-- Fiche : les lignes sont caviardées jusqu'à la validation -->
+            <dl class="readout">
+                <div class="row"><dt>Sujet</dt><dd><span class="cell"><span class="val" data-text="LEGION_MEMBRE"></span><i class="bar"></i></span></dd></div>
+                <div class="row"><dt>Matricule</dt><dd><span class="cell"><span class="val" id="matricule" data-text="LG-0000-X"></span><i class="bar"></i></span></dd></div>
+                <div class="row"><dt>Habilitation</dt><dd><span class="cell"><span class="val" data-text="NIVEAU 4"></span><i class="bar"></i></span></dd></div>
+                <div class="row"><dt>Secteur</dt><dd><span class="cell"><span class="val" data-text="HUB TACTIQUE"></span><i class="bar"></i></span></dd></div>
+                <div class="row"><dt>Statut</dt><dd><span class="statut" id="statut">En attente</span></dd></div>
+            </dl>
         </div>
-    </div>
 
-    <script>
-    /* ===== FOND PARTICULES ===== */
-    (function() {
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let W, H, particles = [];
+        <!-- Terminal -->
+        <div class="terminal-box" id="termBox" role="log" aria-label="Journal d'authentification">
+            <div class="term-head"><span>LEGION_OS v4.0 / Terminal</span><span id="termTime">T+00.0</span></div>
+            <div id="terminal"></div>
+        </div>
+        <span class="t-cursor" id="cursor" style="display:none"></span>
 
-        function resize() {
-            W = canvas.width  = window.innerWidth;
-            H = canvas.height = window.innerHeight;
+        <!-- Progression -->
+        <div class="progress-wrap" id="progressWrap">
+            <div class="progress-label">
+                <span id="progressLabel">Analyse biométrique</span>
+                <span id="progressPct">0%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <!-- Action -->
+        <div class="action">
+            <button class="access-btn" id="accessBtn" type="button"><span>▶ Entrer dans LA LEGION</span></button>
+            <div class="welcome" id="welcomeMsg"></div>
+        </div>
+
+        <!-- Tampon -->
+        <div class="stamp" id="stamp" aria-hidden="true">
+            <div class="stamp-in"><b>ACCÈS AUTORISÉ</b><small id="stampDate">LEGION / NIVEAU 4</small></div>
+        </div>
+    </section>
+</main>
+
+<!-- Volets de sortie -->
+<div class="shutter t"></div><div class="shutter b"></div>
+<div class="shutter-msg" id="shutterMsg">Déploiement en cours</div>
+
+<script>
+/* ============================================================
+   OUTILS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const GLYPHS = '▓▒░█/\\<>#%$@0123456789ABCDEF';
+
+/* Texte qui se décode (lettres qui défilent puis se figent) */
+function decode(el, finalText, { dur = 900, delay = 0, lock = false, onDone } = {}) {
+    if (reduceMotion) { el.textContent = finalText; onDone && onDone(); return; }
+    if (lock) { el.textContent = finalText; el.style.minWidth = el.getBoundingClientRect().width + 'px'; }
+    const start = performance.now() + delay;
+    (function frame(now) {
+        const t = (now - start) / dur;
+        if (t < 0) { el.textContent = ''; return requestAnimationFrame(frame); }
+        let out = '';
+        for (let i = 0; i < finalText.length; i++) {
+            const c = finalText[i];
+            if (c === ' ') out += ' ';
+            else if (t >= 1 || t > 0.15 + 0.85 * (i / finalText.length)) out += c;
+            else out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
         }
-        resize();
-        window.addEventListener('resize', resize);
+        el.textContent = out;
+        if (t < 1) requestAnimationFrame(frame);
+        else { el.textContent = finalText; onDone && onDone(); }
+    })(performance.now());
+}
 
-        // Créer des particules flottantes
-        for (let i = 0; i < 60; i++) {
-            particles.push({
-                x: Math.random() * 1920,
-                y: Math.random() * 1080,
-                vx: (Math.random() - 0.5) * 0.3,
-                vy: (Math.random() - 0.5) * 0.3,
-                size: Math.random() * 1.5 + 0.5,
-                opacity: Math.random() * 0.4 + 0.05,
-            });
-        }
+/* Machine à écrire */
+function typeInto(el, text, { speed = 30, delay = 0, onDone } = {}) {
+    if (reduceMotion) { el.textContent = text; onDone && onDone(); return; }
+    let i = 0;
+    el.textContent = '';
+    setTimeout(function step() {
+        el.textContent = text.slice(0, ++i);
+        if (i < text.length) setTimeout(step, speed);
+        else onDone && onDone();
+    }, delay);
+}
 
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-
-            // Lignes entre particules proches
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(104, 112, 82, ${0.08 * (1 - dist/120)})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-
-            // Points
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = W;
-                if (p.x > W) p.x = 0;
-                if (p.y < 0) p.y = H;
-                if (p.y > H) p.y = 0;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(104, 112, 82, ${p.opacity})`;
-                ctx.fill();
-            });
-
-            requestAnimationFrame(draw);
-        }
-        draw();
-    })();
-
-    /* ===== AUDIO ===== */
-    const typingSound  = document.getElementById('typingSound');
-    const successSound = document.getElementById('successSound');
-    if (typingSound)  typingSound.volume  = 0.35;
-    if (successSound) successSound.volume = 0.7;
-
-    function playTyping()  { if (typingSound)  { typingSound.currentTime = 0; typingSound.play().catch(()=>{}); } }
-    function stopTyping()  { if (typingSound)  typingSound.pause(); }
-    function playSuccess() { if (successSound) successSound.play().catch(()=>{}); }
-
-    /* ===== TERMINAL ===== */
-    const terminalEl   = document.getElementById('terminal');
-    const cursorEl     = document.getElementById('cursor');
-    const scanner      = document.getElementById('scanner');
-    const scanStatus   = document.getElementById('scannerStatus');
-    const progressWrap = document.getElementById('progressWrap');
-    const progressFill = document.getElementById('progressFill');
-    const progressPct  = document.getElementById('progressPct');
-    const progressLbl  = document.getElementById('progressLabel');
-    const accessBtn    = document.getElementById('accessBtn');
-    const welcomeMsg   = document.getElementById('welcomeMsg');
-    const authBox      = document.getElementById('authBox');
-
-    const lines = [
-        { text: 'LEGION_NETWORK_OS v4.0 — BOOT OK',       cls: 'bright',  delay: 800  },
-        { text: 'Connexion au serveur sécurisé...',      cls: '',        delay: 500  },
-        { text: 'Chiffrement AES-256 activé',            cls: 'bright',  delay: 400  },
-        { text: 'Initialisation scanner biométrique...',  cls: '',        delay: 600  },
-        { text: 'Lecture empreinte en cours...',          cls: 'warning', delay: 400  },
-        { text: 'Analyse des données : 100%',             cls: 'bright',  delay: 2800 },
-        { text: 'Correspondance trouvée — ID : LEGION_MEMBRE', cls: 'success', delay: 500 },
-        { text: 'ACCÈS AUTORISÉ AU HUB TACTIQUE',        cls: 'success', delay: 600  },
-        { text: 'Bienvenue dans LA LEGION.',              cls: 'success', delay: 400  },
-    ];
-
-    let lineIdx = 0;
-
-    function addLine(text, cls) {
-        const div = document.createElement('div');
-        div.className = 't-line';
-        div.innerHTML = `<span class="t-prefix">></span><span class="t-text ${cls}"></span>`;
-        terminalEl.appendChild(div);
-        return div.querySelector('.t-text');
+/* ============================================================
+   FOND RADAR
+   ============================================================ */
+const radar = { speed: 0.5, target: [104, 112, 82] };
+(function () {
+    const c = $('radar'), ctx = c.getContext('2d');
+    let W, H, cx, cy, R;
+    function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = innerWidth; H = innerHeight;
+        c.width = W * dpr; c.height = H * dpr;
+        c.style.width = W + 'px'; c.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cx = W / 2; cy = H / 2; R = Math.hypot(W, H) / 2;
     }
+    resize();
+    addEventListener('resize', resize);
 
-    function typeLine(textEl, text, onDone) {
-        let i = 0;
-        playTyping();
-        const iv = setInterval(() => {
-            textEl.textContent += text[i];
-            i++;
-            if (i >= text.length) {
-                clearInterval(iv);
-                stopTyping();
-                setTimeout(onDone, 180);
-            }
-        }, 38);
+    const blips = Array.from({ length: 16 }, () => ({
+        a: Math.random() * Math.PI * 2,
+        r: 0.14 + Math.random() * 0.8,
+        lit: reduceMotion ? 0.6 : 0
+    }));
+    const col = [104, 112, 82];
+    let ang = Math.random() * Math.PI * 2, last = performance.now();
+
+    function frame(now) {
+        const dt = Math.min((now - last) / 1000, 0.05); last = now;
+        if (!reduceMotion) ang = (ang + radar.speed * dt) % (Math.PI * 2);
+        for (let k = 0; k < 3; k++) col[k] += (radar.target[k] - col[k]) * Math.min(1, dt * 2.5);
+        const rgb = col.map(Math.round).join(',');
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 1;
+
+        for (let i = 1; i <= 5; i++) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(${rgb},${i % 2 ? 0.11 : 0.06})`;
+            ctx.arc(cx, cy, R * i / 5.2, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = `rgba(${rgb},0.09)`;
+        ctx.beginPath();
+        ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+        ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+        const tr = R * 3 / 5.2;
+        for (let d = 0; d < 360; d += 10) {
+            const a = d * Math.PI / 180, l = d % 30 === 0 ? 11 : 5;
+            ctx.moveTo(cx + Math.cos(a) * tr, cy + Math.sin(a) * tr);
+            ctx.lineTo(cx + Math.cos(a) * (tr + l), cy + Math.sin(a) * (tr + l));
+        }
+        ctx.stroke();
+
+        if (ctx.createConicGradient) {
+            const trail = 1.15, e = trail / (Math.PI * 2);
+            const g = ctx.createConicGradient(ang - trail, cx, cy);
+            g.addColorStop(0, `rgba(${rgb},0)`);
+            g.addColorStop(e, `rgba(${rgb},0.24)`);
+            g.addColorStop(Math.min(e + 0.0008, 1), `rgba(${rgb},0)`);
+            g.addColorStop(1, `rgba(${rgb},0)`);
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+        }
+        ctx.strokeStyle = `rgba(${rgb},0.6)`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+        ctx.stroke();
+
+        blips.forEach(b => {
+            const d = (ang - b.a + Math.PI * 2) % (Math.PI * 2);
+            if (d < 0.05 + radar.speed * dt) b.lit = 1;
+            else b.lit = Math.max(0, b.lit - dt * 0.33);
+            if (b.lit <= 0) return;
+            const x = cx + Math.cos(b.a) * R * b.r * 0.85, y = cy + Math.sin(b.a) * R * b.r * 0.85;
+            ctx.fillStyle = `rgba(${rgb},${b.lit * 0.85})`;
+            ctx.fillRect(x - 2, y - 2, 4, 4);
+            ctx.strokeStyle = `rgba(${rgb},${b.lit * 0.4})`;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - 7 - (1 - b.lit) * 8, y - 7 - (1 - b.lit) * 8, 14 + (1 - b.lit) * 16, 14 + (1 - b.lit) * 16);
+        });
+        requestAnimationFrame(frame);
     }
+    requestAnimationFrame(frame);
+})();
 
-    function runLines() {
-        if (lineIdx >= lines.length) {
-            cursorEl.style.display = 'none';
-            onAuthComplete();
-            return;
+/* ============================================================
+   HUD : horloge, coordonnées
+   ============================================================ */
+function tickClock() { $('clock').textContent = 'UTC ' + new Date().toISOString().slice(11, 19); }
+tickClock(); setInterval(tickClock, 1000);
+setInterval(() => {
+    const la = (41.9028 + (Math.random() - .5) * 0.0008).toFixed(4);
+    const lo = (12.4964 + (Math.random() - .5) * 0.0008).toFixed(4);
+    $('coords').innerHTML = `LAT ${la}° N&nbsp;&nbsp;LON ${lo}° E`;
+}, 900);
+function setLink(text, ok) {
+    $('linkTxt').textContent = text;
+    $('link').classList.toggle('link-ok', !!ok);
+}
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+const typingSound  = $('typingSound');
+const successSound = $('successSound');
+if (typingSound)  typingSound.volume  = 0.35;
+if (successSound) successSound.volume = 0.7;
+function playTyping()  { if (typingSound)  { typingSound.currentTime = 0; typingSound.play().catch(() => {}); } }
+function stopTyping()  { if (typingSound)  typingSound.pause(); }
+function playSuccess() { if (successSound) successSound.play().catch(() => {}); }
+
+let actx;
+function initAudioCtx() {
+    try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {}
+}
+function thud() {           /* coup sourd du tampon, généré (aucun fichier requis) */
+    if (!actx) return;
+    try {
+        const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(150, t);
+        o.frequency.exponentialRampToValueAtTime(38, t + 0.26);
+        g.gain.setValueAtTime(0.9, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+        o.connect(g); g.connect(actx.destination);
+        o.start(t); o.stop(t + 0.36);
+    } catch (e) {}
+}
+
+/* ============================================================
+   ÉLÉMENTS
+   ============================================================ */
+const panel        = $('panel');
+const stage        = $('stage');
+const terminalEl   = $('terminal');
+const termBox      = $('termBox');
+const cursorEl     = $('cursor');
+const scanStatus   = $('scannerStatus');
+const statutEl     = $('statut');
+const progressWrap = $('progressWrap');
+const progressFill = $('progressFill');
+const progressPct  = $('progressPct');
+const progressLbl  = $('progressLabel');
+const accessBtn    = $('accessBtn');
+const welcomeMsg   = $('welcomeMsg');
+const pts          = [...document.querySelectorAll('.pt')];
+
+$('matricule').dataset.text =
+    'LG-' + String((Math.random() * 9000 + 1000) | 0) + '-' + 'ABCDEFGHJKLMNPRSTUVXZ'[(Math.random() * 21) | 0];
+document.querySelectorAll('.val').forEach(v => v.textContent = v.dataset.text);   /* caché sous le caviardage */
+
+const d = new Date();
+$('stampDate').textContent = 'LEGION / NIVEAU 4 / ' +
+    String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear();
+
+/* ============================================================
+   TERMINAL
+   ============================================================ */
+const lines = [
+    { text: 'LEGION_NETWORK_OS v4.0 — BOOT OK',            cls: 'bright',  delay: 700  },
+    { text: 'Connexion au serveur sécurisé...',           cls: '',        delay: 500  },
+    { text: 'Chiffrement AES-256 activé',                 cls: 'bright',  delay: 400  },
+    { text: 'Initialisation scanner biométrique...',       cls: '',        delay: 600  },
+    { text: 'Lecture empreinte en cours...',               cls: 'warning', delay: 400  },
+    { text: 'Analyse des données : 100%',                  cls: 'bright',  delay: 2800 },
+    { text: 'Correspondance trouvée — ID : LEGION_MEMBRE', cls: 'success', delay: 500  },
+    { text: 'ACCÈS AUTORISÉ AU HUB TACTIQUE',              cls: 'success', delay: 600  },
+    { text: 'Bienvenue dans LA LEGION.',                   cls: 'success', delay: 400  },
+];
+let lineIdx = 0, t0 = performance.now();
+
+function stamp() { return ((performance.now() - t0) / 1000).toFixed(1).padStart(4, '0'); }
+setInterval(() => { $('termTime').textContent = 'T+' + stamp(); }, 100);
+
+function addLine(cls) {
+    const div = document.createElement('div');
+    div.className = 't-line';
+    div.innerHTML = `<span class="t-prefix">[${stamp()}]</span><span class="t-text ${cls}"></span>`;
+    terminalEl.appendChild(div);
+    div.appendChild(cursorEl);
+    cursorEl.style.display = 'inline-block';
+    return div.querySelector('.t-text');
+}
+
+function typeLine(el, text, onDone) {
+    let i = 0;
+    playTyping();
+    const iv = setInterval(() => {
+        el.textContent += text[i++];
+        termBox.scrollTop = termBox.scrollHeight;
+        if (i >= text.length) {
+            clearInterval(iv);
+            stopTyping();
+            setTimeout(onDone, 180);
         }
-        const { text, cls, delay } = lines[lineIdx];
-        lineIdx++;
+    }, 38);
+}
 
-        // Démarrer le scanner au bon moment
-        if (lineIdx === 4) {
-            scanner.classList.add('scanning');
-            scanStatus.textContent = 'SCAN EN COURS';
-            progressWrap.classList.add('visible');
-            startProgress();
-        }
+function runLines() {
+    if (lineIdx >= lines.length) {
+        cursorEl.style.display = 'none';
+        onAuthComplete();
+        return;
+    }
+    const { text, cls, delay } = lines[lineIdx];
+    lineIdx++;
 
+    if (lineIdx === 3) setLink('Liaison chiffrée AES-256', true);
+    if (lineIdx === 4) startScan();
+
+    setTimeout(() => {
+        const el = addLine(cls);
+        termBox.scrollTop = termBox.scrollHeight;
+        typeLine(el, text, runLines);
+    }, delay);
+}
+
+/* ============================================================
+   SCAN
+   ============================================================ */
+function startScan() {
+    panel.classList.add('scanning');
+    scanStatus.textContent = 'Scan en cours';
+    statutEl.textContent = 'Analyse';
+    progressWrap.classList.add('visible');
+    radar.speed = 1.1;
+    radar.target = [170, 186, 128];
+    startProgress();
+}
+
+function startProgress() {
+    let pct = 0, lit = 0;
+    const iv = setInterval(() => {
+        pct += Math.random() * 1.3 + 0.6;
+        if (pct >= 100) { pct = 100; clearInterval(iv); }
+        progressFill.style.width = pct + '%';
+        progressPct.textContent = Math.round(pct) + '%';
+        if (pct > 60) progressLbl.textContent = 'Vérification identité';
+        if (pct > 90) progressLbl.textContent = 'Validation finale';
+        const n = Math.floor(pct / 11);
+        while (lit < n && lit < pts.length) pts[lit++].classList.add('on');
+    }, 60);
+}
+
+/* ============================================================
+   SUCCÈS
+   ============================================================ */
+function onAuthComplete() {
+    panel.classList.remove('scanning');
+    panel.classList.add('granted');
+    scanStatus.textContent = 'Accès accordé';
+    pts.forEach(p => p.classList.add('on'));
+    progressLbl.textContent = 'Identité confirmée';
+    radar.speed = 0.35;
+    radar.target = [166, 209, 106];
+    playSuccess();
+
+    /* 1. la fiche se dé-caviarde ligne par ligne */
+    document.querySelectorAll('.cell').forEach((cell, i) => {
         setTimeout(() => {
-            const el = addLine(text, cls);
-            terminalEl.parentElement.scrollTop = terminalEl.parentElement.scrollHeight;
-            typeLine(el, text, runLines);
-        }, delay);
-    }
+            cell.classList.add('open');
+            const v = cell.querySelector('.val');
+            decode(v, v.dataset.text, { dur: 520 });
+        }, 150 + i * 190);
+    });
+    setTimeout(() => { statutEl.textContent = 'Autorisé'; $('emblem').classList.add('lit'); setLink('Liaison sécurisée', true); }, 900);
 
-    /* ===== BARRE DE PROGRESSION ===== */
-    function startProgress() {
-        let pct = 0;
-        const iv = setInterval(() => {
-            pct += Math.random() * 4 + 1;
-            if (pct >= 100) { pct = 100; clearInterval(iv); }
-            progressFill.style.width = pct + '%';
-            progressPct.textContent  = Math.round(pct) + '%';
-            if (pct > 60) progressLbl.textContent = 'Vérification identité';
-            if (pct > 90) progressLbl.textContent = 'Validation finale';
-        }, 60);
-    }
+    /* 2. le tampon s'abat */
+    setTimeout(slam, 1050);
 
-    /* ===== SUCCÈS ===== */
-    function onAuthComplete() {
-        // Scanner → granted
-        scanner.classList.remove('scanning');
-        scanner.classList.add('granted');
-        scanStatus.textContent = 'ACCÈS ACCORDÉ';
+    /* 3. le bouton apparaît */
+    setTimeout(() => {
+        accessBtn.classList.add('show');
+        accessBtn.focus({ preventScroll: true });
+        typeInto(welcomeMsg, '● Accès validé — bienvenue dans la Légion ●', { speed: 24 });
+    }, 1800);
+}
 
-        // Son succès
-        playSuccess();
+function slam() {
+    const st = $('stamp');
+    st.classList.add('slam');
+    thud();
 
-        // Glitch sur la boîte
-        authBox.classList.add('glitch-active');
-        setTimeout(() => authBox.classList.remove('glitch-active'), 600);
+    stage.classList.add('shake');
+    setTimeout(() => stage.classList.remove('shake'), 460);
 
-        // Flash bleu
-        const flash = document.getElementById('flash-overlay');
-        flash.style.opacity = '0.25';
-        setTimeout(() => { flash.style.opacity = '0'; }, 200);
+    $('title').classList.add('glitch');
+    setTimeout(() => $('title').classList.remove('glitch'), 1100);
 
-        // Particules qui explosent depuis le scanner
-        spawnParticles();
+    const fl = $('flash');
+    fl.style.opacity = '0.22';
+    setTimeout(() => fl.style.opacity = '0', 160);
 
-        // Afficher bouton + message
-        setTimeout(() => {
-            accessBtn.style.display = 'block';
-            welcomeMsg.style.display = 'block';
-        }, 500);
-    }
+    /* onde de choc + étincelles depuis le centre du tampon */
+    setTimeout(() => {
+        const r = st.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const ring = document.createElement('div');
+        ring.className = 'shock';
+        ring.style.left = cx + 'px'; ring.style.top = cy + 'px';
+        document.body.appendChild(ring);
+        setTimeout(() => ring.remove(), 900);
 
-    /* ===== PARTICULES D'EXPLOSION ===== */
-    function spawnParticles() {
-        const scannerRect = scanner.getBoundingClientRect();
-        const cx = scannerRect.left + scannerRect.width  / 2;
-        const cy = scannerRect.top  + scannerRect.height / 2;
-
-        for (let i = 0; i < 20; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const angle = (Math.PI * 2 / 20) * i;
-            const dist  = 60 + Math.random() * 80;
-            p.style.left = cx + 'px';
-            p.style.top  = cy + 'px';
-            p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-            p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-            p.style.animationDelay = (Math.random() * 0.2) + 's';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 1200);
+        for (let i = 0; i < 22; i++) {
+            const s = document.createElement('div');
+            const a = Math.random() * Math.PI * 2, dist = 70 + Math.random() * 130;
+            s.className = 'spark';
+            s.style.left = cx + 'px'; s.style.top = cy + 'px';
+            s.style.setProperty('--tx', Math.cos(a) * dist + 'px');
+            s.style.setProperty('--ty', Math.sin(a) * dist + 'px');
+            s.style.setProperty('--rot', a + 'rad');
+            s.style.animationDelay = (Math.random() * 0.08) + 's';
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 1000);
         }
-    }
+    }, 240);
+}
 
-    /* ===== NAVIGATION ===== */
-    function enterNation() {
-        const flash = document.getElementById('flash-overlay');
-        flash.style.transition = 'opacity 0.4s';
-        flash.style.opacity = '1';
-        setTimeout(() => {
-            window.location.href = 'home.html';
-        }, 400);
-    }
+/* ============================================================
+   SORTIE
+   ============================================================ */
+function enterNation() {
+    document.body.classList.add('closing');
+    setTimeout(() => { window.location.href = 'home.html'; }, 1000);
+}
+accessBtn.addEventListener('click', enterNation);
 
-    /* ===== LANCEMENT ===== */
-    setTimeout(runLines, 600);
-	
+/* ============================================================
+   DÉMARRAGE
+   ============================================================ */
+typeInto($('bootStatus'), 'Système hors ligne', { speed: 70, delay: 300 });
 
-    // Le terminal est lancé une seule fois par runLines().
-    </script>
+let started = false;
+function startSequence() {
+    if (started) return;
+    started = true;
+    initAudioCtx();
+    const boot = $('boot');
+    boot.classList.add('off');
+    setTimeout(() => boot.remove(), 750);
+
+    document.body.classList.add('live');
+    t0 = performance.now();
+
+    /* séquence d'ouverture : titre qui se décode, sous-titre qui s'écrit, panneau qui s'ouvre */
+    decode($('title'), 'LA LEGION', { dur: 1000, delay: 500, lock: true });
+    decode($('eyebrow'), 'Système sécurisé', { dur: 700, delay: 400 });
+    typeInto($('sub'), "Protocole d'authentification — 2026", {
+        speed: 28, delay: 1000,
+        onDone: () => $('sub').classList.add('done')
+    });
+    setLink('Liaison en cours', false);
+    setTimeout(runLines, 1900);
+}
+$('boot').addEventListener('click', startSequence);
+</script>
 </body>
 </html>
