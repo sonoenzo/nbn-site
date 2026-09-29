@@ -780,7 +780,7 @@
 
                         <!-- Canvas carte -->
                         <div id="lgn-map-canvas">
-                            <img id="lgnMapImg" src="gta_map.jpg" alt="Carte GTA 5" draggable="false"/>
+                            <img id="lgnMapImg" src="gta_map_full.jpg" alt="Carte GTA 5" draggable="false"/>
                             <svg id="lgn-points-svg" xmlns="http://www.w3.org/2000/svg"></svg>
                         </div>
 
@@ -2040,6 +2040,22 @@ function animateInfoPage() {
     }
     applyTransform(false);
 
+    // Cadre toute la carte (carrée, 4096 px) au centre de la zone visible
+    function fitMap(animated) {
+        const r = root.getBoundingClientRect();
+        if (!r.width || !r.height) return false;
+        scale = Math.min(r.width, r.height) / 4096 * 0.96;
+        posX  = (r.width  - 4096 * scale) / 2;
+        posY  = (r.height - 4096 * scale) / 2;
+        applyTransform(animated);
+        return true;
+    }
+    // Au premier affichage de la page Carte (elle est masquée au chargement)
+    if (window.ResizeObserver) {
+        let fitted = false;
+        new ResizeObserver(() => { if (!fitted) fitted = fitMap(false); }).observe(root);
+    }
+
     function updateCoords(cx, cy) {
         const rect = root.getBoundingClientRect();
         const mx = Math.round((cx - rect.left - posX) / scale);
@@ -2118,8 +2134,7 @@ function animateInfoPage() {
     document.getElementById('lgnZoomOut').addEventListener('click',   e => { e.stopPropagation(); zoomAt(0.77); });
     document.getElementById('lgnZoomReset').addEventListener('click', e => {
         e.stopPropagation();
-        scale = 0.22; posX = -80; posY = -60;
-        applyTransform(true);
+        fitMap(true);
     });
 
     // ── Click sur la carte ────────────────────────────────────────────────────
@@ -2460,7 +2475,7 @@ function animateInfoPage() {
         const txt = loading.querySelector('.map-loading-text');
         const bar = loading.querySelector('.map-loading-bar-track');
         if (txt) {
-            txt.innerHTML = '⚠ <strong>gta_map.jpg</strong> introuvable — place le fichier dans ton dossier projet';
+            txt.innerHTML = '⚠ <strong>gta_map_full.jpg</strong> introuvable — place le fichier dans ton dossier projet';
             txt.style.color = '#ff4444';
             txt.style.textAlign = 'center';
             txt.style.lineHeight = '2';
